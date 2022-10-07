@@ -10,9 +10,9 @@ Miembros
 Inicializar la maquina virtual
 -------------
 * Linux (PC lab)
-    # source virtualenv/bin/activate.csh
+    \# source virtualenv/bin/activate.csh
 * Linux (Otros)
-    # source virtualenv/bin/activate
+    \# source virtualenv/bin/activate
 * Windows
-    # virtualenv\Scripts\activate.bat
+    \# virtualenv\Scripts\activate.bat
 
