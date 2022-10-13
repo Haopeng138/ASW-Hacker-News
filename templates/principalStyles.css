@@ -1,8 +1,5 @@
-.HeaderLink > a{
-    color: black;
-    text-decoration: none;
-}
-.HeaderLink > b > a{
+
+a {
     color: black;
     text-decoration: none;
 }
