@@ -15,3 +15,10 @@
 * Linux (Otros)  \# source virtualenv/bin/activate
 * Windows        \# virtualenv\Scripts\activate.bat
 
+## Requiriments
+
+Son las librerias externas que utilizamos en este entorno, utilizaremos una version especifica de cada libreria para este proyecto 
+
+Para instalar todas las librerias:
+
+pip install -r requirements.txt
