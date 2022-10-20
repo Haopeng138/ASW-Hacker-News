@@ -9,3 +9,6 @@ def index(request):
 def login(request):
   template = loader.get_template('login.html')
   return HttpResponse(template.render())
+
+def submit(request):
+  return HttpResponse()
