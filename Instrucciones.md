@@ -4,7 +4,11 @@
 
 source virtualenv/bin/activate
 
-## Installar Django
+pip install --upgrade pip
+## Installar todas las librererias
 
-python -m pip install Django
+pip install -r requirements.txt
 
+## Mirar las librererias
+
+pip freeze
