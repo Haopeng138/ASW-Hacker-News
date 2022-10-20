@@ -6,5 +6,8 @@ def index(request):
   return HttpResponse(template.render())
 
 def login(request):
-    template = loader.get_template('login.html')
-    return HttpResponse(template.render())
+  template = loader.get_template('login.html')
+  return HttpResponse(template.render())
+
+def submit(request):
+  return HttpResponse()
