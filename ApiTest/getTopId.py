@@ -1,7 +1,5 @@
-from webbrowser import get
 import requests
 from urllib.parse import urlparse
-import json 
 import math
 import datetime
 
@@ -55,9 +53,7 @@ def getTop30News():
         except:
             pass
 
-    print(newslist)
-
-    return 1
+    return newslist
 
 
 

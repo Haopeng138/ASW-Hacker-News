@@ -10,5 +10,4 @@ noticia = re.json()
 # for key in noticia.keys():
 #     print(key)
 
-for value in noticia:
-    print(noticia[str(value)])
+print(noticia)
