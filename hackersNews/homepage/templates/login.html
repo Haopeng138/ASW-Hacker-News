@@ -9,7 +9,8 @@
     <b>Login</b>
     <br>
     <br>
-    <form method="post" action="submit">
+    <form method="post" action="submit/login">
+      {%csrf_token%}
       <table border="0">
         <tr>
           <td>username:</td>
@@ -33,7 +34,8 @@
     <b>Create Account</b>
     <br>
     <br>
-    <form method="post" action="submit">
+    <form method="post" action="submit/create">
+      {%csrf_token%}
       <input type="hidden" name="creating" value="t">
       <table border="0">
         <tr>
