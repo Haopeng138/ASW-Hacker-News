@@ -22,3 +22,5 @@ Son las librerias externas que utilizamos en este entorno, utilizaremos una vers
 Para instalar todas las librerias:
 
 pip install -r requirements.txt
+
+https://ourhackernewsupc.herokuapp.com/ | https://git.heroku.com/ourhackernewsupc.git
