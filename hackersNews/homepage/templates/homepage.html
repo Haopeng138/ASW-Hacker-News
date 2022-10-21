@@ -46,10 +46,11 @@
             <tr id="pagespace" title="" style="height:10px"></tr>
             <td> 
                 <table border="0" cellpadding="0" cellspacing="0" class="itemlist">
+                  {% for new in news %}
                   <div class="table content">
                     <tr class='athing'>
                       <td align="right" valign="top" class="title">
-                        <span class="rank">1.</span>
+                        <span class="rank">{{forloop.counter}}. </span>
                         <!-- El rango hay que hacer un sort  -->
                       </td>
                       <td valign="top" class="votelinks">
@@ -61,10 +62,10 @@
                       </td>
                       <td class="title">
                         <span class="titleline">
-                          <a href="https://signal.org/blog/sms-removal-android/">Removing SMS support from Signal Android (soon)</a>
+                          <a href={{new.url}}>{{new.title}}</a>
                           <!-- Titulo -->
-                          <span class="sitebit comhead"> ( <a href="from?site=signal.org">
-                              <span class="sitestr">signal.org</span>
+                          <span class="sitebit comhead"> ( <a href={{new.domain}}>
+                              <span class="sitestr">{{new.domain}}</span>
                               <!-- Origen -->
                             </a>) </span>
                         </span>
@@ -74,17 +75,17 @@
                     <td colspan="2"></td>
                     <td class="subtext">
                       <span class="subline">
-                        <span class="score" id="score_33179047">163 points</span> by <a href="user?id=Aissen" class="hnuser">Aissen</a>
+                        <span class="score" id="score_33179047">{{new.score}} points</span> by <a href="user?id=Aissen" class="hnuser">{{new.by}}</a>
                         <span class="age" title="2022-10-12T16:08:08">
-                          <a href="item?id=33179047">1 hour ago</a>
+                          <a href="">{{new.time}} hour ago</a>
                         </span>
-                        <span id="unv_33179047"></span> | <a href="item?id=33179047">147&nbsp;comments</a>
+                        <span id="unv_33179047"></span> | <a href="">{{new.descendants}}&nbsp;comments</a>
                       </span>
                     </td>
                   </tr>
                   <tr class="spacer" style="height:5px"></tr>
                   </div>
-                  
+                  {% endfor %}
                 </table>
             </td>
           </tr>
@@ -116,5 +117,6 @@
           </tr>
         </table>
     </center>
+    
 </body>
 </html>

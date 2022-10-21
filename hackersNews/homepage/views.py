@@ -1,6 +1,10 @@
 from django.http import HttpResponse
 from django.template import loader
 import requests
+from urllib.parse import urlparse
+import math
+import datetime
+
 
 def getTopIds():
   respon = requests.get(url="https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
@@ -15,12 +19,55 @@ def getTop30():
       idlist.append(id)
   return idlist
 
+def getDomain(url):
+    domain = urlparse(url).netloc
+    return str(domain)
+
+def diffTimeHour(tp):
+    dt = datetime.datetime.now()
+    t2d = datetime.datetime.fromtimestamp(tp)
+    diff = dt - t2d
+    hours = diff.seconds/3600
+    return math.trunc(hours) 
+
+def getTop30News():
+    newslist = []
+    idlist = getTop30()
+
+    for id in idlist:
+        try:
+            url = "https://hacker-news.firebaseio.com/v0/item/"+str(id)+".json?print=pretty"
+            re = requests.get(url=url)
+            noticia = re.json()
+            t = diffTimeHour(noticia["time"])
+            dm = getDomain(noticia["url"])
+            tmp = {
+                'title':noticia['title'],
+                'url':noticia['url'],
+                'descendants':noticia['descendants'],
+                'time': t,
+                'score':noticia['score'],
+                'by':noticia['by'],
+                'domain':dm
+            }
+            
+            
+            # for key in noticia.keys():
+            #     print(key)
+            newslist.append(tmp)
+        except:
+            pass
+
+    return newslist
+
 
 def index(request):
   template = loader.get_template('homepage.html')
-  topIds = getTopIds
-  
-  return HttpResponse(template.render())
+  newslist = getTop30News()
+  context = {
+    'news' : newslist
+  }
+  return HttpResponse(template.render(context,request))
 
 def login(request):
   template = loader.get_template('login.html')
