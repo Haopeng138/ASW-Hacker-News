@@ -1,8 +1,14 @@
+# For heroku
+ApiTest
+templates
+virtualenv
+Instrucciones.md
+Navegacion.md
+README.md
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
 # C extensions
 *.so
 .DS_Store
@@ -128,4 +134,3 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-.DS_Store
