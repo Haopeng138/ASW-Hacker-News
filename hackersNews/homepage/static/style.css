@@ -86,7 +86,7 @@ table.padtab td { padding:0px 10px }
   transform:         rotate(180deg);  /* W3C complaint browsers */
 
   /* IE8 and below */
-  -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=-1, M12=0, M21=0, M22=-1, DX=0, DY=0, SizingMethod='auto expand')";
+  /* -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=-1, M12=0, M21=0, M22=-1, DX=0, DY=0, SizingMethod='auto expand')"; */
 }
 
 /* mobile device */
