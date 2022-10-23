@@ -53,6 +53,7 @@ def getTop30News():
         except:
           descendants = 0
         tmp = {
+            'id':noticia['id'],
             'title': title,
             'url':url,
             'descendants': descendants,
