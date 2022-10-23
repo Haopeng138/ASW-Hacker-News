@@ -1,10 +1,13 @@
 from django.http import HttpResponse
 from django.template import loader
+from matplotlib.pyplot import title
 import requests
 from urllib.parse import urlparse
 import math
 import datetime
 
+globNewList = []
+initialize = False
 
 def getTopIds():
   respon = requests.get(url="https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
@@ -33,37 +36,53 @@ def diffTimeHour(tp):
 def getTop30News():
     newslist = []
     idlist = getTop30()
-
     for id in idlist:
+        url = "https://hacker-news.firebaseio.com/v0/item/"+str(id)+".json?print=pretty"
+        re = requests.get(url=url)
+        noticia = re.json()
+        t = diffTimeHour(noticia["time"])
+        title = noticia['title']
         try:
-            url = "https://hacker-news.firebaseio.com/v0/item/"+str(id)+".json?print=pretty"
-            re = requests.get(url=url)
-            noticia = re.json()
-            t = diffTimeHour(noticia["time"])
-            dm = getDomain(noticia["url"])
-            tmp = {
-                'title':noticia['title'],
-                'url':noticia['url'],
-                'descendants':noticia['descendants'],
-                'time': t,
-                'score':noticia['score'],
-                'by':noticia['by'],
-                'domain':dm
-            }
-            
-            
-            # for key in noticia.keys():
-            #     print(key)
-            newslist.append(tmp)
+          url = noticia['url']
+          dm = getDomain(url)
         except:
-            pass
+          url = ''
+          dm = ''
+        try:
+          descendants = noticia['descendants']
+        except:
+          descendants = 0
+        tmp = {
+            'title': title,
+            'url':url,
+            'descendants': descendants,
+            'time': t,
+            'score':noticia['score'],
+            'by':noticia['by'],
+            'domain':dm
+        }
+        
+        
+        # for key in noticia.keys():
+        #     print(key)
+            
+
+
+        newslist.append(tmp)
 
     return newslist
 
 
+
 def index(request):
+  global globNewList,initialize
   template = loader.get_template('homepage.html')
-  newslist = getTop30News()
+  if not initialize:
+    globNewList = getTop30News()
+    initialize = True
+  
+  newslist = globNewList
+  
   context = {
     'news' : newslist
   }
