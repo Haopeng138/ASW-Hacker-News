@@ -21,5 +21,5 @@ urlpatterns = [
     path('', views.home),   # Redirect de root a homepage/
     path('homepage/', include('homepage.urls')),
     path('admin/', admin.site.urls),
-    path('account/', include('allauth.urls')),
+    path('accounts/', include('allauth.urls')),
 ]
