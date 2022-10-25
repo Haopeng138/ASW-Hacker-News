@@ -32,11 +32,14 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
-    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django.contrib.sites',
+    'django.contrib.auth',
+    'django.contrib.messages',
+
     'homepage.apps.HomepageConfig',
     # Google OAuth Django module
     'allauth',
@@ -139,13 +142,18 @@ AUTHENTICATION_BACKENDS = [
 SOCIALACCOUNT_PROVIDERS = {
     # Google como proveedor de OAuth
     'google': {
+        'APP': {
+            'client_id': '578655088426-01igiknlmkjp9akmnar7joq499e9254b.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        },
         'SCOPE': [
             'profile',
             'email',
         ],
         'AUTH_PARAMS': { # Cambiar a 'offline' para hacer referesh de la autentificacion en segundo plano
             'access_type': 'online',
-        }
+        },
     }
 }
 
