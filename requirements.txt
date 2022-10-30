@@ -22,3 +22,4 @@ toml==0.10.2
 urllib3==1.26.11
 virtualenv==20.16.3
 wxpy==0.3.9.8
+django-allauth==0.51.0

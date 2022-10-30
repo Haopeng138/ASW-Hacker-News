@@ -1,97 +1,56 @@
 from django.http import HttpResponse
 from django.template import loader
-from matplotlib.pyplot import title
+from django.views.decorators.csrf import csrf_exempt
+from .models import Login
 import requests
 from urllib.parse import urlparse
 import math
 import datetime
 
-globNewList = []
-initialize = False
-
-def getTopIds():
-  respon = requests.get(url="https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
-  return respon.json()
-
-def getTop30():
-  topIds = getTopIds()
-  idlist = []
-  for index,id  in enumerate(topIds,start=1):
-      if index == 31:
-          break
-      idlist.append(id)
-  return idlist
-
-def getDomain(url):
-    domain = urlparse(url).netloc
-    return str(domain)
-
-def diffTimeHour(tp):
-    dt = datetime.datetime.now()
-    t2d = datetime.datetime.fromtimestamp(tp)
-    diff = dt - t2d
-    hours = diff.seconds/3600
-    return math.trunc(hours) 
-
-def getTop30News():
-    newslist = []
-    idlist = getTop30()
-    for id in idlist:
-        url = "https://hacker-news.firebaseio.com/v0/item/"+str(id)+".json?print=pretty"
-        re = requests.get(url=url)
-        noticia = re.json()
-        t = diffTimeHour(noticia["time"])
-        title = noticia['title']
-        try:
-          url = noticia['url']
-          dm = getDomain(url)
-        except:
-          url = ''
-          dm = ''
-        try:
-          descendants = noticia['descendants']
-        except:
-          descendants = 0
-        tmp = {
-            'id':noticia['id'],
-            'title': title,
-            'url':url,
-            'descendants': descendants,
-            'time': t,
-            'score':noticia['score'],
-            'by':noticia['by'],
-            'domain':dm
-        }
-        
-        
-        # for key in noticia.keys():
-        #     print(key)
-            
 
 
-        newslist.append(tmp)
 
-    return newslist
 
 
 
 def index(request):
-  global globNewList,initialize
+ 
   template = loader.get_template('homepage.html')
-  if not initialize:
-    globNewList = getTop30News()
-    initialize = True
-  
-  newslist = globNewList
-  
-  context = {
-    'news' : newslist
-  }
-  return HttpResponse(template.render(context,request))
 
-def login(request):
-  template = loader.get_template('login.html')
+  
+  
+  
+  # context = {
+  #   'news' : newslist
+  # }
   return HttpResponse(template.render())
 
 def submit(request):
-  return HttpResponse()
+  template = loader.get_template('login.html')
+  return HttpResponse(template.render())
+
+@csrf_exempt
+def create(request):
+  usr = request.POST['acct']
+  pwd = request.POST['pw']
+  newUser = Login(username=usr, password = pwd)
+  newUser.save()
+  output = "Create Usr: " + usr + " Pw: " + pwd
+  print(output)
+  return HttpResponse(testIndex(request))
+
+@csrf_exempt
+def login(request):
+  usr = request.POST['acct']
+  pwd = request.POST['pw']
+
+  output = "Usr: " + usr + " Pw: " + pwd
+  print(output)
+  return HttpResponse(output)
+
+
+def testIndex(request):
+  myusers = Login.objects.all().values()
+  template = loader.get_template('testUsr.html')
+  context = { 'myusers' : myusers, }
+  return HttpResponse(template.render(context, request))
