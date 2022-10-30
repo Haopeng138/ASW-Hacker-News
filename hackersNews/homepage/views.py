@@ -7,19 +7,8 @@ from urllib.parse import urlparse
 import math
 import datetime
 
-
-
-
-
-
-
 def index(request):
- 
   template = loader.get_template('homepage.html')
-
-  
-  
-  
   # context = {
   #   'news' : newslist
   # }

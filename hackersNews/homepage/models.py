@@ -1,5 +1,6 @@
+from email.policy import default
+from statistics import mode
 from time import time
-from unittest.util import _MAX_LENGTH
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
@@ -18,12 +19,13 @@ class User(models.Model):
     email = models.CharField(max_length=255, unique=True)
     karma = models.Field(default=0)
 
-class News(models.Model):
+class Noticias(models.Model):
     # id - Implicito 
     title = models.CharField(max_length=255)
-    url = models.URLField()
-    descendants = ArrayField(ArrayField(models.IntegerField))
-    time = models.IntegerField()
+    url = models.URLField(max_length=255)
+    descendants = ArrayField(models.IntegerField(null=True,blank=True),null=True,blank=True)
+    time = models.DateTimeField(auto_now_add=True)
     score = models.IntegerField()
-    by = models.ForeignKey(User, verbose_name=_("username"), on_delete=models.CASCADE)
-    domain = models.URLField()
+    by = models.ForeignKey(User,on_delete=models.CASCADE)
+    domain = models.URLField(max_length=255)
+    voted = models.BooleanField(default=False)
