@@ -19,16 +19,16 @@ class User(models.Model):
     email = models.CharField(max_length=255, unique=True)
     karma = models.Field(default=0)
 
-class Noticias(models.Model):
+class Post(models.Model):
     # id - Implicito 
     title = models.CharField(max_length=255)
     url = models.URLField(max_length=255)
-    domain = models.URLField(max_length=255)
+    site = models.URLField(max_length=255)
     descendants = ArrayField(models.IntegerField(null=True,blank=True),null=True,blank=True)
     time = models.DateTimeField(auto_now_add=True)
     score = models.IntegerField(default=1)
-    by = models.ForeignKey(to=User,on_delete=models.CASCADE)
-    voted = models.BooleanField(default=False)
+    user = models.ForeignKey(to=User,on_delete=models.CASCADE)
+    votes = models.BooleanField(default=False)
     show_dt = models.BooleanField(default=False)
     ask_dt = models.BooleanField(default=False)
 
@@ -36,6 +36,6 @@ class Comment(models.Model):
     insert_date = models.DateTimeField(auto_now_add=True)
     content = models.TextField(null=False)
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
-    post = models.ForeignKey(to=Noticias, on_delete=models.CASCADE, null=True)
+    post = models.ForeignKey(to=Post, on_delete=models.CASCADE, null=True)
     reply = models.ForeignKey(to='self', on_delete=models.CASCADE, null=True)
     votes = models.IntegerField(default=1)

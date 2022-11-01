@@ -11,7 +11,7 @@
     </td>
     <td class="votelinks" valign="top">
       <div class="center">
-        {% ifequal post.user request.user %}
+        {% comment %} {% ifequal post.user request.user %}
         <span class="asterisk">*</span><br>
         <div style="width: 14px; height: 1px"></div>
         {% else %}
@@ -25,7 +25,7 @@
             <div class='votearrow' title='upvote'></div>
           </a>
         {% endif %}
-        {% endifequal %}
+        {% endifequal %} {% endcomment %}
       </div>
     </td>
     <td class="title">
@@ -47,9 +47,9 @@
       <span class="score" id="score_{{ post.id }}">
         {{ post.votes }} point{{ post.votes|pluralize }}</span> by
       <a class="hnuser" href="{% url 'profile' user_id=post.user.id %}">{{ post.user.username }}</a>
-      <a class="age" href="{% url 'post' post_id=post.id %}">{{ post.time_from_post }}</a> |
+      <a class="age" href="{% url 'post' post_id=post.id %}">{{ post.time }}</a> |
       <a href="{% url 'post' post_id=post.id %}">
-        {% if post.comment_set.exists %}
+        {% comment %} {% if post.comment_set.exists %}
           {{ post.comment_set.count }} comment{{ post.comment_set.count|pluralize }}
         {% else %}
           discuss
@@ -58,7 +58,7 @@
       {% ifequal post.user request.user %}
         | <a href="{% url 'post_edit' post_id=post.id %}">edit</a> |
         <a href="{% url 'post_delete' post_id=post.id %}">delete</a>
-      {% endifequal %}
+      {% endifequal %} {% endcomment %}
     </td>
   </tr>
 
@@ -101,5 +101,5 @@
     }
 </script>
 {% endif %}
-
-{% endblock %} {% endcomment %}
+{% endcomment %}
+{% endblock %} 

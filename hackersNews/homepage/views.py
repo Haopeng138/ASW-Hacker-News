@@ -6,13 +6,15 @@ import requests
 from urllib.parse import urlparse
 import math
 import datetime
+from .models import Post
 
-def index(request):
+def index(request,page=None):
   template = loader.get_template('index.html')
-  # context = {
-  #   'news' : newslist
-  # }
-  return HttpResponse(template.render())
+  posts = Post.objects.all()
+  context = {
+     'post' : posts
+  }
+  return HttpResponse(template.render(request,context))
 
 def submit(request):
   template = loader.get_template('login.html')
