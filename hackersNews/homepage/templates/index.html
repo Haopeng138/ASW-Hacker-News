@@ -70,7 +70,7 @@
   <tr class="morespace" style="height:10px"></tr>
   <tr>
     <td colspan="2"></td>
-    <td class="title"><a class="morelink"
+    {% comment %} <td class="title"><a class="morelink"
                          href="{% if category == 'new' %}
                          {% url 'new_more' page=page %}
                          {% elif category == 'ask' %}
@@ -86,7 +86,7 @@
                          {% else %}
                          {% url 'more' page=page %}
                          {% endif %}"
-                         rel="next">More</a></td>
+                         rel="next">More</a></td> {% endcomment %}
   </tr>
 
 </table>

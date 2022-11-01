@@ -14,7 +14,7 @@ def index(request,page=None):
   context = {
      'post' : posts
   }
-  return HttpResponse(template.render(request,context))
+  return HttpResponse(template.render())
 
 def submit(request):
   template = loader.get_template('login.html')
