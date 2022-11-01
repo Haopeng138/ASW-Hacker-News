@@ -8,7 +8,7 @@ import math
 import datetime
 
 def index(request):
-  template = loader.get_template('homepage.html')
+  template = loader.get_template('index.html')
   # context = {
   #   'news' : newslist
   # }

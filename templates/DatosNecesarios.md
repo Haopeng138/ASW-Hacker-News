@@ -1,10 +1,29 @@
 # Datos Necesarios
 
-## Front
+## User
 
-En un pack(json):
-    Titutlo de la noticia
-    Referencia
-    Numero de likes
-    Tiempo de publicacion
-    Numero de comentarios
+karma 
+about 
+username
+password
+
+## Noticia
+
+time
+title
+votes
+url
+site
+by
+descendants // Los comentarios
+
+
+## comentarios
+
+time
+content
+user
+noticia
+reply 
+votes 
+
