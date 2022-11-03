@@ -1,3 +1,4 @@
+from re import template
 from django.http import HttpResponse
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
@@ -17,7 +18,7 @@ def index(request,page=None):
   return HttpResponse(template.render())
 
 def submit(request):
-  template = loader.get_template('login.html')
+  template = loader.get_template('registration/login.html')
   return HttpResponse(template.render())
 
 @csrf_exempt
@@ -44,4 +45,14 @@ def testIndex(request):
   myusers = Login.objects.all().values()
   template = loader.get_template('testUsr.html')
   context = { 'myusers' : myusers, }
+  return HttpResponse(template.render(context, request))
+
+def testProfile(request):
+  template = loader.get_template('user/profile.html')
+  context = {
+    'username': 'hao',
+    'karma': 3, 
+    'email': 'hao@gmail.com',
+    'about': 'Mucho texto'
+  }
   return HttpResponse(template.render(context, request))
