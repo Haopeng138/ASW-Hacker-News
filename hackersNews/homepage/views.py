@@ -82,3 +82,9 @@ def testPost(request):
             'root_comments': 4324,
             'error': True}
   return render(request,'post/post.html',context)
+
+def testSubmitPost(request):
+  context = {
+    'error':False
+  }
+  return render(request,'post/submit.html',context)
