@@ -1,0 +1,9 @@
+<h1> Users </h1>
+<table border ="1">
+    {% for x in myusers %}
+    <tr>
+        <td> {{x.username }}</td>
+        <td> {{x.password }}</td>
+    </tr>
+    {% endfor %}
+</table>

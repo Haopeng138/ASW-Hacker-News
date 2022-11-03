@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" op="news" >
 <head>
@@ -5,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hacker News</title>
-    <link rel="stylesheet" type="text/css" href="news.css?hyOH5G9HsvyW7PeCwqyj">
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="alternate" type="application/rss+xml" title="RSS" href="rss">
     <link rel="stylesheet" href="principalStyles.css">
@@ -20,7 +21,7 @@
                           <td style="width:18px;padding-right:4px">
                             <a href="https://news.ycombinator.com">
                                 <!-- Esta referencia es la principal y la imagen hay que buscarla -->
-                              <img src="y18.gif" width="18" height="18" style="border:1px white solid;">
+                              <img src="{% static 'y18.gif'%}" width="18" height="18" style="border:1px white solid;">
                             </a>
                           </td>
                           <td style="line-height:12pt; height:10px;">
@@ -55,7 +56,9 @@
                       </td>
                       <td valign="top" class="votelinks">
                         <center>
-                          <a id='up_33179047' href='vote?id=33179047&amp;how=up&amp;goto=news'>
+
+                          <a id='up_33179047' href=''>
+                            <!-- Aqui hay  que crear un metho post -->
                             <div class='votearrow' title='upvote'></div>
                           </a>
                         </center>
@@ -79,7 +82,7 @@
                         <span class="age" title="2022-10-12T16:08:08">
                           <a href="">{{new.time}} hour ago</a>
                         </span>
-                        <span id="unv_33179047"></span> | <a href="">{{new.descendants}}&nbsp;comments</a>
+                        <span id=""></span> | <a href="">{{new.descendants}}&nbsp;comments</a>
                       </span>
                     </td>
                   </tr>

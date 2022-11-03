@@ -21,7 +21,8 @@ from django.urls import include, path
 from . import views
 
 urlpatterns = [
+    path('', views.home),   # Redirect de root a homepage/
     path('homepage/', include('homepage.urls')),
     path('admin/', admin.site.urls),
-    path('', views.home),
+    path('accounts/', include('allauth.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
