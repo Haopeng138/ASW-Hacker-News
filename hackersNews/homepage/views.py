@@ -1,5 +1,6 @@
 from re import template
 from django.http import HttpResponse
+from django.shortcuts import render
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 from .models import Login
@@ -56,3 +57,28 @@ def testProfile(request):
     'about': 'Mucho texto'
   }
   return HttpResponse(template.render(context, request))
+
+def testPost(request):
+  current_post ={
+    'title': "Titulo random",
+    'id': 45342,
+    'user': {
+      'username':'hao',
+      'id': 3,
+    },
+    'url': "some@gmail.com",
+    'side': 'www.google.com',
+    'votes':4,
+    'time_from_post': 1341,
+
+  }
+
+  posttracking = [
+    45352
+  ]
+  context = {'post': current_post,
+            'post_tracking': posttracking,
+            'tracking': 3243,
+            'root_comments': 4324,
+            'error': True}
+  return render(request,'post/post.html',context)
