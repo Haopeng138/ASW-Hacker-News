@@ -54,7 +54,8 @@ def testProfile(request):
     'username': 'hao',
     'karma': 3, 
     'email': 'hao@gmail.com',
-    'about': 'Mucho texto'
+    'about': 'Mucho texto',
+    'own_user': True
   }
   return HttpResponse(template.render(context, request))
 
@@ -88,3 +89,22 @@ def testSubmitPost(request):
     'error':False
   }
   return render(request,'post/submit.html',context)
+
+def testPostEdit(request):
+  current_post ={
+  'title': "Titulo random",
+  'id': 45342,
+  'user': {
+    'username':'hao',
+    'id': 3,
+  },
+  'url': "some@gmail.com",
+  'site': 'www.google.com',
+  'votes':4,
+  'time_from_post': 1341,
+  }
+  context = {
+    'post':current_post,
+    
+  }
+  return render(request,'post/post_edit.html',context)

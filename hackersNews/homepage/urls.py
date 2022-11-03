@@ -10,4 +10,5 @@ urlpatterns = [
     path('testProfile/',views.testProfile,name='testProfile'),
     path('testPost/',views.testPost,name='testPost'),
     path('testSubmitPost/',views.testSubmitPost,name='testSubmitPost'),
+    path('testPostEdit',views.testPostEdit,name='testPostEdit'),
 ]

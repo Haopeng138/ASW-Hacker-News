@@ -30,14 +30,28 @@
           </tr> {% endif %} <tr>
             <td>
               {% comment %} <a href="{% url 'submissions' user_id=user_id %}"> {% endcomment %}
-                <u>submissions</u>
+                <u> upvoted comments</u>
               </a>
             </td>
           </tr>
           <tr>
             <td>
               {% comment %} <a href="{% url 'comments' user_id=user_id %}"> {% endcomment %}
-                <u>comments</u>
+                <u>upvoted submissions</u>
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              {% comment %} <a href="{% url 'usercomments' user_id=user_id %}"> {% endcomment %}
+                <u>user comments</u>
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              {% comment %} <a href="{% url 'usercomments' user_id=user_id %}"> {% endcomment %}
+                <u>user submissions</u>
               </a>
             </td>
           </tr>
