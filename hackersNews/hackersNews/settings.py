@@ -193,4 +193,6 @@ ACCOUNT_FORMS = { # Especificar forms personalizados
 
 ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
 
-OCIALACCOUNT_AUTO_SIGNUP = False  # DEF: True
+SOCIALACCOUNT_AUTO_SIGNUP = False  # DEF: True
+
+ACCOUNT_ADAPTER = 'accounts.adapters.HN_AccountAdapter'
