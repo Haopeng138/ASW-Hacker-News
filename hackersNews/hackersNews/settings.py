@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-from pickle import FALSE
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -173,5 +172,25 @@ SOCIALACCOUNT_PROVIDERS = {
 # ID para allauth, no se que importancia tiene el numero (Marc)
 SITE_ID = 1
 
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 LOGIN_REDIRECT_URL = '/homepage'
 LOGOUT_REDIRECT_URL = '/homepage'
+
+"""
+# 'signup' duplicado, lo comento por ahora
+ACCOUNT_FORMS = { # Especificar forms personalizados
+    'add_email': 'allauth.account.forms.AddEmailForm',
+    'change_password': 'allauth.account.forms.ChangePasswordForm',
+    'disconnect': 'allauth.socialaccount.forms.DisconnectForm',
+    'login': 'allauth.account.forms.LoginForm',
+    'reset_password': 'allauth.account.forms.ResetPasswordForm',
+    'reset_password_from_key': 'allauth.account.forms.ResetPasswordKeyForm',
+    'set_password': 'allauth.account.forms.SetPasswordForm',
+    'signup': 'allauth.account.forms.SignupForm',
+    'signup': 'allauth.socialaccount.forms.SignupForm',
+}
+"""
+
+ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
+
+OCIALACCOUNT_AUTO_SIGNUP = False  # DEF: True
