@@ -9,6 +9,7 @@ import datetime
 class HackerNewsUserManager(BaseUserManager):
     def create_user(self, username, email, password=None):
         # Crea y guarda un usuario
+        print ("Se ha usado HackerNewsUserManager")
 
         if not email:
             raise ValueError('Email field cannot be empty')
@@ -16,7 +17,7 @@ class HackerNewsUserManager(BaseUserManager):
         user = self.model(
             username=username,
             email=self.normalize_email(email),
-            date_joined=datetime.datetime.now()  # timezone.now()
+            date_joined= datetime.date.today(),
         )
 
         user.set_password(password)
@@ -40,7 +41,7 @@ class HNUser(AbstractBaseUser):
         max_length=255,
         unique=True,
     )
-    karma = models.Field(default=0)
+    karma = models.IntegerField(default=0)
 
     date_joined = models.DateField()
 
