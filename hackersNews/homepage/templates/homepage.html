@@ -36,7 +36,11 @@
                           </td>
                           <td style="text-align:right;padding-right:4px;">
                             <span class="pagetop">
-                              <a href="login?goto=news">login</a>
+                                {% if user.is_authenticated %}
+                                <p>Welcome {{user.username}} </p>
+                                {% else %}
+                                <a href="login?goto=news">login</a>
+                                {% endif %}
                             </span>
                           </td>
                         </tr>
