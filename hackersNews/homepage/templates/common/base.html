@@ -47,7 +47,7 @@
             </td>
             <td style="text-align:right;padding-right:4px;">
               <span class="pagetop">
-                {% comment %} {% if request.user.is_authenticated %}
+                {% comment %} {% if user.is_authenticated %}
                   <a id='me'
                      href="{% url 'profile' user_id=user.id %}">{{ user.username }}</a>
                   ({{ user.karma }})
@@ -55,6 +55,7 @@
                 {% else %}
                   <a href="{% url 'login' %}">login</a>
                 {% endif %} {% endcomment %}
+                <a href="{% url 'login' %}">login</a>
               </span>
             </td>
           </tr>
