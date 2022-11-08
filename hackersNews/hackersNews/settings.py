@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     # providers.google es uno de muchos proveedores de OAuth
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -132,9 +133,20 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+AUTH_USER_MODEL = 'accounts.HNUser'
+
 # Allauth
 
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
+ACCOUNT_USERNAME_REQUIRED = False       # NOTE: Mirar si ha de ser true
+
+
 AUTHENTICATION_BACKENDS = [
+    #NOTE: Seguramente se tenga que cambiar a un modelo personalizado 
+    #      que herede de 'django.contrib.auth.backends.BaseBackend'
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend'
 ]
@@ -160,5 +172,27 @@ SOCIALACCOUNT_PROVIDERS = {
 # ID para allauth, no se que importancia tiene el numero (Marc)
 SITE_ID = 1
 
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 LOGIN_REDIRECT_URL = '/homepage'
 LOGOUT_REDIRECT_URL = '/homepage'
+
+"""
+# 'signup' duplicado, lo comento por ahora
+ACCOUNT_FORMS = { # Especificar forms personalizados
+    'add_email': 'allauth.account.forms.AddEmailForm',
+    'change_password': 'allauth.account.forms.ChangePasswordForm',
+    'disconnect': 'allauth.socialaccount.forms.DisconnectForm',
+    'login': 'allauth.account.forms.LoginForm',
+    'reset_password': 'allauth.account.forms.ResetPasswordForm',
+    'reset_password_from_key': 'allauth.account.forms.ResetPasswordKeyForm',
+    'set_password': 'allauth.account.forms.SetPasswordForm',
+    'signup': 'allauth.account.forms.SignupForm',
+    'signup': 'allauth.socialaccount.forms.SignupForm',
+}
+"""
+
+ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
+
+SOCIALACCOUNT_AUTO_SIGNUP = False  # DEF: True
+
+ACCOUNT_ADAPTER = 'accounts.adapters.HN_AccountAdapter'
