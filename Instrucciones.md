@@ -12,3 +12,12 @@ pip install -r requirements.txt
 ## Mirar las librererias
 
 pip freeze
+
+## Reiniciar la base de datos 
+
+Eliminar manualmente el db.sqlite3 situado "hackersNews/db.sqlite3"
+Eliminar todos los contenidos de la carpeta migrations excepto  __ ini__.py 
+
+python manage.py makemigrations homepage 
+python manage.py makemigrations accounts
+python manage.py migrate 
