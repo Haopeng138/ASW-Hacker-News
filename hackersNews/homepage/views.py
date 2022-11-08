@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
-from .models import Login
+from .models import *
 import requests
 
 def getTopIds():
@@ -19,14 +19,14 @@ def getTop30():
 
 
 def index(request):
+  context ={}
   template = loader.get_template('homepage.html')
   topIds = getTopIds
-  
-  return HttpResponse(template.render())
+  return HttpResponse(template.render(context,request))
 
 def submit(request):
   template = loader.get_template('login.html')
-  return HttpResponse(template.render())
+  return HttpResponse(template.render(None, request))
 
 @csrf_exempt
 def create(request):
@@ -38,14 +38,14 @@ def create(request):
   print(output)
   return HttpResponse(testIndex(request))
 
-@csrf_exempt
+
 def login(request):
   usr = request.POST['acct']
   pwd = request.POST['pw']
 
   output = "Usr: " + usr + " Pw: " + pwd
   print(output)
-  return HttpResponse(output)
+  return HttpResponse(output,request)
 
 
 def testIndex(request):
@@ -53,3 +53,4 @@ def testIndex(request):
   template = loader.get_template('testUsr.html')
   context = { 'myusers' : myusers, }
   return HttpResponse(template.render(context, request))
+
