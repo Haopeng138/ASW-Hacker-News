@@ -6,9 +6,10 @@ urlpatterns = [
     path('<int:page>', views.index, name='more'),
     path('login/', views.submit),
     path('login/submit/create', views.create),
-    path('login/submit/login', views.login),
-    path('testProfile/',views.testProfile,name='testProfile'),
-    path('testPost/',views.testPost,name='testPost'),
+    path('login/submit/login', views.login,name='login'),
+    path('logout',views.logout,name='logout'),
+    path('testProfile/',views.testProfile,name='profile'),
+    path('testPost/',views.testPost,name='Post'),
     path('testSubmitPost/',views.testSubmitPost,name='testSubmitPost'),
     path('testPostEdit',views.testPostEdit,name='testPostEdit'),
 ]

@@ -41,6 +41,9 @@ def login(request):
   print(output)
   return HttpResponse(output)
 
+def logout(request):
+  return None
+
 
 def testIndex(request):
   myusers = Login.objects.all().values()
@@ -48,7 +51,7 @@ def testIndex(request):
   context = { 'myusers' : myusers, }
   return HttpResponse(template.render(context, request))
 
-def testProfile(request):
+def testProfile(request,user_id):
   template = loader.get_template('user/profile.html')
   context = {
     'username': 'hao',
