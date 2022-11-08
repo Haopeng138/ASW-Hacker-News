@@ -47,15 +47,15 @@
             </td>
             <td style="text-align:right;padding-right:4px;">
               <span class="pagetop">
-                {% comment %} {% if user.is_authenticated %}
-                  <a id='me'
-                     href="{% url 'profile' user_id=user.id %}">{{ user.username }}</a>
+                 {% if user.is_authenticated %}
+                  {% comment %} <a id='me'
+                     href="{% url 'profile' user_id=user.id %}">{{ user.username }}</a> {% endcomment %}
                   ({{ user.karma }})
                   | <a id='logout' href="{% url 'logout' %}">logout</a>
                 {% else %}
                   <a href="{% url 'login' %}">login</a>
-                {% endif %} {% endcomment %}
-                <a href="{% url 'login' %}">login</a>
+                {% endif %} 
+              
               </span>
             </td>
           </tr>

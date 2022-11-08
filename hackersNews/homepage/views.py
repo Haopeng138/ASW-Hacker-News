@@ -16,11 +16,11 @@ def index(request,page=None):
   context = {
      'post' : posts
   }
-  return HttpResponse(template.render())
+  return HttpResponse(template.render(None,request))
 
 def submit(request):
   template = loader.get_template('registration/login.html')
-  return HttpResponse(template.render())
+  return HttpResponse(template.render(None,request))
 
 @csrf_exempt
 def create(request):
@@ -51,7 +51,7 @@ def testIndex(request):
   context = { 'myusers' : myusers, }
   return HttpResponse(template.render(context, request))
 
-def testProfile(request,user_id):
+def testProfile(request):
   template = loader.get_template('user/profile.html')
   context = {
     'username': 'hao',
