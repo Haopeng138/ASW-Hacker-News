@@ -15,9 +15,11 @@
     <p>Usuario logeado como: {{ user.username }}</p>
 
   <form method="post" action="/accounts/logout/"> <!-- > NOTE: metodo POST a /accounts/logout/ <-->
-    <input type="hidden" name="csrfmiddlewaretoken" value="fEBn0uoZuikdFsd6M79I2TVPlogMkUB3YSTH68wXU2Yk2su1c1LEBfDVJ3Od4E7w">
+    <input type="hidden"> {%csrf_token%}
     <button type="submit">Sign Out</button>
   </form>
+
+  <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
   {% else %}
   <form method="post" action="submit/login">
       {%csrf_token%}
