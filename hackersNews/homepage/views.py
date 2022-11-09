@@ -12,7 +12,7 @@ import datetime
 from .models import Post
 from django.contrib.auth import get_user_model, authenticate
 
-
+## Pagina principal 
 def index(request,page=None):
   template = loader.get_template('index.html')
   posts = Post.objects.all()
@@ -21,9 +21,12 @@ def index(request,page=None):
   }
   return HttpResponse(template.render(None,request))
 
+## Login,  ¿borrar ? 
 def submit(request):
   template = loader.get_template('registration/login.html')
   return HttpResponse(template.render(None,request))
+
+
 
 @csrf_exempt
 def create(request):
@@ -44,7 +47,8 @@ def login(request):
   return HttpResponse(output,request)
 
 def logout(request):
-  return None
+  
+  return redirect('/')
 
 
 def testIndex(request):
