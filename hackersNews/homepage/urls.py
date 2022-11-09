@@ -3,7 +3,7 @@ from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.hackernews, name='index'),
     path('<int:page>', views.index, name='more'),
     path('submit/', views.submit,name="submit"),
     path('login/submit/create', views.create),

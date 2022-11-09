@@ -365,7 +365,7 @@ def submission(request):
         text = request.POST['text'].strip()
 
         if not check_submission(title, url, text):
-            return render(request, 'posts/submission.html', context={'errors': True})
+            return render(request, 'post/submission.html', context={'errors': True})
         user = request.user
         user.save()
         current_post = Post(title=title, url=url, user=user)
@@ -376,7 +376,7 @@ def submission(request):
             current_comment = Comment(content=text, user=user, post=current_post)
             current_comment.save()
         return redirect('new')
-    else: return render(request, 'posts/submission.html')
+    else: return render(request, 'post/submission.html')
 
 def post(request, post_id, error=None):
     if request.method == 'GET':
@@ -485,6 +485,6 @@ def new (request, page=None):
     if request.method == 'GET':
         page = get_page(page)
         posts = Post.objects. \
-            order_by('insert_date')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
+            order_by('-insert_date')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
         tracking = get_tracking(request.user, posts)
         return render_index_template(request, posts, tracking, 'new', page)
