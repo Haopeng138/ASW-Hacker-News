@@ -450,10 +450,13 @@ def post_delete(request, post_id, errors=False, deleted=False):
 
 @csrf_exempt
 def upvote_post(request):
+    
+    print("Somet")
     return upvote(request, 'post')
     
 @csrf_exempt
 def upvote(request, item_str):
+
     if request.method == 'POST':
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
