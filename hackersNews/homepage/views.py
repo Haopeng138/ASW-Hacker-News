@@ -482,7 +482,7 @@ def hackernews (request, page=None):
     if request.method == 'GET':
         page = get_page(page)
         posts = Post.objects. \
-            order_by('votes')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
+            order_by('-votes')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
         tracking = get_tracking(request.user, posts)
         return render_index_template(request, posts, tracking, 'new', page)
 
