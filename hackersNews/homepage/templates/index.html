@@ -54,11 +54,11 @@
         {% else %}
           discuss
         {% endif %}
-      </a>
-      {% ifequal post.user request.user %}
+      </a>{% endcomment %}
+      {% comment %} {% ifequal post.user request.user %} {% endcomment %}
         | <a href="{% url 'post_edit' post_id=post.id %}">edit</a> |
         <a href="{% url 'post_delete' post_id=post.id %}">delete</a>
-      {% endifequal %} {% endcomment %}
+      {% comment %} {% endifequal %}  {% endcomment %}
     </td>
   </tr>
 

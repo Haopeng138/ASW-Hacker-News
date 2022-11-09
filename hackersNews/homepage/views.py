@@ -363,7 +363,7 @@ def post_edit(request, post_id, errors=False):
     if request.method == 'GET':
         context = {'post': current_post}
         if errors: context.update({'errors': True})
-        return render(request, 'posts/post_edit.html', context=context)
+        return render(request, 'post/post_edit.html', context=context)
     elif request.method == 'POST':
         title = request.POST['title'].strip()
         if title == '':
@@ -383,7 +383,7 @@ def post_delete(request, post_id, errors=False, deleted=False):
     if request.method == 'GET':
         if not deleted:
             context = {'post': current_post, 'errors': errors}
-            return render(request, 'posts/post_delete.html', context=context)
+            return render(request, 'post/post_delete.html', context=context)
         else:
             current_post.delete()
             log.info(f'post {post_id} deleted')
