@@ -1,7 +1,7 @@
 {% extends 'common/base.html' %} {% block content %} <tr>
     <td>
-      <form class="profileform" method="post" > 
-        {% comment %} action="{% url 'update_profile' user_id=user_id %}" {% endcomment %}
+      <form class="profileform" method="post"  action="{% url 'update_profile' user_id=user_id %}"  > 
+       
         {% csrf_token %} 
         <table border="0">
           <tr class='athing'>
@@ -56,14 +56,14 @@
             </td>
           </tr>
         </table> 
-        {% comment %} {% if invalid_email %} 
-        <p>not valid email!</p>
+        {% if invalid_email %} 
+          <p>not valid email!</p>
          {% endif %} 
          {% if updated_profile %} 
          <p>profile succesfully updated!</p> 
          {% endif %} 
          {% if own_user %} <br> 
-        <input type="submit" value="update"> {% endif %}{% endcomment %}
+        <input type="submit" value="update"> {% endif %}
       </form>
     </td>
   </tr> {% endblock %}

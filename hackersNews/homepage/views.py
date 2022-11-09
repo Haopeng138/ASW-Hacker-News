@@ -12,6 +12,8 @@ import datetime
 from .models import Post
 from django.contrib.auth import get_user_model, authenticate
 from accounts.models import HNUser
+from django.core.validators import validate_email
+from django.core.mail import send_mail
 ## Pagina principal 
 def index(request,page=None):
   template = loader.get_template('index.html')
@@ -118,7 +120,7 @@ def profile(request, user_id):
                 'user_id': user_id,
                 'username': user.username,
                 'karma': user.karma,
-                #'about': user.about,
+                'about': user.about,
                 'email': user.email,
                 'own_user': True
             }
@@ -127,13 +129,69 @@ def profile(request, user_id):
                 'user_id': user_id,
                 'username': user.username,
                 'karma': user.karma,
-                #'about': user.about,
+                'about': user.about,
                 'own_user': False
             }
         return render(request, 'user/profile.html', context=context)
     else:
         return redirect('index')
 
+def validate_user_email(email):
+    try:
+        validate_email(email)
+        return True
+    except :
+        
+        return False
+
+def send_confirmation_email(user):
+    confirmation_email_text = f"""Hi {user.username},\n\nHo"""
+    send_mail(
+        subject=f'Confirmation email from Hacker Newst',
+        message=confirmation_email_text,
+        from_email='info@datatau.net',
+        recipient_list=[user.email],
+        fail_silently=False
+    )
+
+def update_profile(request, user_id):
+    if request.method == 'POST':
+        body = request.POST
+
+        updated_profile = False
+
+        user = request.user
+        if 'about' in body:
+            user.about = body['about']
+            updated_profile = True
+
+        invalid_email = True
+        if 'email' in body and validate_user_email(body['email']):
+            user.email = body['email']
+            #user.is_active = False
+
+            user.save()
+
+            #send_confirmation_email(user)
+
+            #return HttpResponse(
+                #"<h1>Email successfully updated!</h1><p>We've just sent you a confirmation email. Please check your inbox and click on the confirmation link :)</p>")
+
+        user.save()
+
+  
+
+        context = {
+            'user_id': user_id,
+            'username': user.username,
+            'karma': user.karma,
+            'about': user.about,
+            'email': user.email,
+            'invalid_email': invalid_email,
+            'updated_profile': updated_profile,
+            'own_user': True
+        }
+        return render(request, 'user/profile.html', context=context)
 
 def testPost(request):
   current_post ={
