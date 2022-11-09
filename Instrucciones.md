@@ -21,3 +21,5 @@ Eliminar todos los contenidos de la carpeta migrations excepto  __ ini__.py
 python manage.py makemigrations homepage 
 python manage.py makemigrations accounts
 python manage.py migrate 
+
+python manage.py createsuperuser
