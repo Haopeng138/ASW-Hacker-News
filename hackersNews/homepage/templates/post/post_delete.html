@@ -37,13 +37,13 @@ Please try again.<br><br>
       | <a href="{% url 'post' post_id=post.id %}">
       {{ post.comment_set.count }} comment{{ post.comment_set.count|pluralize }}
     </a>
-      {% ifequal post.user request.user %}
+      {% comment %} {% ifequal post.user request.user %} {% endcomment %}
       | <a href="{% url 'post_edit' post_id=post.id %}">edit</a> |
       <a href="{% url 'post_delete' post_id=post.id %}">delete</a>
-      {% endifequal %}
+      {% comment %} {% endifequal %} {% endcomment %}
     </td>
   </tr>
-  {% ifequal post.user request.user %}
+  {% comment %} {% ifequal post.user request.user %} {% endcomment %}
   <tr style="height:20px"></tr>
   <tr>
     <td colspan="2"></td>
@@ -55,7 +55,7 @@ Please try again.<br><br>
         <input type="submit" name="delete" value="No"></form>
     </td>
   </tr>
-  {% endifequal %}
+  {% comment %} {% endifequal %} {% endcomment %}
 </table>
 {% endif %}
 <br><br>

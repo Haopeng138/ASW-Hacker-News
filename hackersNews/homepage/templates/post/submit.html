@@ -5,8 +5,8 @@
 Please try again.<br><br>
 {% endif %}
 
-<form method="post" ><input type="hidden" name="fnid">
-    {% comment %} action={% url 'submit' %} {% endcomment %}
+<form method="post" ><input type="hidden" name="fnid" action={% url 'submit' %} >
+   
     {% csrf_token %}
     <table border="0">
         <tr>

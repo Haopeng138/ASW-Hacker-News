@@ -27,10 +27,49 @@ def testindex(request,page=None):
   }
   return HttpResponse(template.render(None,request))
 
+def check_submission(title, url, text):
+    if not title:
+        return False
+    elif title == '':
+        return False
+    elif not url and not text:
+        return False
+    elif url:
+        try:
+            parse_site(url)
+            return True
+        except IndexError:
+            return False
+    else:
+        return True
+
 ## Login,  ¿borrar ? 
 def submit(request):
-  template = loader.get_template('registration/login.html')
-  return HttpResponse(template.render(None,request))
+    if request.method == 'POST':
+
+        title = request.POST['title'].strip()
+        url = request.POST['url']
+        text = request.POST['text'].strip()
+
+        if not check_submission(title, url, text):
+            return render(request, 'post/submit.html', context={'errors': True})
+
+        user = request.user
+        user.save()
+
+        current_post = Post(title=title, url=url, user=user)
+        current_post.save()
+
+        log.info(f'Post {title} submitted')
+
+        # if text:
+        #     current_comment = Comment(content=text, user=user, post=current_post)
+        #     current_comment.save()
+
+        return redirect('new')
+
+    else:
+        return render(request, 'post/submit.html')
 
 
 
@@ -388,7 +427,7 @@ def post_delete(request, post_id, errors=False, deleted=False):
             current_post.delete()
             log.info(f'post {post_id} deleted')
             context = {'deleted': deleted}
-            return render(request, 'posts/post_delete.html', context=context)
+            return render(request, 'post/post_delete.html', context=context)
     elif request.method == 'POST':
         delete = request.POST['delete']
         if delete == 'Yes':
