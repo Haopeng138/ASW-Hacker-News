@@ -22,7 +22,7 @@
     <td align="right" valign="top" class="title"><span class="rank"></span></td>
     <td class="votelinks" valign="top">
       <div class="center">
-        {% comment %} {% ifequal post.user request.user %}
+        {% ifequal post.user request.user %}
         <span class="asterisk">*</span><br>
         <div style="width: 14px; height: 1px"></div>
         {% else %}
@@ -36,7 +36,7 @@
           <div class='votearrow' title='upvote'></div>
         </a>
         {% endif %}
-        {% endifequal %} {% endcomment %}
+        {% endifequal %} 
       </div>
     </td>
     <td class="title"><a

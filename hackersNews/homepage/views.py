@@ -43,7 +43,10 @@ def check_submission(title, url, text):
     else:
         return True
 
-## Login,  ¿borrar ? 
+def login(request):		 
+   template = loader.get_template('registration/login.html')		    
+   return HttpResponse(template.render(None,request))
+
 def submit(request):
     if request.method == 'POST':
 
@@ -83,13 +86,13 @@ def create(request):
   print(output)
   return HttpResponse(testIndex(request))
 
-def login(request):
-  usr = request.POST['acct']
-  pwd = request.POST['pw']
+# def login(request):
+#   usr = request.POST['acct']
+#   pwd = request.POST['pw']
 
-  output = "Usr: " + usr + " Pw: " + pwd
-  print(output)
-  return HttpResponse(output,request)
+#   output = "Usr: " + usr + " Pw: " + pwd
+#   print(output)
+#   return HttpResponse(output,request)
 
 def logout(request):
   

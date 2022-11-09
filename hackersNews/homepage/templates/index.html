@@ -2,19 +2,18 @@
 
 {% block content %}
 <table border="0" cellpadding="0" cellspacing="0" class="itemlist">
-
   <!-- repeat this block n times-->
   {% for post in posts %}
-
   <tr class='athing' id={{ post.id }}>
-    <td align="right" class="title" valign="top"><span class="rank">{{ forloop.counter|add:counter_init }}.</span>
+    <td align="right" class="title" valign="top"> <span class="rank">{{ forloop.counter|add:counter_init }}.</span>
     </td>
     <td class="votelinks" valign="top">
       <div class="center">
-        {% comment %} {% ifequal post.user request.user %}
+       {% if post.user == request.user %}
         <span class="asterisk">*</span><br>
         <div style="width: 14px; height: 1px"></div>
-        {% else %}
+        {% endif %}
+
         {% if post.id in tracking %}
           <a id="up_{{ post.id }}" onclick="upvotePost(this)">
             <div class='votearrow' title='upvote'
@@ -24,8 +23,7 @@
           <a id="up_{{ post.id }}" onclick="upvotePost(this)" style="cursor: pointer">
             <div class='votearrow' title='upvote'></div>
           </a>
-        {% endif %}
-        {% endifequal %} {% endcomment %}
+        {% endif %}  ¡
       </div>
     </td>
     <td class="title">
