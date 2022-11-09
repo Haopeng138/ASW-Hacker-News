@@ -15,7 +15,7 @@
         {% endif %}
 
         {% if post.id in tracking %}
-          <a id="up_{{ post.id }}" onclick="upvotePost(this)">
+          <a id="up_{{ post.id }}" href="{% url 'upvote_post'%}">
             <div class='votearrow' title='upvote'
                  style='visibility: hidden'></div>
           </a>

@@ -26,6 +26,6 @@ urlpatterns = [
     #path('post/<int:post_id>/comment', login_required(views.post_comment), name='post_comment'),
     path('post/<int:post_id>/edit', login_required(views.post_edit), name='post_edit'),
     path('post/<int:post_id>/delete', login_required(views.post_delete), name='post_delete'),
-    path('upvote-post/', views.upvote_post, name='upvote_post'),
+    path('upvote-post', views.upvote_post, name='upvote_post'),
     #path('upvote-comment', views.upvote_comment, name='upvote_comment'),
 ]

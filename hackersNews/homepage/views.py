@@ -448,9 +448,11 @@ def post_delete(request, post_id, errors=False, deleted=False):
             request.method = 'GET'
             return post_edit(request=request, post_id=post_id)
 
+@csrf_exempt
 def upvote_post(request):
     return upvote(request, 'post')
-
+    
+@csrf_exempt
 def upvote(request, item_str):
     if request.method == 'POST':
         body_unicode = request.body.decode('utf-8')
