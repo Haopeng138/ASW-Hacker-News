@@ -55,6 +55,12 @@ class HNUser(AbstractBaseUser):
     # https://docs.djangoproject.com/en/4.1/topics/auth/customizing/#django.contrib.auth.models.CustomUser.REQUIRED_FIELDS
     objects = HackerNewsUserManager()
 
+    def __str__(self):
+        return self.username
+
+    def get_username(self):
+        return super().get_username()
+
     # Quizas util?
     def get_absolute_url(self):
         return "/users/%i/" % self.id
