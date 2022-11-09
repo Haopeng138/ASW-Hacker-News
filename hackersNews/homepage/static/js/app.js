@@ -39,7 +39,7 @@ function upvote(item, item_str) {
                         (parseInt(scoreItem.innerText.match(/\d+/)[0]) + 1).toString() + ' points';
                 }
             } else if (res.redirect) {
-                window.location = '/accounts/login';
+                window.location = '/login';
             }
         })
 

@@ -22,21 +22,21 @@
     <td align="right" valign="top" class="title"><span class="rank"></span></td>
     <td class="votelinks" valign="top">
       <div class="center">
-        {% ifequal post.user request.user %}
-        <span class="asterisk">*</span><br>
-        <div style="width: 14px; height: 1px"></div>
-        {% else %}
-        {% if post.id in post_tracking %}
-        <a id="up_{{ post.id }}" onclick="upvotePost(this)">
-          <div class='votearrow' title='upvote'
-               style='visibility: hidden'></div>
-        </a>
-        {% else %}
-        <a id="up_{{ post.id }}" onclick="upvotePost(this)" style="cursor: pointer">
-          <div class='votearrow' title='upvote'></div>
-        </a>
+        {% if post.user == request.user %}
+          <span class="asterisk">*</span><br>
+          <div style="width: 14px; height: 1px"></div>
         {% endif %}
-        {% endifequal %} 
+            {% if post.id in post_tracking %}
+            <a id="up_{{ post.id }}" onclick="upvotePost(this)">
+              <div class='votearrow' title='upvote'
+                  style='visibility: hidden'></div>
+            </a>
+            {% else %}
+            <a id="up_{{ post.id }}" onclick="upvotePost(this)" style="cursor: pointer">
+              <div class='votearrow' title='upvote'></div>
+            </a>
+            {% endif %}
+      
       </div>
     </td>
     <td class="title"><a

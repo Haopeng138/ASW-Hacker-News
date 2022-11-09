@@ -385,16 +385,16 @@ def post(request, post_id, error=None):
     if request.method == 'GET':
         current_post = Post.objects.get(pk=post_id)
         log.info(f'retrieved post {post_id}')
-        current_comments = current_post.comment_set.filter(reply=None).order_by('insert_date')
-        log.info(f'retrieved {len(current_comments)} comment(s) for post {current_post.id}')
+        #current_comments = current_post.comment_set.filter(reply=None).order_by('insert_date')
+        #log.info(f'retrieved {len(current_comments)} comment(s) for post {current_post.id}')
         context = {
             'post': current_post,
             'post_tracking': get_tracking(request.user, [current_post]),
-            'tracking': get_tracking(request.user, current_comments),
-            'root_comments': current_comments,
+            #'tracking': get_tracking(request.user, current_comments),
+            #'root_comments': current_comments,
             'error': error
         }
-        return render(request, 'posts/post.html', context=context)
+        return render(request, 'post/post.html', context=context)
     else: return HttpResponse('ERROR')
 
 def post_edit(request, post_id, errors=False):
@@ -437,9 +437,8 @@ def post_delete(request, post_id, errors=False, deleted=False):
             try:
                 request.method = 'GET'
                 return post_delete(request, post_id, errors=False, deleted=True)
-            #except Excepton as ex:
-            except:
-                ex = "random"
+            
+            except Exception as ex:
                 log.error(ex)
                 log.info(f'unable to delete post {post_id}')
                 request.method = 'GET'
@@ -450,13 +449,11 @@ def post_delete(request, post_id, errors=False, deleted=False):
 
 @csrf_exempt
 def upvote_post(request):
-    
-    print("Somet")
+    print("some")
     return upvote(request, 'post')
     
 @csrf_exempt
 def upvote(request, item_str):
-
     if request.method == 'POST':
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
