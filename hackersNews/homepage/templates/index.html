@@ -47,12 +47,12 @@
       <a class="hnuser" href="{% url 'profile' user_id=post.user.id %}">{{ post.user.username }}</a>
       <a class="age" href="{% url 'post' post_id=post.id %}">{{ post.time }}</a> |
       <a href="{% url 'post' post_id=post.id %}">
-        {% comment %} {% if post.comment_set.exists %}
+       {% if post.comment_set.exists %}
           {{ post.comment_set.count }} comment{{ post.comment_set.count|pluralize }}
         {% else %}
           discuss
         {% endif %}
-      </a>{% endcomment %}
+        </a>
        {% if post.user == request.user %} 
         | <a href="{% url 'post_edit' post_id=post.id %}">edit</a> |
         <a href="{% url 'post_delete' post_id=post.id %}">delete</a>

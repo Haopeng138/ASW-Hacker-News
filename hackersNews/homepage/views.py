@@ -493,3 +493,103 @@ def new (request, page=None):
             order_by('-insert_date')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
         tracking = get_tracking(request.user, posts)
         return render_index_template(request, posts, tracking, 'new', page)
+
+## Parte de comentarios
+def comment(request, comment_id, error=None):
+    current_comment = Comment.objects.get(pk=comment_id)
+
+    if request.method == 'GET':
+        log.info(f'retrieved comment {comment_id}')
+        current_replies = current_comment.comment_set.all().order_by('-insert_date')
+        log.info(f'retrieved {len(current_replies)} reply comment(s) for comment {comment_id}')
+        context = {'comment': current_comment,
+                   'comment_tracking': get_tracking(request.user, [current_comment]),
+                   'tracking': get_tracking(request.user, current_replies),
+                   'root_comments': current_replies,
+                   'error': error}
+        return render(request, 'comments/comment.html', context=context)
+
+
+def comment_reply(request, comment_id):
+    if request.method == 'POST':
+
+        content = request.POST['text'].strip()
+
+        if content == '':
+            request.method = 'GET'
+            return comment(request=request,
+                           comment_id=comment_id,
+                           error='empty_comment')
+
+        else:
+            current_comment = Comment.objects.get(pk=comment_id)
+            current_comment = Comment(user=request.user,
+                                      post=current_comment.post,
+                                      reply=current_comment,
+                                      content=content)
+            current_comment.save()
+            return redirect('comment', comment_id=comment_id)
+
+    else:
+        return redirect('comment', comment_id=comment_id)
+
+
+def comment_edit(request, comment_id, error=None):
+    current_comment = Comment.objects.get(pk=comment_id)
+    if request.user != current_comment.user:
+        log.info(f'user {request.user.id} is not allowed to edit comment {comment_id}')
+        return redirect('comment', comment_id=comment_id)
+
+    if request.method == 'GET':
+        context = {'comment': current_comment}
+        if error:
+            context.update({'error': error})
+        return render(request, 'comments/comment_edit.html', context=context)
+
+    elif request.method == 'POST':
+
+        content = request.POST['text'].strip()
+
+        if content == '':
+            return redirect('comment_edit', comment_id=comment_id)
+
+        else:
+
+            current_comment.content = content
+            current_comment.save()
+            log.info(f'comment {comment_id} edited')
+            return redirect('comment_edit', comment_id=comment_id)
+
+
+def comment_delete(request, comment_id, error=None):
+    current_comment = Comment.objects.get(pk=comment_id)
+    if request.user != current_comment.user:
+        log.info(f'user {request.user.id} is not allowed to delete comment {comment_id}')
+        return redirect('comment', comment_id=comment_id)
+
+    if request.method == 'GET':
+        context = {'comment': current_comment, 'error': error}
+        return render(request, 'comments/comment_delete.html', context=context)
+
+    elif request.method == 'POST':
+        delete = request.POST['delete']
+
+        if delete == 'Yes':
+
+            if current_comment.reply_id:
+                parent_id = current_comment.reply_id
+                current_comment.delete()
+                log.info(f'comment {comment_id} deleted')
+                return redirect('comment', comment_id=parent_id)
+            else:
+                parent_id = current_comment.post_id
+                current_comment.delete()
+                log.info(f'comment {comment_id} deleted')
+                return redirect('post', post_id=parent_id)
+
+        else:
+            return redirect('comment', comment_id=comment_id)
+
+
+    else:
+        return redirect('comment', comment_id=comment_id)

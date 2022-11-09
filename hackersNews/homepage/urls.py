@@ -28,4 +28,8 @@ urlpatterns = [
     path('post/<int:post_id>/delete', login_required(views.post_delete), name='post_delete'),
     path('upvote-post', views.upvote_post, name='upvote_post'),
     #path('upvote-comment', views.upvote_comment, name='upvote_comment'),
+    path('comment/<int:comment_id>', views.comment, name='comment'),
+    path('comment/<int:comment_id>/reply', login_required(views.comment_reply), name='comment_reply'),
+    path('comment/<int:comment_id>/edit', login_required(views.comment_edit), name='comment_edit'),
+    path('comment/<int:comment_id>/delete', login_required(views.comment_delete), name='comment_delete'),
 ]
