@@ -11,7 +11,7 @@ import math
 import datetime
 from .models import Post
 from django.contrib.auth import get_user_model, authenticate
-
+from accounts.models import HNUser
 ## Pagina principal 
 def index(request,page=None):
   template = loader.get_template('index.html')
@@ -95,16 +95,45 @@ def account(request):
   return render(request,'testLogin.html')
 
 
-def testProfile(request):
-  template = loader.get_template('user/profile.html')
-  context = {
-    'username': 'hao',
-    'karma': 3, 
-    'email': 'hao@gmail.com',
-    'about': 'Mucho texto',
-    'own_user': True
-  }
-  return HttpResponse(template.render(context, request))
+# def testProfile(request):
+#   template = loader.get_template('user/profile.html')
+#   context = {
+#     'username': 'hao',
+#     'karma': 3, 
+#     'email': 'hao@gmail.com',
+#     'about': 'Mucho texto',
+#     'own_user': True
+#   }
+#   return HttpResponse(template.render(context, request))
+
+def profile(request, user_id):
+    #log.info(f'Loading profile {user_id}...')
+    user_query = HNUser.objects.filter(id=user_id)
+
+    if user_query:
+        user = user_query[0]
+
+        if user.id == request.user.id:
+            context = {
+                'user_id': user_id,
+                'username': user.username,
+                'karma': user.karma,
+                #'about': user.about,
+                'email': user.email,
+                'own_user': True
+            }
+        else:
+            context = {
+                'user_id': user_id,
+                'username': user.username,
+                'karma': user.karma,
+                #'about': user.about,
+                'own_user': False
+            }
+        return render(request, 'user/profile.html', context=context)
+    else:
+        return redirect('index')
+
 
 def testPost(request):
   current_post ={
