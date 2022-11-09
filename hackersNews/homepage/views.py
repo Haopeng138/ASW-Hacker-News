@@ -5,17 +5,21 @@ from django.shortcuts import redirect, render
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
-import requests
 from urllib.parse import urlparse
-import math
-import datetime
-from .models import Post
 from django.contrib.auth import get_user_model, authenticate
 from accounts.models import HNUser
 from django.core.validators import validate_email
 from django.core.mail import send_mail
+from django.conf import settings
+from django.utils import timezone
+from django.http import JsonResponse
+import json
+import logging
+from django.db.utils import IntegrityError
+from datetime import timedelta
+
 ## Pagina principal 
-def index(request,page=None):
+def testindex(request,page=None):
   template = loader.get_template('index.html')
   posts = Post.objects.all()
   context = {
@@ -242,3 +246,206 @@ def testPostEdit(request):
     
   }
   return render(request,'post/post_edit.html',context)
+
+# Haciendo merge manual de la rama de miguel
+
+def get_logger():
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    return logger
+
+
+log = get_logger()
+
+def get_tracking(user, items):
+    if user.id:
+        if len(items) > 0:
+            is_post = isinstance(items[0], Post)
+            log.info(f'checking tracking for {"posts" if is_post else "comments"}...')
+            if is_post: return [x.post.id for x in PostVoteTracking.objects.filter(user__id=user.id)]
+            else: return [x.comment.id for x in CommentVoteTracking.objects.filter(user__id=user.id)]
+    return []
+
+def render_index_template(request, posts, tracking, category, page, additional_context=None):
+    context = {
+        'posts': posts,
+        'tracking': tracking,
+        'page': page +1,
+        'category': category,
+        'counter_init': settings.PAGE_LIMIT * (page -1)
+    }
+    if additional_context: context.update(additional_context)
+    return render(request, template_name='index.html', context=context)
+
+def get_page(page):
+    if page: return page
+    else: return 1
+
+def post_sort_key(post_object):
+    n_upvotes = post_object.votes
+    score = (n_upvotes)
+    return score
+
+def get_hottest(page):
+    now = timezone.now()
+    all_posts = Post.objects.all()
+    return sorted(all_posts, key=post_sort_key, reverse=True)[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
+
+def index(request, page=None):
+    page = get_page(page)
+    posts = get_hottest(page)
+    tracking = get_tracking
+    return render_index_template(request, posts, tracking, '', page)
+
+def check_submission(title, url, text):
+    if not title:
+        return False
+    elif title == '':
+        return False
+    elif not url and not text:
+        return False
+    elif url:
+        try:
+            parse_site(url)
+            return True
+        except IndexError:
+            return False
+    else: return True
+
+def submission(request):
+    if request.method == 'POST':
+        title = request.POST['title'].strip()
+        url = request.POST['url']
+        text = request.POST['text'].strip()
+
+        if not check_submission(title, url, text):
+            return render(request, 'posts/submission.html', context={'errors': True})
+        user = request.user
+        user.save()
+        current_post = Post(title=title, url=url, user=user)
+        current_post.save()
+        log.info(f'Post {title} submitted')
+
+        if text:
+            current_comment = Comment(content=text, user=user, post=current_post)
+            current_comment.save()
+        return redirect('new')
+    else: return render(request, 'posts/submission.html')
+
+def post(request, post_id, error=None):
+    if request.method == 'GET':
+        current_post = Post.objects.get(pk=post_id)
+        log.info(f'retrieved post {post_id}')
+        current_comments = current_post.comment_set.filter(reply=None).order_by('insert_date')
+        log.info(f'retrieved {len(current_comments)} comment(s) for post {current_post.id}')
+        context = {
+            'post': current_post,
+            'post_tracking': get_tracking(request.user, [current_post]),
+            'tracking': get_tracking(request.user, current_comments),
+            'root_comments': current_comments,
+            'error': error
+        }
+        return render(request, 'posts/post.html', context=context)
+    else: return HttpResponse('ERROR')
+
+def post_edit(request, post_id, errors=False):
+    current_post = Post.objects.get(pk=post_id)
+    if request.user != current_post.user:
+        log.info(f'user {request.user.id} is not allowed to edit post {post_id}')
+        return redirect('post', post_id=post_id)
+    if request.method == 'GET':
+        context = {'post': current_post}
+        if errors: context.update({'errors': True})
+        return render(request, 'posts/post_edit.html', context=context)
+    elif request.method == 'POST':
+        title = request.POST['title'].strip()
+        if title == '':
+            request.method = 'GET'
+            return post_edit(request=request, post_id=post_id, errors=True)
+        else:
+            current_post.title = title
+            current_post.save()
+            log.info(f'post {post_id} edited')
+            return redirect('post', post_id=current_post.id)
+
+def post_delete(request, post_id, errors=False, deleted=False):
+    current_post = Post.objects.get(pk=post_id)
+    if request.user != current_post.user:
+        log.info(f'user {request.user.id} is not allowed to delete post {post_id}')
+        return redirect('post', post_id=post_id)
+    if request.method == 'GET':
+        if not deleted:
+            context = {'post': current_post, 'errors': errors}
+            return render(request, 'posts/post_delete.html', context=context)
+        else:
+            current_post.delete()
+            log.info(f'post {post_id} deleted')
+            context = {'deleted': deleted}
+            return render(request, 'posts/post_delete.html', context=context)
+    elif request.method == 'POST':
+        delete = request.POST['delete']
+        if delete == 'Yes':
+            try:
+                request.method = 'GET'
+                return post_delete(request, post_id, errors=False, deleted=True)
+            #except Excepton as ex:
+            except:
+                ex = "random"
+                log.error(ex)
+                log.info(f'unable to delete post {post_id}')
+                request.method = 'GET'
+                return post_delete(request, post_id, errors=True, deleted=False)
+        else:
+            request.method = 'GET'
+            return post_edit(request=request, post_id=post_id)
+
+def upvote_post(request):
+    return upvote(request, 'post')
+
+def upvote(request, item_str):
+    if request.method == 'POST':
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        log.info(f'Upvote {item_str}')
+        if request.user.id:
+            user = HNUser.objects.filter(id=request.user.id)[0]
+            if item_str == 'post':
+                item = Post.objects.filter(id=body['id'])[0]
+                tracking = PostVoteTracking(user=user, post=item)
+            else:
+                item = Comment.objects.filter(id=body['id'])[0]
+                tracking = CommentVoteTracking(user=user, comment=item)
+            try:
+                tracking.save()
+                item.user.karma += 1
+                item.user.save()
+                item.votes += 1
+                item.save()
+            except IntegrityError:
+                return JsonResponse({'success': False, 'redirect': False})
+
+            return JsonResponse({'success': True, 'redirect': False})
+        else: return JsonResponse({'success': False, 'redirect': True})
+
+def hackernews (request, page=None):
+    if request.method == 'GET':
+        page = get_page(page)
+        posts = Post.objects. \
+            order_by('votes')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
+        tracking = get_tracking(request.user, posts)
+        return render_index_template(request, posts, tracking, 'new', page)
+
+def new (request, page=None):
+    if request.method == 'GET':
+        page = get_page(page)
+        posts = Post.objects. \
+            order_by('insert_date')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
+        tracking = get_tracking(request.user, posts)
+        return render_index_template(request, posts, tracking, 'new', page)

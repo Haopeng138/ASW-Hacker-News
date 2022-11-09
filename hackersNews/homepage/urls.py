@@ -16,5 +16,13 @@ urlpatterns = [
     path('testPost/',views.testPost,name='Post'),
     path('testSubmitPost/',views.testSubmitPost,name='testSubmitPost'),
     path('testPostEdit',views.testPostEdit,name='testPostEdit'),
-    path('account/', views.account, name='account')
+    path('account/', views.account, name='account'),
+    path('new', views.new, name='new'),
+    path('new/<int:page>', views.new, name='new_more'),
+    path('hackernews', views.hackernews, name='hackernews'),
+    path('hackernews/<int:page>', views.hackernews, name='hackernews_more'),
+    path('post/<int:post_id>', views.post, name='post'),
+    #path('post/<int:post_id>/comment', login_required(views.post_comment), name='post_comment'),
+    path('post/<int:post_id>/edit', login_required(views.post_edit), name='post_edit'),
+    path('post/<int:post_id>/delete', login_required(views.post_delete), name='post_delete'),
 ]

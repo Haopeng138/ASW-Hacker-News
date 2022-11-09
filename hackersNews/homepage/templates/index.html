@@ -35,8 +35,8 @@
       {% else %}
         <a href="{% url 'post' post_id=post.id %}" class="storylink">{{ post.title }}</a>
       {% endif %}
-      <span class="sitebit comhead"> (<a href="{% url 'site' site=post.site %}"><span
-          class="sitestr">{{ post.site }}</span></a>)</span>
+      {% comment %} <span class="sitebit comhead"> (<a href="{% url 'site' site=post.site %}"><span
+          class="sitestr">{{ post.site }}</span></a>)</span> {% endcomment %}
     </td>
   </tr>
 
