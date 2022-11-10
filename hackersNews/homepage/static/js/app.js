@@ -17,7 +17,7 @@ function upvote(item, item_str) {
     let id = item.id.substring(3);
 
     let data = {id: id};
-    let url = ((item_str === 'post') ? '/upvote-post' : '/upvote-comment');
+    let url = ((item_str === 'post') ? 'upvote-post' : 'upvote-comment');
     console.log(data);
     console.log(JSON.stringify(data));
     fetch(url, {

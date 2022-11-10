@@ -527,6 +527,7 @@ def upvote_post(request):
     
 @csrf_exempt
 def upvote(request, item_str):
+    print("GFDSGSDFGSDFG")
     if request.method == 'POST':
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
