@@ -66,9 +66,9 @@ def submit(request):
 
         log.info(f'Post {title} submitted')
 
-        # if text:
-        #     current_comment = Comment(content=text, user=user, post=current_post)
-        #     current_comment.save()
+        if text:
+         current_comment = Comment(content=text, user=user, post=current_post)
+         current_comment.save()
 
         return redirect('new')
 
