@@ -65,7 +65,6 @@ class Post(models.Model):
 
 class VoteTracking(models.Model):
     insert_date = models.DateTimeField(null=False)
-
     def save(self, *args, **kwargs):
         if not self.insert_date:
             self.insert_date = timezone.now()

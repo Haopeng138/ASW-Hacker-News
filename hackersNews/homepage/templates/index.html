@@ -13,9 +13,8 @@
         <span class="asterisk">*</span><br>
         <div style="width: 14px; height: 1px"></div>
         {% endif %}
-
         {% if post.id in tracking %}
-          <a id="up_{{ post.id }}" onclick="upvotePost(this)">
+          <a id="up_{{ post.id }}" onclick="upvotePost(this)" >
             <div class='votearrow' title='upvote'
                  style='visibility: hidden'></div>
           </a>
@@ -23,7 +22,7 @@
           <a id="up_{{ post.id }}" onclick="upvotePost(this)" style="cursor: pointer">
             <div class='votearrow' title='upvote'></div>
           </a>
-        {% endif %}  ¡
+        {% endif %}  
       </div>
     </td>
     <td class="title">
@@ -53,10 +52,16 @@
           discuss
         {% endif %}
         </a>
+        {% if post.id in tracking %}
+        | <a id="up_{{ post.id }}" onclick="unvotePost(this)" style="cursor: pointer">
+          unvote
+        </a>
+        {% endif%}
        {% if post.user == request.user %} 
         | <a href="{% url 'post_edit' post_id=post.id %}">edit</a> |
         <a href="{% url 'post_delete' post_id=post.id %}">delete</a>
       {% endif %} 
+
     </td>
   </tr>
   <tr class="spacer" style="height:5px"></tr>

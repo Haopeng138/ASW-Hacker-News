@@ -716,3 +716,41 @@ def user_submissions (request, page=None):
 
          tracking = get_tracking(request.user, posts)
          return render_index_template(request, posts, tracking, 'user_submissions', page)
+
+
+@csrf_exempt
+def unvote_post(request):
+    return unvote(request, 'post')
+
+@csrf_exempt
+def unvote_comment(request):
+    return unvote(request, 'comment')
+    
+@csrf_exempt
+def unvote(request, item_str):
+    if request.method == 'POST':
+        log.info("Some")
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        log.info(f'Unvote {item_str}')
+        if request.user.id:
+            user = HNUser.objects.filter(id=request.user.id)[0]
+            if item_str == 'post':
+                item = Post.objects.filter(id=body['id'])[0]
+                print("Imprimiendo")
+                print(PostVoteTracking(user=user, post=item))
+                tmp = PostVoteTracking(user=user, post=item).delete()
+            else:
+                item = Comment.objects.filter(id=body['id'])[0]
+                tmp = CommentVoteTracking(user=user, comment=item).delete()
+            try:
+                
+                item.user.karma -= 1
+                item.user.save()
+                item.votes -= 1
+                item.save()
+            except IntegrityError:
+                return JsonResponse({'success': False, 'redirect': False})
+
+            return JsonResponse({'success': True, 'redirect': False})
+        else: return JsonResponse({'success': False, 'redirect': True})
