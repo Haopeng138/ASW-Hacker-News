@@ -623,3 +623,12 @@ def comment_delete(request, comment_id, error=None):
 
     else:
         return redirect('comment', comment_id=comment_id)
+
+def ask (request, page=None):
+    if request.method == 'GET':
+        page = get_page(page)
+        posts = Post.objects.filter(url__exact=''). \
+                          order_by('-insert_date')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
+
+        tracking = get_tracking(request.user, posts)
+        return render_index_template(request, posts, tracking, 'ask', page)
