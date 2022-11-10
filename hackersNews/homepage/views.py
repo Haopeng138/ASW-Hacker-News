@@ -671,6 +671,13 @@ def comment_delete(request, comment_id, error=None):
     else:
         return redirect('comment', comment_id=comment_id)
 
+def threads (request, page=None):
+    if request.method == 'GET':
+        page = get_page(page)
+        current_comments = Comment.objects.filter(user__id = request.user.id). \
+            order_by('-insert_date')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
+        tracking = get_tracking(request.user, current_comments)
+        return render_index_template(request, current_comments, tracking, 'threads', page)
 def ask (request, page=None):
     if request.method == 'GET':
         page = get_page(page)
