@@ -755,3 +755,11 @@ def unvote(request, item_str):
             return JsonResponse({'success': True, 'redirect': False})
         else: return JsonResponse({'success': False, 'redirect': True})
 
+def upvote_post_views(request,page=None):
+    if request.method == 'GET':
+        page = get_page(page)
+        posts = Post.objects.filter(user = request.user.id). \
+                          order_by('-insert_date')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
+
+        tracking = get_tracking(request.user, posts)
+        return render_index_template(request, posts, tracking, 'upvote_post_views', page)

@@ -79,8 +79,8 @@
                          {% url 'ask_more' page=page %}
                          {% comment %} {% elif category == 'show' %}
                          {% url 'show_more' page=page %} {% endcomment %}
-                         {% comment %} {% elif category == 'submissions' %}
-                         {% url 'submissions_more' user_id=user_id page=page %} {% endcomment %}
+                         {% elif category == 'user_post' %}
+                         {% url 'submissions_more' page=page %} 
                          {% elif category == 'threads' %}
                          {% url 'threads_more' page=page %} 
                          {% else %}
