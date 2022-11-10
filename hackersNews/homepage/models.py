@@ -3,27 +3,9 @@ from email.policy import default
 from statistics import mode
 from time import time
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 from urllib.parse import urlparse
 from accounts.models import HNUser
 from django.urls import reverse
-
-# Create your models here.
-
-# Esto teoricamente se puede borrar
-class Login(models.Model):
-    username = models.CharField(max_length=255)
-    username.primary_key=True
-    password = models.CharField(max_length=255)
-
-class User(models.Model):
-    # id - Implicito
-    username = models.CharField(max_length=255, unique=True)
-    password = models.CharField(max_length=255)
-    email = models.CharField(max_length=255, unique=True)
-    karma = models.Field(default=0)
-###
-
 
 ### Miguel:
 
