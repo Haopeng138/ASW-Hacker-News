@@ -14,16 +14,17 @@
   {% if user.is_authenticated %}
     <p>Usuario logeado como: {{ user.username }}</p>
 
-  <form method="post" action="/accounts/logout/"> <!-- > NOTE: metodo POST a /accounts/logout/ <-->
-    <input type="hidden"> {%csrf_token%}
-    <button type="submit">Sign Out</button>
-  </form>
-
-  <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
+    <form method="post" action="/accounts/logout/"> <!-- > NOTE: metodo POST a /accounts/logout/ <-->
+      <input type="hidden"> {%csrf_token%}
+      <button type="submit">Sign Out</button>
+    </form>
+    <!-- >
+    <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
+    <-->
   {% else %}
-  <form method="post" action="submit/login">
-      {%csrf_token%}
-      <table border="0">
+    <form method="post" action="submit/login">
+        {%csrf_token%}
+        <table border="0">
         <tr>
           <td>username:</td>
           <td>
@@ -36,24 +37,21 @@
             <input type="password" name="pw" size="20">
           </td>
         </tr>
-      </table>
-      <br>
-      <input type="submit" value="login">
-    <a href="{% provider_login_url 'google' %}">Login With Google</a>
-  </form>
-  <form method="post" action="/accounts/google/login/">
-    {%csrf_token%}
-    <button type="submit"> Sign in with Google </button>
-  </form>
-  <a href="forgot">Forgot your password?</a>
-
+        </table>
+        <br>
+        <input type="submit" value="login">
+      <a href="{% provider_login_url 'google' %}">Login With Google</a>
+    </form>
+    <form method="post" action="/accounts/google/login/">
+      {%csrf_token%}
+      <button type="submit"> Sign in with Google </button>
+    </form>
+    <a href="forgot">Forgot your password?</a>
   {% endif %}
 
-    <br>
-    <br>
+    <br> <br>
     <H1>Create Account</H1>
-    <br>
-    <br>
+    <br> <br>
     <form method="post" action="submit/create">
       {%csrf_token%}
       <input type="hidden" name="creating" value="t">
@@ -74,5 +72,6 @@
       <br>
       <input type="submit" value="create account">
     </form>
+
   </body>
 </html>

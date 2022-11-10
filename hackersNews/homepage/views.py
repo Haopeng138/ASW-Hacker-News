@@ -107,6 +107,7 @@ def testIndex(request):
 
 
 def account(request):
+  # return redirect('/account/',permanent=True)
   userModel = get_user_model()
   print("He llegado aqui")
   #userModel = hackersNews.accounts.models.HNUser

@@ -6,9 +6,6 @@ urlpatterns = [
     path('', views.hackernews, name='index'),
     path('<int:page>', views.index, name='more'),
     path('submit/', views.submit,name="submit"),
-    path("login/", views.login, name="login"),
-    path('login/submit/create', views.create),
-    path('login/submit/login', views.login),
     path('logout', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
     #path('logout',views.logout,name='logout'),
     #path('testProfile/',views.testProfile,name='profile'),
@@ -28,4 +25,9 @@ urlpatterns = [
     path('post/<int:post_id>/delete', login_required(views.post_delete), name='post_delete'),
     path('upvote-post', views.upvote_post, name='upvote_post'),
     #path('upvote-comment', views.upvote_comment, name='upvote_comment'),
+    path('', views.index, name='index'),
+    # path('login/', views.submit),
+    # path('login/submit/create', views.create),
+    # path('login/submit/login', views.login),
+    path('account/', views.account, name='account') # homepage/account/
 ]

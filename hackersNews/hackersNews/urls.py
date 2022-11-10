@@ -20,6 +20,7 @@ from . import views
 urlpatterns = [
     path('', views.home),   # Redirect de root a homepage/
     path('homepage/', include('homepage.urls')),
+    path('account/', include('accounts.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
 ]
