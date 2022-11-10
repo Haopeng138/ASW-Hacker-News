@@ -397,6 +397,36 @@ def post(request, post_id, error=None):
         return render(request, 'post/post.html', context=context)
     else: return HttpResponse('ERROR')
 
+def post_comment(request, post_id):
+    if request.method == 'GET':
+        return redirect('post', post_id=post_id)
+
+    # comment in a post
+    elif request.method == 'POST':
+
+        content = request.POST['text'].strip()
+
+        # in case comment is empty, set empty comment flag to show warning
+        if content == '':
+            error = 'empty_comment'
+            request.method = 'GET'
+            return post(request=request,
+                        post_id=post_id,
+                        error=error)
+
+        else:
+            current_post = Post.objects.get(pk=post_id)
+            current_comment = Comment(user=request.user,
+                                      post=current_post,
+                                      reply=None,
+                                      content=content)
+            current_comment.save()
+            return redirect('post', post_id=current_post.id)
+
+    else:
+        return redirect('post', post_id=post_id)
+
+
 def post_edit(request, post_id, errors=False):
     current_post = Post.objects.get(pk=post_id)
     if request.user != current_post.user:

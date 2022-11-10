@@ -62,18 +62,18 @@
       {% comment %} | <a href="{% url 'post' post_id=post.id %}">
       {{ post.comment_set.count }} comment{{ post.comment_set.count|pluralize }}
     </a> {% endcomment %}
-      {% comment %} {% ifequal post.user request.user %}
+       {% if post.user == request.user %}
       | <a href="{% url 'post_edit' post_id=post.id %}">edit</a>
       | <a href="{% url 'post_delete' post_id=post.id %}">delete</a>
-      {% endifequal %} {% endcomment %}
+      {% endif %} 
     </td>
   </tr>
   <tr style="height:10px"></tr>
   <tr>
     <td colspan="2"></td>
     <td>
-      <form method="post" >
-        {% comment %} action="{% url 'post_comment' post.id %}" {% endcomment %}
+      <form method="post" action="{% url 'post_comment' post.id %}"  >
+      
         {% csrf_token %}
 
         <input type="hidden" name="parent" value="{{ post.id }}">
