@@ -43,7 +43,7 @@ function upvote(item, item_str) {
         })
 
     }).catch(error => console.log(error));
-    // location.reload();
+    location.reload();
 }
 
 function upvotePost(item) {
@@ -84,7 +84,7 @@ function unvote(item, item_str) {
         })
 
     }).catch(error => console.log(error));
-    //location.reload();
+    location.reload();
 }
 
 function unvotePost(item) {
