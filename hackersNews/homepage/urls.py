@@ -14,6 +14,8 @@ urlpatterns = [
     # PROFILE
     path('profile/<int:user_id>',views.profile,name='profile'),
     path('profile/<int:user_id>/update', login_required(views.update_profile), name='update_profile'),
+    path('profile/<int:user_id>/comments', views.comments, name='comments'),
+    path('profile/<int:user_id>/comments/<int:page>', views.comments, name='comments_more'),
     # path('testPost/',views.testPost,name='Post'),
     # path('testSubmitPost/',views.testSubmitPost,name='testSubmitPost'),
     # path('testPostEdit',views.testPostEdit,name='testPostEdit'),

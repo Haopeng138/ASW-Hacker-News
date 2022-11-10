@@ -677,7 +677,12 @@ def threads (request, page=None):
         current_comments = Comment.objects.filter(user__id = request.user.id). \
             order_by('-insert_date')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
         tracking = get_tracking(request.user, current_comments)
-        return render_index_template(request, current_comments, tracking, 'threads', page)
+        context = {'tracking': tracking,
+                   'root_comments': current_comments,
+                   'user_id': request.user.id,
+                   'page': page + 1}
+        return render(request, 'comments/comment_profile.html', context=context)
+
 def ask (request, page=None):
     if request.method == 'GET':
         page = get_page(page)
@@ -686,3 +691,18 @@ def ask (request, page=None):
 
         tracking = get_tracking(request.user, posts)
         return render_index_template(request, posts, tracking, 'ask', page)
+
+def comments(request, user_id, page=None):
+    if request.method == 'GET':
+        page = get_page(page)
+
+        current_comments = Post.objects.filter(user__id=user_id). \
+                               order_by('-insert_date')[
+                           (page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
+
+        context = {'tracking': get_tracking(request.user, current_comments),
+                   'root_comments': current_comments,
+                   'user_id': user_id,
+                   'page': page + 1}
+
+        return render(request, 'comments/comment_profile.html', context=context)

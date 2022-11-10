@@ -59,7 +59,6 @@
       {% endif %} 
     </td>
   </tr>
-
   <tr class="spacer" style="height:5px"></tr>
 
   {% endfor %}
@@ -68,23 +67,21 @@
   <tr class="morespace" style="height:10px"></tr>
   <tr>
     <td colspan="2"></td>
-    {% comment %} <td class="title"><a class="morelink"
+     <td class="title"><a class="morelink"
                          href="{% if category == 'new' %}
                          {% url 'new_more' page=page %}
                          {% elif category == 'ask' %}
                          {% url 'ask_more' page=page %}
-                         {% elif category == 'show' %}
-                         {% url 'show_more' page=page %}
-                         {% elif category == 'submissions' %}
-                         {% url 'submissions_more' user_id=user_id page=page %}
-                         {% elif category == 'comments' %}
-                         {% url 'comments_more' user_id=user_id page=page %}
-                         {% elif category == 'site' and site %}
-                         {% url 'site_more' site=site page=page %}
+                         {% comment %} {% elif category == 'show' %}
+                         {% url 'show_more' page=page %} {% endcomment %}
+                         {% comment %} {% elif category == 'submissions' %}
+                         {% url 'submissions_more' user_id=user_id page=page %} {% endcomment %}
+                         {% elif category == 'threads' %}
+                         {% url 'threads_more' page=page %} 
                          {% else %}
                          {% url 'more' page=page %}
                          {% endif %}"
-                         rel="next">More</a></td> {% endcomment %}
+                         rel="next">More</a></td> 
   </tr>
 
 </table>
