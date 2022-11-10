@@ -18,8 +18,6 @@ function upvote(item, item_str) {
 
     let data = {id: id};
     let url = ((item_str === 'post') ? 'upvote-post' : 'upvote-comment');
-    console.log(data);
-    console.log(JSON.stringify(data));
     fetch(url, {
         method: 'POST',
         headers: {
@@ -47,6 +45,9 @@ function upvote(item, item_str) {
 }
 
 function upvotePost(item) {
-    console.log("nfsdjnf");
     upvote(item, 'post');
+}
+
+function upvoteComment(item) {
+    upvote(item, 'comment')
 }
