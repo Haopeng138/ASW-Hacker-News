@@ -706,3 +706,13 @@ def comments(request, user_id, page=None):
                    'page': page + 1}
 
         return render(request, 'comments/comment_profile.html', context=context)
+    
+
+def user_submissions (request, page=None):
+     if request.method == 'GET':
+         page = get_page(page)
+         posts = Post.objects.filter(user__id = request.user.id). \
+                     order_by('-insert_date')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
+
+         tracking = get_tracking(request.user, posts)
+         return render_index_template(request, posts, tracking, 'user_submissions', page)

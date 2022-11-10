@@ -38,4 +38,6 @@ urlpatterns = [
     path('comment/<int:comment_id>/reply', login_required(views.comment_reply), name='comment_reply'),
     path('comment/<int:comment_id>/edit', login_required(views.comment_edit), name='comment_edit'),
     path('comment/<int:comment_id>/delete', login_required(views.comment_delete), name='comment_delete'),
+    path('user_submissions', views.user_submissions, name='user_submissions'),
+    path('user_submissions/<int:page>', views.user_submissions, name='user_submissions_more'),
 ]
