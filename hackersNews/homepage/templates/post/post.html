@@ -22,21 +22,21 @@
     <td align="right" valign="top" class="title"><span class="rank"></span></td>
     <td class="votelinks" valign="top">
       <div class="center">
-        {% ifequal post.user request.user %}
-        <span class="asterisk">*</span><br>
-        <div style="width: 14px; height: 1px"></div>
-        {% else %}
-        {% if post.id in post_tracking %}
-        <a id="up_{{ post.id }}" onclick="upvotePost(this)">
-          <div class='votearrow' title='upvote'
-               style='visibility: hidden'></div>
-        </a>
-        {% else %}
-        <a id="up_{{ post.id }}" onclick="upvotePost(this)" style="cursor: pointer">
-          <div class='votearrow' title='upvote'></div>
-        </a>
+        {% if post.user == request.user %}
+          <span class="asterisk">*</span><br>
+          <div style="width: 14px; height: 1px"></div>
         {% endif %}
-        {% endifequal %} 
+            {% if post.id in post_tracking %}
+            <a id="up_{{ post.id }}" onclick="upvotePost(this)">
+              <div class='votearrow' title='upvote'
+                  style='visibility: hidden'></div>
+            </a>
+            {% else %}
+            <a id="up_{{ post.id }}" onclick="upvotePost(this)" style="cursor: pointer">
+              <div class='votearrow' title='upvote'></div>
+            </a>
+            {% endif %}
+      
       </div>
     </td>
     <td class="title"><a
@@ -52,28 +52,27 @@
       <span class="score"
             id="score_{{ post.id }}">{{ post.votes }} point{{ post.votes|pluralize }}</span> by
       <a
-       {% comment %} href="{% url 'profile' user_id=post.user.id %}" {% endcomment %}
+        href="{% url 'profile' user_id=post.user.id %}" 
          class="hnuser">{{ post.user.username }}</a>
       <span class="age"><a
-          {% comment %} href="{% url 'post' post_id=post.id %}" {% endcomment %}
+          href="{% url 'post' post_id=post.id %}" 
           >{{ post.time_from_post }}</a></span> <span
         id="unv_{{ post.id }}"></span>
-      | <a href="https://www.google.com/search?q={{ post.title|urlencode }}">web</a>
-      {% comment %} | <a href="{% url 'post' post_id=post.id %}">
+      | <a href="{% url 'post' post_id=post.id %}">
       {{ post.comment_set.count }} comment{{ post.comment_set.count|pluralize }}
-    </a> {% endcomment %}
-      {% comment %} {% ifequal post.user request.user %}
+      </a>
+       {% if post.user == request.user %}
       | <a href="{% url 'post_edit' post_id=post.id %}">edit</a>
       | <a href="{% url 'post_delete' post_id=post.id %}">delete</a>
-      {% endifequal %} {% endcomment %}
+      {% endif %} 
     </td>
   </tr>
   <tr style="height:10px"></tr>
   <tr>
     <td colspan="2"></td>
     <td>
-      <form method="post" >
-        {% comment %} action="{% url 'post_comment' post.id %}" {% endcomment %}
+      <form method="post" action="{% url 'post_comment' post.id %}"  >
+      
         {% csrf_token %}
 
         <input type="hidden" name="parent" value="{{ post.id }}">

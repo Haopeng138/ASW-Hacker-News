@@ -1,5 +1,4 @@
 {% extends 'common/base.html' %}
-{% load app_extras %}
 
 {% block content_header %}
     <tr id="pagespace" style="height:10px" title="Add Comment"></tr>
@@ -7,19 +6,19 @@
 
 {% block content %}
 {% if error %}
-{% ifequal error "empty_comment"%}
-Comment can't be empty.
-{% else %}
-Please try again.
-{% endifequal %}
-<br><br>
+  {% if error == "empty_comment"%}
+  Comment can't be empty.
+  {% else %}
+  Please try again.
+  {% endif %}
+  <br><br>
 {% endif %}
 <table class="fatitem" border="0">
   <tr class='athing' id='{{ comment.id }}'>
     <td class='ind'></td>
     <td valign="top" class="votelinks">
       <div class="center">
-        {% ifequal comment.user request.user %}
+        {% if comment.user == request.user %}
         <span class="asterisk">*</span><br>
         {% else %}
         {% if comment.id in comment_tracking %}
@@ -32,7 +31,7 @@ Please try again.
           <div class='votearrow' title='upvote'></div>
         </a>
         {% endif %}
-        {% endifequal %}
+        {% endif %}
       </div>
     </td>
     <td class="default">
@@ -55,10 +54,10 @@ Please try again.
                     <a href="{% url 'post' post_id=comment.post_id %}">parent</a>
                 {% endif %}
             </span>
-            {% ifequal request.user comment.user %}
+            {% if request.user == comment.user %}
                 | <a href="{% url 'comment_edit' comment_id=comment.id %}">edit</a>
                 | <a href="{% url 'comment_delete' comment_id=comment.id %}">delete</a>
-            {% endifequal %}
+            {% endif %}
             <a class="togg" n="1"
                href="javascript:void(0)"
                onclick="return toggle(event, {{ comment.id }})">

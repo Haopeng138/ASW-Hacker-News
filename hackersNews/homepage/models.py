@@ -82,8 +82,31 @@ class PostVoteTracking(VoteTracking):
         unique_together = (('user','post'),)
 
 class Comment(models.Model):
-    comment = models.CharField
+    @property
+    def time_from_post(self):
+        return time_from(self.insert_date)
+
+    insert_date = models.DateTimeField(null=False)
+    content = models.TextField(null=False)
+    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
+    post = models.ForeignKey(to=Post, on_delete=models.CASCADE, null=True)
+    reply = models.ForeignKey(to='self', on_delete=models.CASCADE, null=True)
+    votes = models.IntegerField(default=1)
+
+    def __str__(self):
+        return self.content
+
+    def save(self, *args, **kwargs):
+        if not self.insert_date:
+            self.insert_date = timezone.now()
+        super().save(*args, **kwargs)
 
 class CommentVoteTracking(VoteTracking):
     user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
     comment = models.ForeignKey(to=Comment, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username + '_' + self.comment.content
+
+    class Meta:
+        unique_together = (('user', 'comment'),)
