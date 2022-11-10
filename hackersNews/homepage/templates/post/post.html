@@ -52,16 +52,15 @@
       <span class="score"
             id="score_{{ post.id }}">{{ post.votes }} point{{ post.votes|pluralize }}</span> by
       <a
-       {% comment %} href="{% url 'profile' user_id=post.user.id %}" {% endcomment %}
+        href="{% url 'profile' user_id=post.user.id %}" 
          class="hnuser">{{ post.user.username }}</a>
       <span class="age"><a
-          {% comment %} href="{% url 'post' post_id=post.id %}" {% endcomment %}
+          href="{% url 'post' post_id=post.id %}" 
           >{{ post.time_from_post }}</a></span> <span
         id="unv_{{ post.id }}"></span>
-      | <a href="https://www.google.com/search?q={{ post.title|urlencode }}">web</a>
-      {% comment %} | <a href="{% url 'post' post_id=post.id %}">
+      | <a href="{% url 'post' post_id=post.id %}">
       {{ post.comment_set.count }} comment{{ post.comment_set.count|pluralize }}
-    </a> {% endcomment %}
+      </a>
        {% if post.user == request.user %}
       | <a href="{% url 'post_edit' post_id=post.id %}">edit</a>
       | <a href="{% url 'post_delete' post_id=post.id %}">delete</a>

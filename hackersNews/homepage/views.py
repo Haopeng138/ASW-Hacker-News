@@ -385,13 +385,13 @@ def post(request, post_id, error=None):
     if request.method == 'GET':
         current_post = Post.objects.get(pk=post_id)
         log.info(f'retrieved post {post_id}')
-        #current_comments = current_post.comment_set.filter(reply=None).order_by('insert_date')
+        current_comments = current_post.comment_set.filter(reply=None).order_by('insert_date')
         #log.info(f'retrieved {len(current_comments)} comment(s) for post {current_post.id}')
         context = {
             'post': current_post,
             'post_tracking': get_tracking(request.user, [current_post]),
-            #'tracking': get_tracking(request.user, current_comments),
-            #'root_comments': current_comments,
+            'tracking': get_tracking(request.user, current_comments),
+            'root_comments': current_comments,
             'error': error
         }
         return render(request, 'post/post.html', context=context)
