@@ -18,6 +18,7 @@ function upvote(item, item_str) {
 
     let data = {id: id};
     let url = ((item_str === 'post') ? 'upvote-post' : 'upvote-comment');
+    console.log(url);
     fetch(url, {
         method: 'POST',
         headers: {
@@ -28,9 +29,9 @@ function upvote(item, item_str) {
     }).then(res => {
 
         res.json().then(res => {
+            console.log(res);
             if (res.success) {
                 item.children[0].style.visibility = 'hidden';
-
                 scoreItem = document.getElementById('score_' + id);
                 if (item_str === 'post') {
                     scoreItem.innerText =
@@ -42,7 +43,7 @@ function upvote(item, item_str) {
         })
 
     }).catch(error => console.log(error));
-    location.reload();
+    // location.reload();
 }
 
 function upvotePost(item) {
@@ -78,11 +79,12 @@ function unvote(item, item_str) {
                 } else if (res.redirect) {
                     window.location = '/';
                 }
+                console.log(res);
             } 
         })
 
     }).catch(error => console.log(error));
-    location.reload();
+    //location.reload();
 }
 
 function unvotePost(item) {

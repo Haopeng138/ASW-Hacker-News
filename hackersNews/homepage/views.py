@@ -754,3 +754,4 @@ def unvote(request, item_str):
 
             return JsonResponse({'success': True, 'redirect': False})
         else: return JsonResponse({'success': False, 'redirect': True})
+
