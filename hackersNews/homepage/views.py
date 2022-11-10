@@ -238,7 +238,7 @@ def send_confirmation_email(user):
     send_mail(
         subject=f'Confirmation email from Hacker Newst',
         message=confirmation_email_text,
-        from_email='info@datatau.net',
+        from_email='haopeng.lin@estudiantat.upc.edu',
         recipient_list=[user.email],
         fail_silently=False
     )

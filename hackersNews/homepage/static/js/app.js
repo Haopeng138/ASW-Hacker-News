@@ -18,6 +18,7 @@ function upvote(item, item_str) {
 
     let data = {id: id};
     let url = ((item_str === 'post') ? 'upvote-post' : 'upvote-comment');
+    console.log(url);
     fetch(url, {
         method: 'POST',
         headers: {
