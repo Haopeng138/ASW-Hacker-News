@@ -739,12 +739,12 @@ def unvote(request, item_str):
                 item = Post.objects.filter(id=body['id'])[0]
                 print("Imprimiendo")
                 print(PostVoteTracking(user=user, post=item))
-                tmp = PostVoteTracking(user=user, post=item).delete()
+                PostVoteTracking.objects.filter(user=user, post=item).delete()
             else:
                 item = Comment.objects.filter(id=body['id'])[0]
-                tmp = CommentVoteTracking(user=user, comment=item).delete()
+                CommentVoteTracking.objects.filter(user=user, comment=item).delete()
             try:
-                
+              
                 item.user.karma -= 1
                 item.user.save()
                 item.votes -= 1

@@ -42,6 +42,7 @@ function upvote(item, item_str) {
         })
 
     }).catch(error => console.log(error));
+    location.reload();
 }
 
 function upvotePost(item) {
@@ -74,11 +75,14 @@ function unvote(item, item_str) {
                 if (item_str === 'post') {
                     scoreItem.innerText =
                         (parseInt(scoreItem.innerText.match(/\d+/)[0]) - 1).toString() + ' points';
+                } else if (res.redirect) {
+                    window.location = '/';
                 }
             } 
         })
 
     }).catch(error => console.log(error));
+    location.reload();
 }
 
 function unvotePost(item) {
