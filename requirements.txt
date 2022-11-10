@@ -35,4 +35,5 @@ toml==0.10.2
 tweepy==4.12.0
 urllib3==1.26.11
 virtualenv==20.16.3
+whitenoise==6.2.0
 wxpy==0.3.9.8
