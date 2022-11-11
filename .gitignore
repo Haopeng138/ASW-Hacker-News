@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
 # C extensions
 *.so
 .DS_Store
@@ -128,7 +127,3 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-.DS_Store
-
-#IntelliJ
-.idea
