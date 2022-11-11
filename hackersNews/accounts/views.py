@@ -7,9 +7,10 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from .models import HNUser
 from .adapters import HN_AccountAdapter
-
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
+@csrf_exempt
 def account(request):
     userModel = get_user_model()
     succesful_login_url='/homepage'

@@ -10,6 +10,9 @@
 | Miguel Moreno | MiguelMorenoAlcaraz | @MiguelMorenoAlcaraz |
 | Marc Duch | Marcarrones | @marc.duch |
 
+## Heroku 
+https://sheltered-wave-07620.herokuapp.com/ | https://git.heroku.com/sheltered-wave-07620.git
+
 ## Inicialitzar la maquina virtual
 * Linux (PC lab) \# source virtualenv/bin/activate.csh
 * Linux (Otros)  \# source virtualenv/bin/activate

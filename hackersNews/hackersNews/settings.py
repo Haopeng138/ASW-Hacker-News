@@ -61,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CSRF_TRUSTED_ORIGINS = ["https://sheltered-wave-07620.herokuapp.com"]
 ROOT_URLCONF = 'hackersNews.urls'
 
 TEMPLATES = [
