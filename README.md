@@ -11,7 +11,7 @@
 | Marc Duch | Marcarrones | @marc.duch |
 
 ## Heroku 
-https://sheltered-wave-07620.herokuapp.com/ | https://git.heroku.com/sheltered-wave-07620.git
+https://hackernewsupc.herokuapp.com/
 
 ## Inicialitzar la maquina virtual
 * Linux (PC lab) \# source virtualenv/bin/activate.csh
