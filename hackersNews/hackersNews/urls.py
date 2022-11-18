@@ -26,6 +26,7 @@ urlpatterns = [
     path('', views.home),   # Redirect de root a homepage/
     path('homepage/', include('homepage.urls')),
     path('account/', include('accounts.urls')),
+    path('api/', include('api.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
