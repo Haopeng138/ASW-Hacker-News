@@ -561,9 +561,6 @@ def upvote_post_views(request,page=None):
         id_set = list()
         for post in postsu:
             id_set.append(post.post)
-        print(id_set)
         posts = Post.objects.filter(title__in=id_set)
-        for post in posts:
-            print(post)
         tracking = get_tracking(request.user, posts)
         return render_index_template(request, posts, tracking, 'upvote_post_views', page)
