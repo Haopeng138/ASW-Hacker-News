@@ -557,9 +557,13 @@ def unvote(request, item_str):
 def upvote_post_views(request,page=None):
     if request.method == 'GET':
         page = get_page(page)
-        #posts = Post.objects.filter(user = request.user.id). \
-                         # order_by('-insert_date')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
-        postsuser = PostVoteTracking.objects.filter(user = request.user.id)
-        posts = Post.objects.filter(post=postsuser)
+        postsu = PostVoteTracking.objects.filter(user = request.user.id)
+        id_set = list()
+        for post in postsu:
+            id_set.append(post.post)
+        print(id_set)
+        posts = Post.objects.filter(title__in=id_set)
+        for post in posts:
+            print(post)
         tracking = get_tracking(request.user, posts)
         return render_index_template(request, posts, tracking, 'upvote_post_views', page)

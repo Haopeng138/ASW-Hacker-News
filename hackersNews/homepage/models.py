@@ -32,6 +32,7 @@ def time_from(dt):
         raise ValueError
 
 class Post(models.Model):
+    id = models.AutoField(primary_key=True)
     @property
     def time_from_post(self):
         return time_from(self.insert_date)
