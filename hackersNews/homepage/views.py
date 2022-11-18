@@ -8,6 +8,7 @@ from .models import *
 from urllib.parse import urlparse
 from django.contrib.auth import get_user_model, authenticate
 from accounts.models import HNUser
+from api.models import UserAPIKey
 from django.core.validators import validate_email
 from django.core.mail import send_mail
 from django.conf import settings
@@ -139,7 +140,7 @@ def profile(request, user_id):
 
     if user_query:
         user = user_query[0]
-
+        #api_key = UserAPIKey.objects.filter(user=user)
         if user.id == request.user.id:
             context = {
                 'user_id': user_id,
@@ -147,7 +148,8 @@ def profile(request, user_id):
                 'karma': user.karma,
                 'about': user.about,
                 'email': user.email,
-                'own_user': True
+                'own_user': True,
+                'api-key': user.key
             }
         else:
             context = {

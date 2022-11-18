@@ -20,7 +20,8 @@
           <tr>
             <td valign="top">email:</td>
             <td>
-              <input type="text" name="email" value="{{ email }}" size="60">
+              <!-- > <input type="text" name="email" value="{{ email }}" size="60"> <-->
+              {{ email }}
             </td>
           </tr> {% else %} <tr>
             <td valign="top">about:</td>
@@ -29,6 +30,11 @@
             </td>
           </tr> {% endif %} 
           {% if own_user %}
+          <tr>
+            <td>
+              <u>API Key: {{ api_key }}</u>
+            </td>
+          </tr>
           <tr>
             <td>
                 <u> upvoted comments</u>
