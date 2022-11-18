@@ -42,6 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
 
     'api.apps.ApiConfig',
+
+    'rest_framework',
+    'rest_framework_api_key',
+
     'homepage.apps.HomepageConfig',
     # Google OAuth Django module
     'allauth',
