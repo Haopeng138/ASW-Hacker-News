@@ -38,4 +38,5 @@ virtualenv==20.16.3
 whitenoise==6.2.0
 wxpy==0.3.9.8
 django-allauth==0.51.0
+djangorestframework-api-key==2.*
 
