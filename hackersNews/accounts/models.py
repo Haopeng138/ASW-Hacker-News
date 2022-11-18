@@ -1,12 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 import datetime
-
+from api.models import UserAPIKey
 
 # Create your models here.
 
 # User Manager
 class HackerNewsUserManager(BaseUserManager):
+
+    def create_empty_user(self):
+        user = self.model(date_joined=datetime.date.today())
+        user.database = self._db
+        return user
+
     def create_user(self, username, email, password=None):
         # Crea y guarda un usuario
         print ("Se ha usado HackerNewsUserManager")
@@ -14,14 +20,20 @@ class HackerNewsUserManager(BaseUserManager):
         if not email:
             raise ValueError('Email field cannot be empty')
 
-        user = self.model(
-            username=username,
-            email=self.normalize_email(email),
-            date_joined= datetime.date.today(),
-        )
+        user = self.create_empty_user()
 
+        user.email = email
+        user.username = username
         user.set_password(password)
+
         user.save(using=self._db)
+        api_key, key = UserAPIKey.objects.create_key(name=user.username, user=user)
+        print(api_key)
+        print(key)
+        user.key = key
+        user.save(using=self._db)
+        UserAPIKey.objects.create_key(user=user)
+
         return user
 
     # Crea un usuario admin
@@ -43,8 +55,11 @@ class HNUser(AbstractBaseUser):
     )
     karma = models.IntegerField(default=0)
 
-    date_joined = models.DateField()
+    key = models.CharField()
+
+    date_joined = models.DateField(auto_now_add=True)
     about = models.TextField(default='')
+
     # Necesario para crear admins
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
