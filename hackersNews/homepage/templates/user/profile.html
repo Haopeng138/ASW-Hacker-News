@@ -27,9 +27,10 @@
             <td>
               <textarea cols="60" rows="8" wrap="virtual" name="about" disabled="disabled">{{ about }}</textarea>
             </td>
-          </tr> {% endif %} <tr>
+          </tr> {% endif %} 
+          {% if own_user %}
+          <tr>
             <td>
-              {% comment %} <a href="{% url 'submissions' user_id=user_id %}"> {% endcomment %}
                 <u> upvoted comments</u>
               </a>
             </td>
@@ -41,6 +42,7 @@
               </a>
             </td>
           </tr>
+          {% endif %}
           <tr>
             <td>
                  <a href="{% url 'comments' user_id=user_id %}"> 
@@ -56,9 +58,6 @@
             </td>
           </tr>
         </table> 
-        {% comment %} {% if invalid_email %} 
-          <p>not valid email!</p>
-         {% endif %}  {% endcomment %}
          {% if updated_profile %} 
          <p>profile succesfully updated!</p> 
          {% endif %} 
