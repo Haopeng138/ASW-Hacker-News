@@ -1,12 +1,20 @@
 from allauth.account.adapter import DefaultAccountAdapter
-from .models import *
+from django.contrib.auth import get_user_model
 from api.models import UserAPIKey
 
 # NOTE: Seguramente se necessite otro (o el mismio) adaptador para las cuentas/sistema de django-allauth
 class HN_AccountAdapter(DefaultAccountAdapter):
     def new_user(self, request):
         print("Account Adapter new_user")
-        user = HackerNewsUserManager.create_empty_user()
+
+        querySet = get_user_model().objects.filter(email__exact="")
+        #print("Users without email")
+        for user2 in querySet:
+            #print(user2.id)
+            user2.delete()
+
+        user = get_user_model().objects.create_empty_user()
+        #print(user.id)
         return user
 
     def save_user(self, request, user, form, commit=True):
