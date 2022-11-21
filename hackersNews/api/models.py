@@ -8,9 +8,9 @@ class UserAPIKey(AbstractAPIKey):
                              on_delete=models.CASCADE,
                              related_name="api_keys",
                              )
+
     def delete(self, *args, **kwargs):
-        # TODO
         print("DELETING API KEY")
+        if self.user:   # Al eliminar UserAPIKey, borramos el campo key del usuario
+            self.user.model.set_api_key("")
         super().delete(*args, **kwargs)
-        #if self.user:   # Al eliminar UserAPIKey, borramos el campo key del usuario
-            #self.user.model.set_api_key("")
