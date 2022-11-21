@@ -42,6 +42,8 @@ urlpatterns = [
     path('user_submissions', views.user_submissions, name='user_submissions'),
     path('user_submissions/<int:page>', views.user_submissions, name='user_submissions_more'),
     path('upvote_post_views',views.upvote_post_views,name='user_post'),
-    path('upvote_post_views/<int:page>',views.upvote_post_views,name='user_post_more')
+    path('upvote_post_views/<int:page>',views.upvote_post_views,name='user_post_more'),
+    path('upvote_comment_views',views.upvote_comments_views,name='user_comment'),
+    path('upvote_comment_views/<int:page>',views.upvote_comments_views,name='user_comment')
      
 ]

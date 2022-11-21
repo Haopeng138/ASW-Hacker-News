@@ -465,6 +465,7 @@ def comments(request, user_id, page=None):
                                order_by('-insert_date')[
                            (page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
 
+
         context = {'tracking': get_tracking(request.user, current_comments),
                    'root_comments': current_comments,
                    'user_id': user_id,
@@ -564,3 +565,19 @@ def upvote_post_views(request,page=None):
         posts = Post.objects.filter(title__in=id_set)
         tracking = get_tracking(request.user, posts)
         return render_index_template(request, posts, tracking, 'upvote_post_views', page)
+
+def upvote_comments_views(request,page=None):
+    if request.method == 'GET':
+        page = get_page(page)
+        user_comment = CommentVoteTracking.objects.filter(user = request.user.id)
+        id_set = list()
+        for commentid in user_comment:
+            id_set.append(commentid.comment)
+        current_comments = Comment.objects.filter(content__in=id_set)
+
+        context = {'tracking': get_tracking(request.user, current_comments),
+                   'root_comments': current_comments,
+                   'user_id': request.user.id,
+                   'page': page + 1}
+        log.info(context)
+        return render(request, 'comments/comment_profile.html', context=context)
