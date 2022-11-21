@@ -119,6 +119,7 @@ class HNUser(AbstractBaseUser):
 
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
-        if self.key is not None or self.key is not "":
+        if self.key is not None or self.key != "":
             print("Eliminando user con key: " + self.key)
             # TODO eliminar tupla de UserAPIKey
+            # Creo que ya esta cubierto por el CASCADE delete
