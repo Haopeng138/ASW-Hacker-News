@@ -16,9 +16,3 @@ Este modulo se encargara de gestionar las cuentas y la autentificacion y su inte
  * [Know Thy User: Custom User Models With django-allauth](https://pyphilly.org/know-thy-user-custom-user-models-django-allauth/)
  * [Adding a custom authentication backend in Django](https://www.agiliq.com/blog/2019/11/django-custom-authentication-backend/)
  * [CSRF](https://docs.djangoproject.com/en/4.1/ref/csrf/)
-
-## DB Management
- * [(venv) python manage.py dbshell](## "Inicializa la terminal a la base de datos")
- * (sqlite) .tables
- * (sqlite) DROP TABLE nombre_tabla
- * (sqlite) SELECT * FROM nombre_tabla
