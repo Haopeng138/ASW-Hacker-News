@@ -58,6 +58,11 @@
                 | <a href="{% url 'comment_edit' comment_id=comment.id %}">edit</a>
                 | <a href="{% url 'comment_delete' comment_id=comment.id %}">delete</a>
             {% endif %}
+            {% if comment.id in tracking %}
+            | <a id="up_{{ comment.id }}" onclick="unvoteComment(this)" style="cursor: pointer">
+              unvote
+              </a>
+            {% endif %}
             <a class="togg" n="1"
                href="javascript:void(0)"
                onclick="return toggle(event, {{ comment.id }})">

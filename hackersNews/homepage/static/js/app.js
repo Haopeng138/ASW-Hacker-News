@@ -45,7 +45,7 @@ function upvote(item, item_str) {
         })
 
     }).catch(error => console.log(error));
-    //location.reload();
+    location.reload();
 }
 
 function upvotePost(item) {
@@ -60,7 +60,10 @@ function unvote(item, item_str) {
     let id = item.id.substring(3);
 
     let data = {id: id};
-    let url = ((item_str === 'post') ? 'unvote-post' : 'unvote-comment');
+    var base_url = "http://127.0.0.1:8000/homepage";
+    let url = ((item_str === 'post') ? '/unvote-post' : '/unvote-comment');
+    url = base_url+url
+    console.log(url)
     fetch(url, {
         method: 'POST',
         headers: {
@@ -72,7 +75,7 @@ function unvote(item, item_str) {
 
         res.json().then(res => {
             if (res.success) {
-                item.children[0].style.visibility = 'hidden';
+                //item.children[0].style.visibility = 'hidden';
 
                 scoreItem = document.getElementById('score_' + id);
                 if (item_str === 'post') {
