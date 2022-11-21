@@ -140,7 +140,6 @@ def profile(request, user_id):
 
     if user_query:
         user = user_query[0]
-        #api_key = UserAPIKey.objects.filter(user=user)
         if user.id == request.user.id:
             context = {
                 'user_id': user_id,
@@ -149,7 +148,7 @@ def profile(request, user_id):
                 'about': user.about,
                 'email': user.email,
                 'own_user': True,
-                'api-key': user.key
+                'api_key': user.key
             }
         else:
             context = {
