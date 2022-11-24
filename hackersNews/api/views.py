@@ -9,7 +9,7 @@ from.serializers import HNUserSerializer
 
 # Create your views here.
 @csrf_exempt
-#@api_view(['GET'])
+@api_view(['GET','POST'])
 @permission_classes([HasAPIKey])
 def user(request, id):
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
@@ -30,7 +30,7 @@ def user(request, id):
         serializer = HNUserSerializer(user)
         return JsonResponse(serializer.data)
 
-    elif request.method == 'PUT':
+    elif request.method == 'POST':
         data = JSONParser().parse(request)
         serializer = HNUserSerializer(user, data=data)
         if serializer.is_valid():
