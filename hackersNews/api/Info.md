@@ -1,5 +1,7 @@
 ## Information
- * [Django REST Framework guide](https://florimondmanca.github.io/djangorestframework-api-key/guide/#authorization-header)
+ * [Django REST Framework guide (API KEY)](https://florimondmanca.github.io/djangorestframework-api-key/guide/#authorization-header)
+ * [Django REST Framework Tutorial 1 - Serialization](https://www.django-rest-framework.org/tutorial/1-serialization/)
+
 
 ## Testing con curl
 * Si la view tiene el decorador @permission_classes([HasAPIKey]) se debe enviar una API key en el header
