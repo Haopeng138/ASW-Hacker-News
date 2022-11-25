@@ -6,6 +6,7 @@ from rest_framework_api_key.permissions import HasAPIKey
 from .models import UserAPIKey
 from accounts.models import HNUser
 from.serializers import HNUserSerializer
+from homepage.models import *
 
 # Create your views here.
 @csrf_exempt
@@ -47,3 +48,10 @@ def users_list(request):
         serializer = HNUserSerializer(users, many=True)
         return JsonResponse(serializer.data, safe=False)
 
+@permission_classes([HasAPIKey])
+def sub_comment_list(request, id):
+    if request.method == 'GET':
+        submission = Post.objects.filter(pk=id)
+        comment_list = submission.comment_set
+        serializer = CommentSerializer(comment_list, many=True)
+        return JsonResponse(serializer. data, safe=False)
