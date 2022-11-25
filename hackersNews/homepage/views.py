@@ -477,14 +477,14 @@ def comments(request, user_id, page=None):
         return render(request, 'comments/comment_profile.html', context=context)
     
 
-def user_submissions (request, page=None):
+def user_submissions (request,user_id,page=None):
      if request.method == 'GET':
         page = get_page(page)
-        posts = Post.objects.filter(user__id = request.user.id). \
+        posts = Post.objects.filter(user__id = user_id). \
                      order_by('-insert_date')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
         
         tracking = get_tracking(request.user, posts)
-        return render_index_template(request, posts, tracking, 'user_submissions', page)
+        return render_index_template(request, posts, tracking, 'user_submissions', page, {'user_id': user_id})
 
 @csrf_exempt
 def upvote_post(request):
