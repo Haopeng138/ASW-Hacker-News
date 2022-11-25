@@ -12,7 +12,7 @@ class HackerNewsUserManager(BaseUserManager):
         user = self.model(date_joined=datetime.date.today())
         user.database = self._db
         user.save()
-        api_key, key = UserAPIKey.objects.create_key(name="HN_API", user=user)
+        api_key,key = UserAPIKey.objects.create_key(name="HN_API", user=user)
         # print(api_key)                            # Model API Key
         # print(key + " len: %i", len(key) )        # API key en si
         user.set_api_key(key)
