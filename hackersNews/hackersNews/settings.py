@@ -41,6 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.messages',
 
+    'api.apps.ApiConfig',
+
+    'rest_framework',
+    'rest_framework_api_key',
+
     'homepage.apps.HomepageConfig',
     # Google OAuth Django module
     'allauth',
@@ -151,15 +156,17 @@ AUTH_USER_MODEL = 'accounts.HNUser'
 
 STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 STATIC_TMP = os.path.join(BASE_DIR,'static')
-STATIC_URL = '/static/'
+
+#STATIC_URL = '/static/'
 
 os.makedirs(STATIC_TMP,exist_ok=True)
 os.makedirs(STATIC_ROOT,exist_ok=True)
 
+"""
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR,'static'),
 )
-
+"""
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Allauth
@@ -220,7 +227,7 @@ ACCOUNT_FORMS = { # Especificar forms personalizados
 
 ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
 
-SOCIALACCOUNT_AUTO_SIGNUP = False  # DEF: True
+SOCIALACCOUNT_AUTO_SIGNUP = True  # DEF: True
 
 ACCOUNT_ADAPTER = 'accounts.adapters.HN_AccountAdapter'
 

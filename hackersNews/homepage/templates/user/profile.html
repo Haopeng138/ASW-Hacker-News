@@ -20,7 +20,8 @@
           <tr>
             <td valign="top">email:</td>
             <td>
-              <input type="text" name="email" value="{{ email }}" size="60">
+              <!-- > <input type="text" name="email" value="{{ email }}" size="60"> <-->
+              {{ email }}
             </td>
           </tr> {% else %} <tr>
             <td valign="top">about:</td>
@@ -29,6 +30,10 @@
             </td>
           </tr> {% endif %} 
           {% if own_user %}
+          <tr>
+            <td valign="top">API Key:</td>
+            <td> {{ api_key }} </td>
+          </tr>
           <tr>
             <td>
               <a href="{% url 'user_comment' %}">

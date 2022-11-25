@@ -1,40 +1,69 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 import datetime
-
+from api.models import UserAPIKey
 
 # Create your models here.
 
 # User Manager
 class HackerNewsUserManager(BaseUserManager):
+    def create_empty_user(self):
+        print("Creating Empty User (HN User Manager)")
+        user = self.model(date_joined=datetime.date.today())
+        user.database = self._db
+        user.save()
+        api_key,key = UserAPIKey.objects.create_key(name="HN_API", user=user)
+        # print(api_key)                            # Model API Key
+        # print(key + " len: %i", len(key) )        # API key en si
+        user.set_api_key(key)
+        user.save()
+        return user
+
     def create_user(self, username, email, password=None):
         # Crea y guarda un usuario
-        print ("Se ha usado HackerNewsUserManager")
+        print("Creating User")
 
         if not email:
             raise ValueError('Email field cannot be empty')
 
-        user = self.model(
-            username=username,
-            email=self.normalize_email(email),
-            date_joined= datetime.date.today(),
-        )
+        user = self.create_empty_user()
 
-        user.set_password(password)
-        user.save(using=self._db)
+        user.email = email
+        user.username = username
+
+        if password is not None:
+            user.set_password(password)
+        else:
+            print("ERROR: Password vacío")
+            user.set_password("")
+
+        # TODO: Mover a create_empty_user() (Falta eliminar/cambiar la "pk" name)
+        #api_key, key = UserAPIKey.objects.create_key(name=user.username, user=user)
+        #print(api_key)  # Model API Key
+        #print(key)      # API key en si
+        #user.key = key
+        user.save()
+
+        api_key = UserAPIKey.objects.get_from_key(user.key)
+        api_key.user = user
+        api_key.save()
+
+#        user.save(using=self._db)
         return user
 
     # Crea un usuario admin
     def create_superuser(self, email, username, password=None):
         user = self.create_user(username, email=email, password=password)
         user.is_admin = True
-        user.save(using=self._db)
+        user.save()
+      #  user.save(using=self._db)
         return user
 
 
 # Model de Usuario
 class HNUser(AbstractBaseUser):
     id = models.AutoField(primary_key=True)
+
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(
         verbose_name='Email address',
@@ -43,8 +72,11 @@ class HNUser(AbstractBaseUser):
     )
     karma = models.IntegerField(default=0)
 
-    date_joined = models.DateField()
+    key = models.CharField(max_length=255, editable=False)
+
+    date_joined = models.DateField(auto_now_add=True)
     about = models.TextField(default='')
+
     # Necesario para crear admins
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -53,7 +85,11 @@ class HNUser(AbstractBaseUser):
     EMAIL_FIELD = 'email'  # Accesible mediante get_email_field_name()
     REQUIRED_FIELDS = ['username']  # password y USERNAME_FIELD simpre son requeridos
     # https://docs.djangoproject.com/en/4.1/topics/auth/customizing/#django.contrib.auth.models.CustomUser.REQUIRED_FIELDS
+
     objects = HackerNewsUserManager()
+
+    def set_api_key(self, key):
+        self.key =key
 
     def __str__(self):
         return self.username
@@ -80,3 +116,10 @@ class HNUser(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        if self.key is not None or self.key != "":
+            print("Eliminando user con key: " + self.key)
+            # TODO eliminar tupla de UserAPIKey
+            # Creo que ya esta cubierto por el CASCADE delete
