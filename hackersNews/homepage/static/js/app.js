@@ -16,8 +16,8 @@ var crsfToken = parseCrsfToken();
 function upvote(item, item_str) {
     let id = item.id.substring(3);
     let data = {id: id};
-    var base_url = "http://127.0.0.1:8000/homepage";
-    let url = ((item_str === 'post') ? '/upvote-post' : '/upvote-comment');
+    var base_url = "http://127.0.0.1:8000/homepage/";
+    let url = ((item_str === 'post') ? 'upvote-post' : 'upvote-comment');
     
     url = base_url+url;
     console.log(url);
@@ -45,7 +45,7 @@ function upvote(item, item_str) {
         })
 
     }).catch(error => console.log(error));
-    location.reload();
+      //location.reload();
 }
 
 function upvotePost(item) {
@@ -89,7 +89,7 @@ function unvote(item, item_str) {
         })
 
     }).catch(error => console.log(error));
-    location.reload();
+    //location.reload();
 }
 
 function unvotePost(item) {
