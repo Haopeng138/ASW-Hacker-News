@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from accounts.models import HNUser
+from homepage.models import *
 
 
 class HNUserSerializer(serializers.Serializer):
@@ -20,3 +21,39 @@ class HNUserSerializer(serializers.Serializer):
 
         instance.save()
         return instance
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    #insert_date = serializers.DateTimeField(read_only=True)
+    user = HNUserSerializer()
+    #post = PostSerializer()
+
+    class Meta:
+        model = Comment
+        fields = ['insert_date', 'content', 'user']
+
+
+class PostSerializer(serializers.ModelSerializer):
+    user = HNUserSerializer()
+    comment_set = CommentSerializer(many=True)
+    class Meta:
+        model = Post
+        fields = ['title', 'url', 'site', 'votes', 'user', 'insert_date', 'comment_set']
+
+
+class PostVoteSerializer(serializers.ModelSerializer):
+    user = HNUserSerializer()
+    post = PostSerializer()
+
+    class Meta:
+        model = PostVoteTracking
+        fields = ['user', 'post']
+
+
+class CommentVoteSerializer(serializers.ModelSerializer):
+    user = HNUserSerializer()
+    commet = CommentSerializer()
+
+    class Meta:
+        model = CommentVoteTracking
+        fields = ['user', 'comment']
