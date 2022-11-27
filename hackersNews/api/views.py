@@ -55,3 +55,9 @@ def sub_comment_list(request, id):
         comment_list = submission.comment_set
         serializer = CommentSerializer(comment_list, many=True)
         return JsonResponse(serializer. data, safe=False)
+
+def get_submission(request, id):
+    if request.method == 'GET':
+        submission = Post.objects.filter(pk=id)
+        serializer = PostSerializer(submission, many=False)
+        return JsonResponse(serializer.data, safe=False)
