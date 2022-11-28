@@ -52,15 +52,15 @@
           discuss
         {% endif %}
         </a>
-        {% if post.id in tracking %}
-        | <a id="up_{{ post.id }}" onclick="unvotePost(this)" style="cursor: pointer">
-          unvote
-        </a>
-        {% endif%}
        {% if post.user == request.user %} 
         | <a href="{% url 'post_edit' post_id=post.id %}">edit</a> |
         <a href="{% url 'post_delete' post_id=post.id %}">delete</a>
       {% endif %} 
+      {% if post.id in tracking %}
+      | <a id="up_{{ post.id }}" onclick="unvotePost(this)" style="cursor: pointer">
+        unvote
+      </a>
+      {% endif%}
 
     </td>
   </tr>
@@ -77,8 +77,8 @@
                          {% url 'new_more' page=page %}
                          {% elif category == 'ask' %}
                          {% url 'ask_more' page=page %}
-                         {% comment %} {% elif category == 'show' %}
-                         {% url 'show_more' page=page %} {% endcomment %}
+                         {% elif category == 'user_submissions' %}
+                         {% url 'user_submissions_more' user_id=user_id page=page %} 
                          {% elif category == 'user_post' %}
                          {% url 'submissions_more' page=page %} 
                          {% elif category == 'threads' %}

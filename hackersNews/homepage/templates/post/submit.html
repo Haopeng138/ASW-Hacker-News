@@ -4,6 +4,9 @@
 {% if errors %}
 Please try again.<br><br>
 {% endif %}
+{% if url_exist %}
+Url ya existe ! <br><br>
+{% endif %}
 
 <form method="post" ><input type="hidden" name="fnid" action={% url 'submit' %} >
    
