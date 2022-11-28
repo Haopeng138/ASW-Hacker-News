@@ -81,10 +81,11 @@ def get_user_submissions(request, id):
 
 @permission_classes([HasAPIKey])
 def post_comment(request, id):
+    post = Post.objects.get(pk=id)
     if request.method == 'GET':
-        return redirect('post', id=post_id)
+        serializer = PostSerializer(post, many=False)
+        return JsonResponse(serializer.data, safe=False)
     elif request.method == 'POST':
-        post = Post.objects.get(pk=id)
         content = request.POST['text'].strip()
         comment = Comment(user=request.user,
                           post=post,
