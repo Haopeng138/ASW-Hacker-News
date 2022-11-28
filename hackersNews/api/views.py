@@ -51,13 +51,22 @@ def users_list(request):
 @permission_classes([HasAPIKey])
 def sub_comment_list(request, id):
     if request.method == 'GET':
-        submission = Post.objects.filter(pk=id)
+        submission = Post.objects.get(pk=id)
         comment_list = submission.comment_set
         serializer = CommentSerializer(comment_list, many=True)
-        return JsonResponse(serializer. data, safe=False)
+        return JsonResponse(serializer.data, safe=False)
 
+@permission_classes([HasAPIKey])
 def get_submission(request, id):
     if request.method == 'GET':
-        submission = Post.objects.filter(pk=id)
+        submission = Post.objects.get(pk=id)
         serializer = PostSerializer(submission, many=False)
         return JsonResponse(serializer.data, safe=False)
+
+@permission_classes([HasAPIKey])
+def get_user_comments(request, id):
+    if request.method == 'GET':
+        user = HNUser.objects.get(pk=id)
+        user_comments = Comment.objects.filter(user=user)
+        serializer = CommentSerializer(user_comments, many=True)
+        return JsonResponde(serializer.data, safe=False)
