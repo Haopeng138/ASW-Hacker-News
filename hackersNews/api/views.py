@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.parsers import JSONParser
 from rest_framework_api_key.permissions import HasAPIKey
+from rest_framework_api_key.models import APIKey
 from .models import UserAPIKey
 from accounts.models import HNUser
 from.serializers import HNUserSerializer
@@ -10,12 +11,15 @@ from homepage.models import *
 import json
 from django.db.utils import IntegrityError
 # Create your views here.
-@csrf_exempt
-@api_view(['GET','POST'])
+
+#@csrf_exempt
+#@api_view(['GET','POST'])
 @permission_classes([HasAPIKey])
 def user(request, id):
-    key = request.META["HTTP_AUTHORIZATION"].split()[1]
-
+    # user = UserAPIKey.objects.get_from_key()
+    # print(user.id)
+    # key = request.META["HTTP_AUTHORIZATION"].split()[1]
+    # print(key)
     if id is not None:
         try:
             user = HNUser.objects.get(pk=id)
@@ -44,29 +48,45 @@ def user(request, id):
 
 @permission_classes([HasAPIKey])
 def users_list(request):
+    print(request.META)
+    key = request.META["HTTP_AUTHORIZATION"].split()[1]
+    api_key = APIKey.objects.get_from_key(key)
+    user = HNUser.objects.get(api_key=api_key)
+    print(user.id)
     if request.method == 'GET':
         users = HNUser.objects.all()
         serializer = HNUserSerializer(users, many=True)
         return JsonResponse(serializer.data, safe=False)
 
 
-@api_view(['POST'])
+
 #@permission_classes([HasAPIKey])
 @csrf_exempt
 def upvote_post(request,id):
+    print(request.headers)
     return upvote(request, 'post',id)
 
-@api_view(['POST'])
+
 @permission_classes([HasAPIKey])
 @csrf_exempt
 def upvote_comment(request,id):
     return upvote(request, 'comment',id)
-    
+
+@api_view(['POST'])
+#@permission_classes([HasAPIKey])
 @csrf_exempt
 def upvote(request, item_str,id):
+    key = request.META["HTTP_AUTHORIZATION"].split()[1]
+    api_key = APIKey.objects.get_from_key(key)
+    user = HNUser.objects.get(api_key=api_key)
+    print(user.id)
     if request.method == 'POST':
-        if request.user.id:
-            user = HNUser.objects.filter(id=request.user.id)[0]
+        print(request.headers)
+        print(request.headers['Apikey'])
+        user = UserAPIKey.objects.get_from_key(request.headers['Apikey'])
+        print(user.id)
+        if user.id:
+            user = HNUser.objects.filter(id=user.id)[0]
             if item_str == 'post':
                 item = Post.objects.filter(id=id)[0]
                 tracking = PostVoteTracking(user=user, post=item)
