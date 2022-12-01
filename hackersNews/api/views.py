@@ -203,13 +203,23 @@ def sub_comment_list(request, id):
         serializer = CommentSerializer(comment_list, many=True)
         return JsonResponse(serializer.data, safe=False)
     elif request.method == 'POST':
+        """
         content = request.POST['text'].strip()
         comment = Comment(user=request.user,
-                          post=submission,
+                          post=post,
                           reply=None,
                           content=content)
         serializer = CommentSerializer(comment, many=False)
         return JsonResponse(serializer.data, safe=False)
+        """
+        key = request.META["HTTP_AUTHORIZATION"].split()[1]
+        user = getUser(key)
+        serializer = PostSerializer(data=request.data)
+        if (serializer.is_valid()):
+            serializer.save(user=user)
+            serializer.save(post=post)
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
 
 @permission_classes([HasAPIKey])
 def get_submission(request, id):
@@ -217,14 +227,6 @@ def get_submission(request, id):
         submission = Post.objects.get(pk=id)
         serializer = PostSerializer(submission, many=False)
         return JsonResponse(serializer.data, safe=False)
-
-def get_submission_list(request):
-    pass
-
-
-
-
-
 
 # UPVOTE
 @permission_classes([HasAPIKey])
@@ -309,18 +311,15 @@ def unvote(request, item_str,id):
             return JsonResponse({'success': True})
         else: return JsonResponse({'success': False})
 
-
 @permission_classes([HasAPIKey])
-def post_comment(request, id):
-    post = Post.objects.get(pk=id)
-    if request.method == 'GET':
-        serializer = PostSerializer(post, many=False)
-        return JsonResponse(serializer.data, safe=False)
-    elif request.method == 'POST':
-        content = request.POST['text'].strip()
-        comment = Comment(user=request.user,
-                          post=post,
-                          reply=None,
-                          content=content)
-        serializer = CommentSerializer(comment, many=False)
-        return JsonResponse(serializer.data, safe=False)
+def reply_comment(self, request, cid):
+    if request.method == 'POST':
+        key = request.META["HTTP_AUTHORIZATION"].split()[1]
+        user = getUser(key)
+        comment = Comment.objects.get(pk=cid)
+        serializer = PostSerializer(data=request.data)
+        if (serializer.is_valid()):
+            serializer.save(user=user)
+            serializer.save(comment=comment)
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
