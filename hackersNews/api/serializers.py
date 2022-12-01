@@ -34,8 +34,12 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    user = HNUserSerializer()
-    comment_set = CommentSerializer(many=True)
+    url = serializers.CharField(required=False)
+    site = serializers.CharField(required=False)
+    votes = serializers.IntegerField(read_only=True)
+    insert_date = serializers.DateTimeField(read_only=True)
+    user = HNUserSerializer(read_only=True)
+    comment_set = CommentSerializer(many=True, read_only=True)
     class Meta:
         model = Post
         fields = ['title', 'url', 'site', 'votes', 'user', 'insert_date', 'comment_set']
