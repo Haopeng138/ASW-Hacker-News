@@ -13,7 +13,7 @@ class HackerNewsUserManager(BaseUserManager):
         print("Deleting Empty Users")
         querySet = HNUser.objects.filter(email__exact="")
         for tmpUser in querySet:
-            print("Deleting user %i", tmpUser.id)
+            print("Deleting user ", tmpUser.id)
             tmpUser.delete()
 
         user = self.model(date_joined=datetime.date.today())
