@@ -267,7 +267,8 @@ CORS_ALLOW_METHODS = (
     'PUT',
 )
 
-CSRF_TRUSTED_ORIGINS = ['https://*.herokuapp.com']
+CSRF_TRUSTED_ORIGINS = ['https://*.herokuapp.com',
+'https://haopeng138.pythonanywhere.com/']
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {

@@ -113,7 +113,7 @@ def submit(request):
         title = request.POST['title'].strip()
         url = request.POST['url']
         text = request.POST['text'].strip()
-        if Post.objects.filter(url = url).exists():
+        if Post.objects.filter(url = url).exists() and url != '':
            return render(request,'post/submit.html',context={'url_exist':True}) 
 
         if not check_submission(title, url, text):
