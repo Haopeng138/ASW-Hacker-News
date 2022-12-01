@@ -1,0 +1,26 @@
+openapi: '3.0.2'
+info:
+  title: Hacker News Api
+  version: '1.0'
+servers:
+  - url: http://127.0.0.1:8000/api
+paths:
+  /users:
+    get:
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: OK
+
+
+components:
+  securitySchemes:
+    ApiKeyAuth:        # arbitrary name for the security scheme
+      type: apiKey
+      in: header       # can be "header", "query" or "cookie"
+      name: apiKey # name of the header, query parameter or cookie
+# 2) Apply the API key globally to all operations
+security:
+  - ApiKeyAuth: [] 
+
