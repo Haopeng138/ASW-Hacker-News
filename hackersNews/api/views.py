@@ -50,10 +50,18 @@ def users_list(request):
 
 @permission_classes([HasAPIKey])
 def sub_comment_list(request, id):
+    submission = Post.objects.get(pk=id)
     if request.method == 'GET':
-        submission = Post.objects.get(pk=id)
         comment_list = submission.comment_set
         serializer = CommentSerializer(comment_list, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'POST':
+        content = request.POST['text'].strip()
+        comment = Comment(user=request.user,
+                          post=submission,
+                          reply=None,
+                          content=content)
+        serializer = CommentSerializer(comment, many=False)
         return JsonResponse(serializer.data, safe=False)
 
 @permission_classes([HasAPIKey])
@@ -62,10 +70,6 @@ def get_submission(request, id):
         submission = Post.objects.get(pk=id)
         serializer = PostSerializer(submission, many=False)
         return JsonResponse(serializer.data, safe=False)
-    elif request.method == 'POST':
-        pass
-
-
 
 @permission_classes([HasAPIKey])
 def get_user_comments(request, id):
@@ -81,19 +85,4 @@ def get_user_submissions(request, id):
         user = HNUser.objects.get(pk=id)
         user_submissions = Post.objects.filter(user=user)
         serializer = PostSerializer(user_submissions, many=True)
-        return JsonResponse(serializer.data, safe=False)
-
-@permission_classes([HasAPIKey])
-def post_comment(request, id):
-    post = Post.objects.get(pk=id)
-    if request.method == 'GET':
-        serializer = PostSerializer(post, many=False)
-        return JsonResponse(serializer.data, safe=False)
-    elif request.method == 'POST':
-        content = request.POST['text'].strip()
-        comment = Comment(user=request.user,
-                          post=post,
-                          reply=None,
-                          content=content)
-        serializer = CommentSerializer(comment, many=False)
         return JsonResponse(serializer.data, safe=False)
