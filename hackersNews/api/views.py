@@ -241,6 +241,7 @@ def upvote_comment(request,id):
 def upvote(request, item_str,id):
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
     user = getUser(key)
+    print(user.id)
     if request.method == 'POST':
         if user.id:
             if item_str == 'post':
@@ -273,18 +274,21 @@ def unvote_post(request,id):
 def unvote_comment(request,id):
     return unvote(request, 'comment',id)
 
+@permission_classes([HasAPIKey])
 @csrf_exempt
 def unvote(request, item_str,id):
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
     user = getUser(key)
     print(user.id)
     if request.method == 'POST':
-        if request.user.id:
+        print(user.id)
+        if user.id:
             if item_str == 'post':
                 item = Post.objects.filter(id=id)[0]
-                print(item)
                 PostVoteTracking.objects.filter(user=user, post=item).delete()
             else:
+                print("some")
+                print(user.id)
                 item = Comment.objects.filter(id=id)[0]
                 CommentVoteTracking.objects.filter(user=user, comment=item).delete()
             try:
