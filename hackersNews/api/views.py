@@ -183,8 +183,8 @@ class submission_list(APIView):
     permission_classes = [HasAPIKey]
 
     def get(self, request, format=None):
-
-        submissions = Post.objects.all()
+        
+        submissions = Post.objects.all() # .orderby(..)
         serializer = PostSerializer(submissions, many=True)
         return JsonResponse(serializer.data, safe=False)
 
@@ -193,14 +193,16 @@ class submission_list(APIView):
         user = getUser(key)
         data = JSONParser().parse(request)
         print(data)
-        serializer = PostSerializer(data=request.data)
+        serializer = PostSerializer(data=data)
         if (serializer.is_valid()):
             serializer.save(user=user)
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
 
 @permission_classes([HasAPIKey])
+@csrf_exempt
 def sub_comment_list(request, id):
+    print(request)
     submission = Post.objects.get(pk=id)
     if request.method == 'GET':
         comment_list = submission.comment_set
@@ -218,10 +220,11 @@ def sub_comment_list(request, id):
         """
         key = request.META["HTTP_AUTHORIZATION"].split()[1]
         user = getUser(key)
-        serializer = PostSerializer(data=request.data)
+        data = JSONParser().parse(request)
+        serializer = CommentSerializer(data=data)
         if (serializer.is_valid()):
             serializer.save(user=user)
-            serializer.save(post=post)
+            serializer.save(post=submission)
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
 
@@ -233,19 +236,20 @@ def get_submission(request, id):
         return JsonResponse(serializer.data, safe=False)
 
 # UPVOTE
-@permission_classes([HasAPIKey])
 @csrf_exempt
+@api_view(['POST'])
+@permission_classes([HasAPIKey])
 def upvote_post(request,id):
     return upvote(request, 'post',id)
 
-@permission_classes([HasAPIKey])
 @csrf_exempt
+@api_view(['POST'])
+@permission_classes([HasAPIKey])
 def upvote_comment(request,id):
     return upvote(request, 'comment',id)
 
-@api_view(['POST'])
-@permission_classes([HasAPIKey])
-@csrf_exempt
+"""@permission_classes([HasAPIKey])
+@csrf_exempt"""
 def upvote(request, item_str,id):
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
     user = getUser(key)
@@ -270,20 +274,20 @@ def upvote(request, item_str,id):
             return JsonResponse({'success': True,'message':'Votado con existo'})
         else: return JsonResponse({'success': False,'message':'No user'})
 
+
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([HasAPIKey])
-@csrf_exempt
 def unvote_post(request,id):
     return unvote(request, 'post',id)
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([HasAPIKey])
-@csrf_exempt
 def unvote_comment(request,id):
     return unvote(request, 'comment',id)
 
-@permission_classes([HasAPIKey])
-@csrf_exempt
+
 def unvote(request, item_str,id):
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
     user = getUser(key)
@@ -291,35 +295,48 @@ def unvote(request, item_str,id):
     if request.method == 'POST':
         print(user.id)
         if user.id:
+            hadVote = False
             if item_str == 'post':
                 item = Post.objects.filter(id=id)[0]
+                if item is not None: hadVote=True
                 PostVoteTracking.objects.filter(user=user, post=item).delete()
             else:
                 print("some")
                 print(user.id)
                 item = Comment.objects.filter(id=id)[0]
+                if item is not None: hadVote=True
                 CommentVoteTracking.objects.filter(user=user, comment=item).delete()
             try:
-
-                item.user.karma -= 1
-                item.user.save()
-                item.votes -= 1
-                item.save()
+                if (hadVote):
+                    item.user.karma -= 1
+                    item.user.save()
+                    item.votes -= 1
+                    item.save()
             except IntegrityError:
                 return JsonResponse({'success': False,'message':'No habias votado'})
 
             return JsonResponse({'success': True,'message':'Has desvotado'})
         else: return JsonResponse({'success': False,'messafe':'No user'})
 
+@csrf_exempt
 @permission_classes([HasAPIKey])
-def reply_comment(self, request, cid):
+def reply_comment(request, id):
     if request.method == 'POST':
         key = request.META["HTTP_AUTHORIZATION"].split()[1]
         user = getUser(key)
-        comment = Comment.objects.get(pk=cid)
-        serializer = PostSerializer(data=request.data)
+        comment = Comment.objects.get(pk=id)
+        data = JSONParser().parse(request)
+        serializer = CommentSerializer(data=data)
         if (serializer.is_valid()):
+            post = None
+            currentCom = comment
+
+            while post is None:
+                post = currentCom.post
+                currentCom = currentCom.reply
+
             serializer.save(user=user)
-            serializer.save(comment=comment)
+            serializer.save(reply=comment)
+            serializer.save(post=post)
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
