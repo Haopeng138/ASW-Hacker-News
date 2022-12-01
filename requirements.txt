@@ -46,3 +46,4 @@ urllib3==1.26.11
 virtualenv==20.16.3
 whitenoise==6.2.0
 wxpy==0.3.9.8
+django-cors-headers==3.13.0

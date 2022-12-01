@@ -30,7 +30,7 @@ paths:
               application/json:
                 schema:
                   $ref: "#/components/schemas/User"
-  /users/{id}:
+  /users/{id}/:
     get:
       tags:
         - User
@@ -69,7 +69,15 @@ paths:
         content:
           application/json:
              schema:
-                $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  username:
+                    type: string
+                    example: "Pablo"
+                  about:
+                    type: string
+                    example: "I'm a software pro!"
+                    #$ref: "#/components/schemas/User"
       responses:
         200:
           description: successful operation
