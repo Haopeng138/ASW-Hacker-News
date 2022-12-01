@@ -48,11 +48,6 @@ def user(request, id):
 
 @permission_classes([HasAPIKey])
 def users_list(request):
-    print(request.META)
-    key = request.META["HTTP_AUTHORIZATION"].split()[1]
-    api_key = APIKey.objects.get_from_key(key)
-    user = HNUser.objects.get(api_key=api_key)
-    print(user.id)
     if request.method == 'GET':
         users = HNUser.objects.all()
         serializer = HNUserSerializer(users, many=True)

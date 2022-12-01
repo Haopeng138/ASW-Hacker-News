@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     # providers.google es uno de muchos proveedores de OAuth
     'accounts.apps.AccountsConfig',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -64,8 +65,18 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware'
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    #Cors
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+CORS_ORIGIN_WHITELIST = (
+'http://localhost:8000',  # for localhost (REACT Default)
+'http://192.168.10.45:3000', # for network
+)
+
+
 
 CSRF_TRUSTED_ORIGINS = ["https://sheltered-wave-07620.herokuapp.com"]
 ROOT_URLCONF = 'hackersNews.urls'
