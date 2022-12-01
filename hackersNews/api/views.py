@@ -28,6 +28,7 @@ def getUser(id):
         except:
             raise Http404
 
+"""
 @csrf_exempt
 @api_view(['GET','POST','PUT'])
 @permission_classes([HasAPIKey])
@@ -60,6 +61,7 @@ def user(request, id):
         return JsonResponse(serializer.errors, status=400)
 
     return HttpResponse(status=400)
+"""
 
 class user_list(APIView):
     permission_classes = [HasAPIKey]
@@ -75,7 +77,7 @@ class user_list(APIView):
         if newUser is not None:
             serializer = HNUserSerializer(newUser, many=False)
             return JsonResponse(serializer.data)
-        return JsonResponse(status=400)
+        return JsonResponse(data,status=400)
 
 """
 @permission_classes([HasAPIKey])
@@ -116,7 +118,7 @@ class user_comments(APIView):
         return JsonResponse(serializer.data, safe=False)
 
     def upvoted_comments(self, user):
-        upvoted_comments = CommentVoteTracking.objects.filter(user=user).values("comment")
+        upvoted_comments = Comment.objects.filter(commentvotetracking__user=user)
         serializer = CommentSerializer(upvoted_comments, many=True)
         return  JsonResponse(serializer.data, safe=False)
 
@@ -150,7 +152,7 @@ class user_submissions(APIView):
         return JsonResponse(serializer.data, safe=False)
 
     def upvoted_submission(self, user):
-        upvoted_submissions = PostVoteTracking.objects.filter(user=user).values("post")
+        upvoted_submissions = Post.objects.filter(upvotes__user=user)
         serializer = PostSerializer(upvoted_submissions, many=True)
         return JsonResponse(serializer.data, safe=False)
 
@@ -189,6 +191,8 @@ class submission_list(APIView):
     def post(self, request, format=None):
         key = request.META["HTTP_AUTHORIZATION"].split()[1]
         user = getUser(key)
+        data = JSONParser().parse(request)
+        print(data)
         serializer = PostSerializer(data=request.data)
         if (serializer.is_valid()):
             serializer.save(user=user)
