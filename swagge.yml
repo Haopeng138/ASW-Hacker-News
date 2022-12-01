@@ -4,6 +4,7 @@ info:
   version: '1.0'
 servers:
   - url: http://127.0.0.1:8000/api
+  - url: https://haopeng138.pythonanywhere.com/api/users/
 paths:
   /users/:
     get:
