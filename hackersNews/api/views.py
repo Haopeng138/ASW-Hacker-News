@@ -62,11 +62,15 @@ def get_submission(request, id):
         submission = Post.objects.get(pk=id)
         serializer = PostSerializer(submission, many=False)
         return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'POST':
+        pass
+
+
 
 @permission_classes([HasAPIKey])
 def get_user_comments(request, id):
     if request.method == 'GET':
-        user = User.objects.get(pk=id)
+        user = HNUser.objects.get(pk=id)
         user_comments = Comment.objects.filter(user=user)
         serializer = CommentSerializer(user_comments, many=True)
         return JsonResponse(serializer.data, safe=False)
@@ -74,7 +78,7 @@ def get_user_comments(request, id):
 @permission_classes([HasAPIKey])
 def get_user_submissions(request, id):
     if request.method == 'GET':
-        user = User.objects.get(pk=id)
+        user = HNUser.objects.get(pk=id)
         user_submissions = Post.objects.filter(user=user)
         serializer = PostSerializer(user_submissions, many=True)
         return JsonResponse(serializer.data, safe=False)
