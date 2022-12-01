@@ -17,7 +17,7 @@ paths:
   /users/:
     get:
       tags:
-        - usersHeader
+        - User
       summary: Retrieves a list of all users
       description: Returns a list of all users
       operationId: users_list
@@ -33,7 +33,7 @@ paths:
   /users/{id}:
     get:
       tags:
-        - user
+        - User
       summary: Retrieves an user by its id
       description: Returns an user
       operationId: user
@@ -53,7 +53,7 @@ paths:
                 $ref: "#/components/schemas/User"
     put:
       tags:
-        - user
+        - User
       summary: Updates an user
       description: This can only be done by the logged user
       operationId: update_user
@@ -80,7 +80,7 @@ paths:
   /{username}/upvoted:
     get:
       tags:
-        - "user"
+        - User
       summary: Upvoted submissions
       description: Returns the upvoted submissions
       operationId: upvotedSubmissions
@@ -101,7 +101,7 @@ paths:
   /upvote-post/{submissionId}:
     post:
       tags:
-        - submissions
+        - Submission
       summary: Upvotes a Submission
       operationId: upvote_post
       parameters:
@@ -183,7 +183,7 @@ paths:
   /submission/{submissionId}:
     get:
       tags:
-        - "submissions"
+        - Submission
       summary: Finds a Submission by its ID
       description: Returns a single Submission
       operationId: detailedSubmission
@@ -213,7 +213,7 @@ paths:
                   $ref: "#/components/examples/error400content"
     post:
       tags:
-        - submissions
+        - Submission
       summary: Adds a new comment for the submission
       description: Returns a single Submission
       operationId: addComment
@@ -266,7 +266,7 @@ paths:
   /submission/{submissionId}/upvote:
     post:
       tags:
-        - submissions
+        - Submission
       summary: Upvotes a Submission
       operationId: upvoteSubmission
       parameters:
@@ -293,7 +293,7 @@ paths:
   /{username}/submissions:
     get:
       tags:
-        - user
+        - User
       summary: Retrieves all submissions by user
       operationId: submissionsByUser
       parameters:
@@ -321,7 +321,7 @@ paths:
   /date/{date}:
     get:
       tags:
-        - submissions
+        - Submission
       summary: Retrieves all submissions by date
       operationId: submissionsByDate
       parameters:
@@ -342,7 +342,7 @@ paths:
   /{username}/comments:
     get:
       tags:
-        - comments
+        - Comment
       summary: Retrieves all comments by user
       operationId: commentsByUser
       parameters:
@@ -370,7 +370,7 @@ paths:
   /submission/{submissionId}/comments:
     get:
       tags:
-        - comments
+        - Comment
       summary: Retrieve comments of a certain submission
       description: Returns the comments of the specified submission
       operationId: commentsSubmission
