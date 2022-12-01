@@ -112,6 +112,7 @@ env.bak/
 venv.bak/
 virtualenv/
 pythonanywhere
+pythonanywhere/
 
 # Spyder project settings
 .spyderproject

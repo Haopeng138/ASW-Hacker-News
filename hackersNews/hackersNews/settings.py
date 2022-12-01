@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     # providers.google es uno de muchos proveedores de OAuth
     'accounts.apps.AccountsConfig',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -64,8 +65,18 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'whitenoise.middleware.WhiteNoiseMiddleware'
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    #Cors
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+CORS_ORIGIN_WHITELIST = (
+'http://localhost:8000',  # for localhost (REACT Default)
+'http://192.168.10.45:3000', # for network
+)
+
+
 
 CSRF_TRUSTED_ORIGINS = ["https://sheltered-wave-07620.herokuapp.com"]
 ROOT_URLCONF = 'hackersNews.urls'
@@ -236,3 +247,35 @@ ACCOUNT_ADAPTER = 'accounts.adapters.HN_AccountAdapter'
 PAGE_LIMIT = 30
 HOTTEST_DAY_LIMIT = 60
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+   'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAdminUser',
+   ),
+}
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'POST',
+    'PUT',
+)
+
+CSRF_TRUSTED_ORIGINS = ['https://*.herokuapp.com',
+'https://haopeng138.pythonanywhere.com/']
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'apiKey': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    },
+}

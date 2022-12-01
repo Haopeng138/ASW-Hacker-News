@@ -56,6 +56,7 @@ class Post(models.Model):
         if not self.insert_date:
             self.insert_date = timezone.now()
         super().save(*args, **kwargs)
+"""
         class VoteTracking(models.Model):
              insert_date = models.DateTimeField(null=False)
 
@@ -63,6 +64,7 @@ class Post(models.Model):
         if not self.insert_date:
             self.insert_date = timezone.now()
         super().save(*args, **kwargs)
+"""
 
 class VoteTracking(models.Model):
     insert_date = models.DateTimeField(null=False)
@@ -73,7 +75,7 @@ class VoteTracking(models.Model):
 
 class PostVoteTracking(VoteTracking):
     user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
-    post = models.ForeignKey(to=Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(to=Post, related_name="upvotes", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.username + '_' + self.post.title
