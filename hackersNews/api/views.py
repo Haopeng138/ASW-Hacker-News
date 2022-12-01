@@ -12,14 +12,15 @@ import json
 from django.db.utils import IntegrityError
 # Create your views here.
 
-#@csrf_exempt
-#@api_view(['GET','POST'])
+@csrf_exempt
+@api_view(['GET','POST'])
 @permission_classes([HasAPIKey])
 def user(request, id):
-    # user = UserAPIKey.objects.get_from_key()
-    # print(user.id)
-    # key = request.META["HTTP_AUTHORIZATION"].split()[1]
-    # print(key)
+    key = request.META["HTTP_AUTHORIZATION"].split()[1]
+    api_key = APIKey.objects.get_from_key(key)
+    print(key)
+    user = HNUser.objects.get(key=key)
+    print(user.id)
     if id is not None:
         try:
             user = HNUser.objects.get(pk=id)
@@ -48,6 +49,13 @@ def user(request, id):
 
 @permission_classes([HasAPIKey])
 def users_list(request):
+    key = request.META["HTTP_AUTHORIZATION"].split()[1]
+    print(key)
+    api_key = UserAPIKey.objects.get_from_key(key)
+    user1 = api_key.user
+    print(user1.id)
+    user = HNUser.objects.get(key=key)
+    print(user.id)
     if request.method == 'GET':
         users = HNUser.objects.all()
         serializer = HNUserSerializer(users, many=True)
@@ -55,7 +63,7 @@ def users_list(request):
 
 
 
-#@permission_classes([HasAPIKey])
+@permission_classes([HasAPIKey])
 @csrf_exempt
 def upvote_post(request,id):
     print(request.headers)
@@ -67,8 +75,8 @@ def upvote_post(request,id):
 def upvote_comment(request,id):
     return upvote(request, 'comment',id)
 
-@api_view(['POST'])
-#@permission_classes([HasAPIKey])
+#@api_view(['POST'])
+@permission_classes([HasAPIKey])
 @csrf_exempt
 def upvote(request, item_str,id):
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
