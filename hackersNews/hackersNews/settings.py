@@ -249,26 +249,29 @@ HOTTEST_DAY_LIMIT = 60
 
 
 REST_FRAMEWORK = {
-   'DEFAULT_AUTHENTICATION_CLASSES': (
-       'rest_framework.authentication.TokenAuthentication',
-   ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
    'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAdminUser',
    ),
 }
 
 CORS_ALLOW_CREDENTIALS = True
-
 CORS_ORIGIN_ALLOW_ALL = True
-ALLOWED_HOSTS=['*']
-
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'POST',
+    'PUT',
+)
 
 CSRF_TRUSTED_ORIGINS = ['https://*.herokuapp.com']
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
-        'api_key': {
+        'apiKey': {
             'type': 'apiKey',
             'in': 'header',
             'name': 'Authorization'

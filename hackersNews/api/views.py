@@ -69,7 +69,7 @@ class user_list(APIView):
         serializer = HNUserSerializer(users, many=True)
         return JsonResponse(serializer.data, safe=False)
 
-    def post(self, request, fromat=None):
+    def post(self, request, fomat=None):
         data = JSONParser().parse(request)
         newUser = HNUserSerializer.create(HNUserSerializer, validated_data=data)
         if newUser is not None:
