@@ -11,6 +11,7 @@ urlpatterns = [
     path('submissions/', views.submission_list.as_view()),
     path('submissions/<int:id>/', views.get_submission),
     path('submissions/<int:id>/comments', views.sub_comment_list),
+    path('submissions/<int:id>/comments/reply', views.reply_comment),
 
     # UPVOTE
     path('upvote-post/<int:id>/', views.upvote_post, name='upvote_post'),
