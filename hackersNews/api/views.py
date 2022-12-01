@@ -228,7 +228,6 @@ def get_submission_list(request):
 @permission_classes([HasAPIKey])
 @csrf_exempt
 def upvote_post(request,id):
-    print(request.headers)
     return upvote(request, 'post',id)
 
 @permission_classes([HasAPIKey])
@@ -241,16 +240,9 @@ def upvote_comment(request,id):
 @csrf_exempt
 def upvote(request, item_str,id):
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
-    api_key = UserAPIKey.objects.get_from_key(key)
-    user = HNUser.objects.get(api_key=api_key)
-    print(user.id)
+    user = getUser(key)
     if request.method == 'POST':
-        print(request.headers)
-        print(request.headers['Apikey'])
-        user = UserAPIKey.objects.get_from_key(request.headers['Apikey'])
-        print(user.id)
         if user.id:
-            user = HNUser.objects.filter(id=user.id)[0]
             if item_str == 'post':
                 item = Post.objects.filter(id=id)[0]
                 tracking = PostVoteTracking(user=user, post=item)
@@ -264,10 +256,10 @@ def upvote(request, item_str,id):
                 item.votes += 1
                 item.save()
             except IntegrityError:
-                return JsonResponse({'success': False})
+                return JsonResponse({'success': False,'message':'Ya has votado'})
 
-            return JsonResponse({'success': True})
-        else: return JsonResponse({'success': False})
+            return JsonResponse({'success': True,'message':'Votado con existo'})
+        else: return JsonResponse({'success': False,'message':'No user'})
 
 @api_view(['POST'])
 @permission_classes([HasAPIKey])
@@ -283,14 +275,14 @@ def unvote_comment(request,id):
 
 @csrf_exempt
 def unvote(request, item_str,id):
+    key = request.META["HTTP_AUTHORIZATION"].split()[1]
+    user = getUser(key)
+    print(user.id)
     if request.method == 'POST':
-
         if request.user.id:
-            user = HNUser.objects.filter(id=request.user.id)[0]
             if item_str == 'post':
                 item = Post.objects.filter(id=id)[0]
-                print("Imprimiendo")
-                print(PostVoteTracking(user=user, post=item))
+                print(item)
                 PostVoteTracking.objects.filter(user=user, post=item).delete()
             else:
                 item = Comment.objects.filter(id=id)[0]
@@ -302,10 +294,10 @@ def unvote(request, item_str,id):
                 item.votes -= 1
                 item.save()
             except IntegrityError:
-                return JsonResponse({'success': False})
+                return JsonResponse({'success': False,'message':'No habias votado'})
 
-            return JsonResponse({'success': True})
-        else: return JsonResponse({'success': False})
+            return JsonResponse({'success': True,'message':'Has desvotado'})
+        else: return JsonResponse({'success': False,'messafe':'No user'})
 
 
 @permission_classes([HasAPIKey])
