@@ -7,12 +7,6 @@ class HN_AccountAdapter(DefaultAccountAdapter):
     def new_user(self, request):
         print("Account Adapter new_user")
 
-        querySet = get_user_model().objects.filter(email__exact="")
-        #print("Users without email")
-        for user2 in querySet:
-            #print(user2.id)
-            user2.delete()
-
         user = get_user_model().objects.create_empty_user()
         #print(user.id)
         return user
