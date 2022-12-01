@@ -24,8 +24,8 @@ class HNUserSerializer(serializers.Serializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    #insert_date = serializers.DateTimeField(read_only=True)
-    user = HNUserSerializer()
+    insert_date = serializers.DateTimeField(read_only=True)
+    user = HNUserSerializer(read_only=True)
     #post = PostSerializer()
 
     class Meta:
@@ -35,7 +35,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     url = serializers.CharField(required=False)
-    site = serializers.CharField(required=False)
+    site = serializers.CharField(required=False, read_only=True)
     votes = serializers.IntegerField(read_only=True)
     insert_date = serializers.DateTimeField(read_only=True)
     user = HNUserSerializer(read_only=True)
