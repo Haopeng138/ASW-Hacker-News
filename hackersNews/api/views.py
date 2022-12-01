@@ -71,7 +71,7 @@ class user_list(APIView):
         serializer = HNUserSerializer(users, many=True)
         return JsonResponse(serializer.data, safe=False)
 
-    def post(self, request, fromat=None):
+    def post(self, request, fomat=None):
         data = JSONParser().parse(request)
         newUser = HNUserSerializer.create(HNUserSerializer, validated_data=data)
         if newUser is not None:
@@ -82,7 +82,6 @@ class user_list(APIView):
 """
 @permission_classes([HasAPIKey])
 def users_list(request):
-    print(request.META)
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
     #api_key = UserAPIKey.objects.get_from_key(key)
     user = HNUser.objects.get(key=key)

@@ -1,0 +1,563 @@
+openapi: 3.0.1
+info:
+  version: 1.0.0
+  title: Hacker News
+  description:
+    "This is the Open API documentation for the REST API of our beloved
+    application **Hackernews** deployed at
+    <https://haopeng138.pythonanywhere.com/>. <br>
+    All operations are executable. Only one operation requires authentication: `deleteTweet`. In
+    this case, you must **Authorize** your request by providing the api_key
+    vaule you got when you created the tweet."
+servers:
+  - url: "http://127.0.0.1:8000/api"
+  - url: "https://haopeng138.pythonanywhere.com/api"
+
+paths:
+  /users/:
+    get:
+      tags:
+        - User
+      summary: Retrieves a list of all users
+      description: Returns a list of all users
+      operationId: users_list
+      security:
+        - ApiKeyAuth: []
+      responses:
+          200:
+            description: successful operation
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/User"
+  /users/{id}:
+    get:
+      tags:
+        - User
+      summary: Retrieves an user by its id
+      description: Returns an user
+      operationId: user
+      parameters:
+        - name: id
+          in: path
+          description: id of user to return
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    put:
+      tags:
+        - User
+      summary: Updates an user
+      description: This can only be done by the logged user
+      operationId: update_user
+      parameters:
+        - name: id
+          in: "path"
+          description: "User object that needs to be updated"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: User object
+        content:
+          application/json:
+             schema:
+                $ref: "#/components/schemas/User"
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /{username}/upvoted:
+    get:
+      tags:
+        - User
+      summary: Upvoted submissions
+      description: Returns the upvoted submissions
+      operationId: upvotedSubmissions
+      parameters:
+        - name: username
+          in: path
+          description: username of User to return
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /upvote-post/{submissionId}:
+    post:
+      tags:
+        - Submission
+      summary: Upvotes a Submission
+      operationId: upvote_post
+      parameters:
+        - name: submissionId
+          in: path
+          description: ID of the Submission
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          
+        404:
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error404submssionid"
+
+# Hasta aquí
+
+  /submission:
+    post:
+      tags:
+        - Submission
+      summary: Post a submission to Hackernews
+      description: Provide the title, url and text required to create the submission
+      operationId: POST_Submission
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - title
+                - url
+                - text
+              type: object
+              properties:
+                title:
+                  type: string
+                  minLength: 4
+                  example: 'My name'
+                url:
+                  type: string
+                  example: 'https://editor.swagger.io/#'
+                text:
+                  type: string
+                  example: 'Aquest es un enllaç que redirecciona al editor swagger'
+      responses:
+        201:
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
+        400:
+          description: 'Error: Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error400Submission"
+    get:
+      tags:
+        - Submission
+      summary: Retrieves all the submissions
+      operationId: GET_Submission
+      responses:
+        200:
+          description: 'successful operation'
+
+  /submission/{submissionId}:
+    get:
+      tags:
+        - Submission
+      summary: Finds a Submission by its ID
+      description: Returns a single Submission
+      operationId: detailedSubmission
+      parameters:
+        - name: submissionId
+          in: path
+          description: ID of the Submission
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        400:
+          description: "Error: Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error400content"
+    post:
+      tags:
+        - Submission
+      summary: Adds a new comment for the submission
+      description: Returns a single Submission
+      operationId: addComment
+      parameters:
+        - name: submissionId
+          in: path
+          description: ID of the Submission
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Provide the content of the new comment
+        content:
+          application/json:
+            schema:
+              required:
+                - content
+              type: object
+              properties:
+                text:
+                  minLength: 1
+                  example: "This is a new comment"
+        required: true
+      responses:
+        201:
+          description: Comment added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        400:
+          description: "Error: Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error400content"
+        404:
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error404submssionid"
+  /submission/{submissionId}/upvote:
+    post:
+      tags:
+        - Submission
+      summary: Upvotes a Submission
+      operationId: upvoteSubmission
+      parameters:
+        - name: submissionId
+          in: path
+          description: ID of the Submission
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+         
+        404:
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error404submssionid"
+  /{username}/submissions:
+    get:
+      tags:
+        - User
+      summary: Retrieves all submissions by user
+      operationId: submissionsByUser
+      parameters:
+        - name: username
+          in: path
+          description: username to get submissions
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            example: "pau"
+      responses:
+        200:
+          description: submissions Retrieved
+
+        404:
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error404user"
+  /date/{date}:
+    get:
+      tags:
+        - Submission
+      summary: Retrieves all submissions by date
+      operationId: submissionsByDate
+      parameters:
+        - name: date
+          in: path
+          description: date to get submissions
+          required: true
+          schema:
+            type: string
+            format: date
+            minLength: 10
+            maxLength: 10
+            example: "2022-04-23"
+      responses:
+        200:
+          description: submissions Retrieved
+
+  /{username}/comments:
+    get:
+      tags:
+        - Comment
+      summary: Retrieves all comments by user
+      operationId: commentsByUser
+      parameters:
+        - name: username
+          in: path
+          description: username to get submissions
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            example: "joan"
+      responses:
+        200:
+          description: comments Retrieved
+          
+        404:
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error404user"
+  /submission/{submissionId}/comments:
+    get:
+      tags:
+        - Comment
+      summary: Retrieve comments of a certain submission
+      description: Returns the comments of the specified submission
+      operationId: commentsSubmission
+      parameters:
+        - name: submissionId
+          in: path
+          description: ID of the Submission
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          
+        404:
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error404submssionid"
+
+components:
+  schemas:
+    # User Schema Done
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        username:
+          type: string
+          example: Paco
+        email:
+          type: string
+          example: paco@gmail.com
+        karma:
+          type: integer
+          format: int64
+          example: 2
+        date_joined:
+          type: string
+          example: "2022-11-25"
+        about:
+          type: string
+          example: "Hello, I'm..."
+        is_admin:
+          type: boolean
+          example: false
+    #
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 2
+        title:
+          type: string
+          example: "Title"
+        url:
+          type: string
+          example: "https://prova.cat"
+        side:
+          type: string
+          example: "prova.cat"
+        votes:
+          type: integer
+          format: int64
+          example: 2
+        user:
+          type: object
+          $ref: "#/components/schemas/User"
+
+    Comment: 
+      type: object
+      properties:
+        insert_date: 
+          type: string 
+          example: "2022-11-25T11:29:16.141331Z"
+        content:
+          type: string
+          example: "comentario"
+        user:
+          type: object
+          $ref: "#/components/schemas/User"
+
+    UpvotePost:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Votado con existo'
+    UpvoteComment:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Votado con existo'
+    UnvotePost:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Has desvotado'
+    UnvoteComment:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 'Has desvotado'
+    ErrorResult:
+      type: object
+      properties:
+        status:
+          type: integer
+          enum: [400, 401, 403, 404, 409]
+        error:
+          type: string
+          enum:
+            [
+              "Bad Request",
+              "Unauthorized",
+              "Forbidden",
+              "Not Found",
+              "Conflict",
+            ]
+        message:
+          type: string
+  examples:
+    error400:
+      value:
+        status: 400
+        error: "Bad Request"
+        message: "Content is too long (maximum is 280 characters)"
+    error400Submission:
+      value:
+        status: 400
+        error: "Bad Request"
+        message: "A submission with the same url was already posted"
+    error401:
+      value:
+        status: 401
+        error: "Unauthorized"
+        message: "You provided no api key (X-API-KEY Header)"
+    error403:
+      value:
+        status: 403
+        error: "Forbidden"
+        message: "Your api key (X-API-KEY Header) is not valid"
+    error404user:
+      value:
+        status: 404
+        error: "Not Found"
+        message: "No User with that username"
+    error404submssionid:
+      value:
+        status: 404
+        error: "Not Found"
+        message: "No Submission with that ID"
+    error400content:
+      value:
+        status: 400
+        error: "Bad Request"
+        message: "Content must be provided"
+  securitySchemes:
+    ApiKeyAuth:        # arbitrary name for the security scheme
+      type: apiKey
+      in: header       # can be "header", "query" or "cookie"
+      name: Authorization # name of the header, query parameter or cookie
+# 2) Apply the API key globally to all operations
+security:
+  - ApiKeyAuth: [] 
