@@ -74,6 +74,7 @@ MIDDLEWARE = [
 CORS_ORIGIN_WHITELIST = (
 'http://localhost:8000',  # for localhost (REACT Default)
 'http://192.168.10.45:3000', # for network
+'http://haopeng138.pythonanywhere.com',
 )
 
 
