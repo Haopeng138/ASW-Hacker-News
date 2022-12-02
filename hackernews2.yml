@@ -102,7 +102,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User
+                $ref: "#/components/schemas/User"
         400: 
           description: bad request
           content: 
