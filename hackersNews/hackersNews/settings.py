@@ -271,6 +271,7 @@ CORS_ALLOW_METHODS = (
 CSRF_TRUSTED_ORIGINS = ['https://*.herokuapp.com',
 'https://haopeng138.pythonanywhere.com/']
 
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'apiKey': {
