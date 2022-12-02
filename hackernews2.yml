@@ -85,20 +85,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-  /{username}/upvoted:
+  /users/{id}/submission:
     get:
       tags:
         - User
-      summary: Upvoted submissions
-      description: Returns the upvoted submissions
-      operationId: upvotedSubmissions
+      summary: User submissions
+      description: Returns the user's submissions or upvoted submissions
+      operationId: userSubmissions
       parameters:
-        - name: username
+        - name: id
           in: path
-          description: username of User to return
+          description: ID of User to check
           required: true
           schema:
             type: string
+        - in: query
+          name: u
+          schema:
+            type: boolean
+          description: False for user submissions, True for user's upvoted submssions
       responses:
         200:
           description: successful operation
@@ -106,37 +111,63 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-  /upvote-post/{submissionId}:
-    post:
+  /users/{id}/comments:
+    get:
       tags:
-        - Submission
-      summary: Upvotes a Submission
-      operationId: upvote_post
+        - User
+      summary: User's comments
+      description: Returns the user's comments or comments he has upvoted
+      operationId: userComments
       parameters:
-        - name: submissionId
+        - name: id
           in: path
-          description: ID of the Submission
+          description: ID of User to check
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+        - in: query
+          name: u
+          schema:
+            type: boolean
+          description: False for user's comments, True for user's upvoted comments
       responses:
         200:
           description: successful operation
-          
-        404:
-          description: "Error: Not Found"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
-              examples:
-                errorExample:
-                  $ref: "#/components/examples/error404submssionid"
+                $ref: "#/components/schemas/User"
+  # /upvote-post/{submissionId}:
+  #   post:
+  #     tags:
+  #       - Submission
+  #     summary: Upvotes a Submission
+  #     operationId: upvote_post
+  #     parameters:
+  #       - name: submissionId
+  #         in: path
+  #         description: ID of the Submission
+  #         required: true
+  #         schema:
+  #           type: integer
+  #           format: int64
+  #     responses:
+  #       200:
+  #         description: successful operation
+          
+  #       404:
+  #         description: "Error: Not Found"
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorResult"
+  #             examples:
+  #               errorExample:
+  #                 $ref: "#/components/examples/error404submssionid"
 
 # Hasta aquí
 
-  /submission:
+  /submissions/:
     post:
       tags:
         - Submission
@@ -160,9 +191,9 @@ paths:
                 url:
                   type: string
                   example: 'https://editor.swagger.io/#'
-                text:
-                  type: string
-                  example: 'Aquest es un enllaç que redirecciona al editor swagger'
+               # text:
+                #  type: string
+                 # example: 'Aquest es un enllaç que redirecciona al editor swagger'
       responses:
         201:
           description: 'Created'
@@ -188,7 +219,7 @@ paths:
         200:
           description: 'successful operation'
 
-  /submission/{submissionId}:
+  /submissions/{submissionId}/:
     get:
       tags:
         - Submission
@@ -219,6 +250,63 @@ paths:
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
+   
+  # /submission/{submissionId}/upvote:
+  #   post:
+  #     tags:
+  #       - Submission
+  #     summary: Upvotes a Submission
+  #     operationId: upvoteSubmission
+  #     parameters:
+  #       - name: submissionId
+  #         in: path
+  #         description: ID of the Submission
+  #         required: true
+  #         schema:
+  #           type: integer
+  #           format: int64
+  #     responses:
+  #       200:
+  #         description: successful operation
+         
+  #       404:
+  #         description: "Error: Not Found"
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorResult"
+  #             examples:
+  #               errorExample:
+  #                 $ref: "#/components/examples/error404submssionid"
+  
+  /submissions/{submissionId}/comments:
+    get:
+      tags:
+        - Submission
+      summary: Retrieve comments of a certain submission
+      description: Returns the comments of the specified submission
+      operationId: commentsSubmission
+      parameters:
+        - name: submissionId
+          in: path
+          description: ID of the Submission
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          
+        404:
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error404submssionid"
     post:
       tags:
         - Submission
@@ -242,7 +330,7 @@ paths:
                 - content
               type: object
               properties:
-                text:
+                content:
                   minLength: 1
                   example: "This is a new comment"
         required: true
@@ -271,138 +359,184 @@ paths:
               examples:
                 errorExample:
                   $ref: "#/components/examples/error404submssionid"
-  /submission/{submissionId}/upvote:
+
+  /comment/{commentId}/:
     post:
       tags:
-        - Submission
-      summary: Upvotes a Submission
-      operationId: upvoteSubmission
+        - Comment
+      summary: Makes a reply to a comment.
+      description: Makes a reply comment to the specified comment.
+      operationId: commentsReply
       parameters:
-        - name: submissionId
-          in: path
-          description: ID of the Submission
-          required: true
-          schema:
-            type: integer
-            format: int64
+       - name: commentId
+         in: path
+         description: ID of the Comment
+         required: true
+         schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: Provide the content of the new comment
+        content:
+          application/json:
+            schema:
+              required:
+                - content
+              type: object
+              properties:
+                content:
+                  minLength: 1
+                  example: "This is a new reply"
+        required: true
       responses:
-        200:
-          description: successful operation
-         
-        404:
-          description: "Error: Not Found"
+        201:
+          description: 'Created'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
-              examples:
-                errorExample:
-                  $ref: "#/components/examples/error404submssionid"
-  /{username}/submissions:
-    get:
-      tags:
-        - User
-      summary: Retrieves all submissions by user
-      operationId: submissionsByUser
-      parameters:
-        - name: username
-          in: path
-          description: username to get submissions
-          required: true
-          schema:
-            type: string
-            minLength: 1
-            example: "pau"
-      responses:
-        200:
-          description: submissions Retrieved
-
-        404:
-          description: "Error: Not Found"
+                $ref: '#/components/schemas/Comment'
+        400:
+          description: 'Error: Bad Request'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
+                $ref: '#/components/schemas/ErrorResult'
               examples:
                 errorExample:
-                  $ref: "#/components/examples/error404user"
-  /date/{date}:
-    get:
-      tags:
-        - Submission
-      summary: Retrieves all submissions by date
-      operationId: submissionsByDate
-      parameters:
-        - name: date
-          in: path
-          description: date to get submissions
-          required: true
-          schema:
-            type: string
-            format: date
-            minLength: 10
-            maxLength: 10
-            example: "2022-04-23"
-      responses:
-        200:
-          description: submissions Retrieved
-
-  /{username}/comments:
+                  $ref: "#/components/examples/error400Submission"
     get:
       tags:
         - Comment
-      summary: Retrieves all comments by user
-      operationId: commentsByUser
+      summary: Retrieves a commet by it's ID.
+      operationId: GET_commentsReply
       parameters:
-        - name: username
-          in: path
-          description: username to get submissions
-          required: true
-          schema:
-            type: string
-            minLength: 1
-            example: "joan"
+       - name: commentId
+         in: path
+         description: ID of the Comment
+         required: true
+         schema:
+          type: integer
+          format: int64
       responses:
-        200:
-          description: comments Retrieved
-          
-        404:
-          description: "Error: Not Found"
+        201:
+          description: Obtained comment
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
-              examples:
-                errorExample:
-                  $ref: "#/components/examples/error404user"
-  /submission/{submissionId}/comments:
-    get:
+                $ref: '#/components/schemas/Comment'
+
+  /upvote-post/{id}/:
+    post:
       tags:
-        - Comment
-      summary: Retrieve comments of a certain submission
-      description: Returns the comments of the specified submission
-      operationId: commentsSubmission
+        - Votes
+      summary: Make upvote to Post
       parameters:
-        - name: submissionId
-          in: path
-          description: ID of the Submission
+        - name: id
+          in: "path"
+          description: id of post to vote
           required: true
           schema:
             type: integer
-            format: int64
       responses:
         200:
-          description: successful operation
-          
-        404:
-          description: "Error: Not Found"
+          description: Success operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
+                $ref: "#/components/schemas/UpvotePost"
+        401:
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
               examples:
                 errorExample:
-                  $ref: "#/components/examples/error404submssionid"
+                  $ref: "#/components/examples/error401"
+  /upvote-comment/{id}/:
+    post:
+      tags:
+        - Votes
+      summary: Make upvote to Comment
+      parameters:
+        - name: id
+          in: "path"
+          description: id of comment to vote
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpvoteComment" 
+        401:
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error401"
+  /unvote-post/{id}/:
+    post:
+      tags:
+        - Votes
+      summary: Make unvote to Post
+      parameters:
+        - name: id
+          in: "path"
+          description: id of post to unvote
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnvotePost"
+        401:
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error401"
+  /unvote-comment/{id}/:
+    post:
+      tags:
+        - Votes
+      summary: Make unvote to Comment
+      parameters:
+        - name: id
+          in: "path"
+          description: id of comment to unvote
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnvoteComment"
+        401:
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error401"
 
 components:
   schemas:
