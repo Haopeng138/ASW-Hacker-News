@@ -30,6 +30,12 @@ paths:
               application/json:
                 schema:
                   $ref: "#/components/schemas/User"
+          401:
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/examples/error401"
   /users/{id}/:
     get:
       tags:
@@ -51,6 +57,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        401:
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/examples/error401"
+        404:
+          description: not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error404"
     put:
       tags:
         - User
@@ -84,7 +102,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/User
+        400: 
+          description: bad request
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/examples/error400"
+        401:
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/examples/error401"
+        404:
+          description: not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error404"
   /users/{id}/submission:
     get:
       tags:
@@ -111,6 +147,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        401:
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/examples/error401"
+        404:
+          description: not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error404"
   /users/{id}/comments:
     get:
       tags:
@@ -137,6 +185,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        401:
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/examples/error401"
   # /upvote-post/{submissionId}:
   #   post:
   #     tags:
@@ -218,6 +272,12 @@ paths:
       responses:
         200:
           description: 'successful operation'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error401"
 
   /submissions/{submissionId}/:
     get:
@@ -250,6 +310,12 @@ paths:
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error401"
    
   # /submission/{submissionId}/upvote:
   #   post:
@@ -297,7 +363,12 @@ paths:
       responses:
         200:
           description: successful operation
-          
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error401"
         404:
           description: "Error: Not Found"
           content:
@@ -350,6 +421,12 @@ paths:
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error401"
         404:
           description: "Error: Not Found"
           content:
@@ -404,6 +481,12 @@ paths:
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400Submission"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error401"
     get:
       tags:
         - Comment
@@ -664,7 +747,7 @@ components:
       value:
         status: 400
         error: "Bad Request"
-        message: "Content is too long (maximum is 280 characters)"
+        message: "Something in your request body is wrong"
     error400Submission:
       value:
         status: 400
@@ -680,6 +763,9 @@ components:
         status: 403
         error: "Forbidden"
         message: "Your api key (X-API-KEY Header) is not valid"
+    error404:
+      value:
+        detail: "Not Found."
     error404user:
       value:
         status: 404
