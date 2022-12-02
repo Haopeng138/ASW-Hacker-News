@@ -124,12 +124,12 @@ class user_comments(APIView):
     def get(self, request, id, format=None):
         user = getUser(id)
 
-        upvoted = request.GET.get('u', '0')
+        upvoted = request.GET.get('u', 'False')
 
-        if upvoted == '0':
-            return self.user_comments(user)
-        else:
+        if upvoted == 'True' or upvoted == 'true':
             return self.upvoted_comments(user)
+        else:
+            return self.user_comments(user)
 
 
 """
@@ -158,12 +158,13 @@ class user_submissions(APIView):
     def get(self, request, id, format=None):
         user = getUser(id)
 
-        upvoted = request.GET.get('u', '0')
+        upvoted = request.GET.get('u', 'False')
 
-        if upvoted == '0':
-            return self.user_submissions(user)
-        else:
+        if upvoted == 'True' or upvoted == 'true':
             return self.upvoted_submission(user)
+        else:
+            return self.user_submissions(user)
+
 
 
 """
@@ -320,10 +321,10 @@ def unvote(request, item_str,id):
 @csrf_exempt
 @permission_classes([HasAPIKey])
 def reply_comment(request, id):
+    comment = Comment.objects.get(pk=id)
     if request.method == 'POST':
         key = request.META["HTTP_AUTHORIZATION"].split()[1]
         user = getUser(key)
-        comment = Comment.objects.get(pk=id)
         data = JSONParser().parse(request)
         serializer = CommentSerializer(data=data)
         if (serializer.is_valid()):
@@ -339,3 +340,6 @@ def reply_comment(request, id):
             serializer.save(post=post)
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
+    elif request.method == 'GET':
+        serializer = CommentSerializer(comment, many = False)
+        return JsonResponse(serializer.data, status=201)
