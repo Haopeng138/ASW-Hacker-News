@@ -298,21 +298,23 @@ def unvote(request, item_str,id):
             hadVote = False
             if item_str == 'post':
                 item = Post.objects.filter(id=id)[0]
-                if item is not None: hadVote=True
+                hadVote=PostVoteTracking.objects.filter(user=user, post=item).exists()
+                print(hadVote)
                 PostVoteTracking.objects.filter(user=user, post=item).delete()
             else:
                 print("some")
                 print(user.id)
                 item = Comment.objects.filter(id=id)[0]
-                if item is not None: hadVote=True
+                hadVote=PostVoteTracking.objects.filter(user=user, comment=item).exists()
                 CommentVoteTracking.objects.filter(user=user, comment=item).delete()
-            try:
-                if (hadVote):
-                    item.user.karma -= 1
-                    item.user.save()
-                    item.votes -= 1
-                    item.save()
-            except IntegrityError:
+            print(hadVote)
+            if (hadVote):
+                item.user.karma -= 1
+                item.user.save()
+                item.votes -= 1
+                item.save()
+            else:
+                print("Succes false")
                 return JsonResponse({'success': False,'message':'No habias votado'})
 
             return JsonResponse({'success': True,'message':'Has desvotado'})
