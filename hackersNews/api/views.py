@@ -18,50 +18,18 @@ class HasAPIKey(BaseHasAPIKey):
 
 # USER
 
-def getUser(id):
+def getUserFromID(id):
     try:
         return HNUser.objects.get(pk=id)
     except:
-        print("ID not found, trying as key")
-        try:
-            return HNUser.objects.get(key=id)
-        except:
-            raise Http404
+        raise Http404
 
-"""
-@csrf_exempt
-@api_view(['GET','POST','PUT'])
-@permission_classes([HasAPIKey])
-# Deprecado
-def user(request, id):
-    key = request.META["HTTP_AUTHORIZATION"].split()[1]
-
-    if id is not None:
-        try:
-            user = HNUser.objects.get(pk=id)
-        except HNUser.DoesNotExsist:
-            return HttpResponse(satus=404)
-
-    else:
-        try:
-            user = HNUser.objects.get(pk=id)
-        except HNUser.DoesNotExsist:
-            return HttpResponse(satus=404)
-
-    if request.method == 'GET':
-        serializer = HNUserSerializer(user)
-        return JsonResponse(serializer.data)
-
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = HNUserSerializer(user, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data)
-        return JsonResponse(serializer.errors, status=400)
-
-    return HttpResponse(status=400)
-"""
+def getUserFromKey(key):
+    try:
+        return HNUser.objects.get(key=id)
+    except:
+        raise Http404
+           
 
 class user_list(APIView):
     permission_classes = [HasAPIKey]
@@ -95,13 +63,13 @@ class user_detail(APIView):
     permission_classes = [HasAPIKey]
 
     def get(self, request, id, format=None):
-        user = getUser(id)
+        user = getUserFromID(id)
 
         serializer = HNUserSerializer(user)
         return JsonResponse(serializer.data)
 
     def put(self, request, id, format=None):
-        user = getUser(id)
+        user = getUserFromID(id)
         serializer = HNUserSerializer(user, data=request.data)
         if (serializer.is_valid()):
             serializer.save()
@@ -122,7 +90,7 @@ class user_comments(APIView):
         return  JsonResponse(serializer.data, safe=False)
 
     def get(self, request, id, format=None):
-        user = getUser(id)
+        user = getUserFromID(id)
 
         upvoted = request.GET.get('u', 'False')
 
@@ -156,7 +124,7 @@ class user_submissions(APIView):
         return JsonResponse(serializer.data, safe=False)
 
     def get(self, request, id, format=None):
-        user = getUser(id)
+        user = getUserFromID(id)
 
         upvoted = request.GET.get('u', 'False')
 
@@ -190,7 +158,7 @@ class submission_list(APIView):
 
     def post(self, request, format=None):
         key = request.META["HTTP_AUTHORIZATION"].split()[1]
-        user = getUser(key)
+        user = getUserFromKey(key)
         data = JSONParser().parse(request)
         print(data)
         serializer = PostSerializer(data=data)
@@ -219,7 +187,7 @@ def sub_comment_list(request, id):
         return JsonResponse(serializer.data, safe=False)
         """
         key = request.META["HTTP_AUTHORIZATION"].split()[1]
-        user = getUser(key)
+        user = getUserFromKey(key)
         data = JSONParser().parse(request)
         serializer = CommentSerializer(data=data)
         if (serializer.is_valid()):
@@ -252,7 +220,7 @@ def upvote_comment(request,id):
 @csrf_exempt"""
 def upvote(request, item_str,id):
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
-    user = getUser(key)
+    user = getUserFromKey(key)
     print(user.id)
     if request.method == 'POST':
         if user.id:
@@ -290,7 +258,7 @@ def unvote_comment(request,id):
 
 def unvote(request, item_str,id):
     key = request.META["HTTP_AUTHORIZATION"].split()[1]
-    user = getUser(key)
+    user = getUserFromKey(key)
     print(user.id)
     if request.method == 'POST':
         print(user.id)
@@ -326,7 +294,7 @@ def reply_comment(request, id):
     comment = Comment.objects.get(pk=id)
     if request.method == 'POST':
         key = request.META["HTTP_AUTHORIZATION"].split()[1]
-        user = getUser(key)
+        user = getUserFromKey(key)
         data = JSONParser().parse(request)
         serializer = CommentSerializer(data=data)
         if (serializer.is_valid()):
