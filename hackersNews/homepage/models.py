@@ -31,19 +31,31 @@ def time_from(dt):
     else:
         raise ValueError
 
+
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
-    @property
-    def time_from_post(self):
-        return time_from(self.insert_date)
 
     title = models.CharField(null=False,max_length=255)
     url = models.CharField(null=True,max_length=255)
     site = models.CharField(null=True,max_length=255)
-    votes = models.IntegerField(default=0)
+    text = models.CharField(null=True, max_length=1024)
+    
+    @property
+    def votes(self):
+        return PostVoteTracking.objects.filter(post=self).count()
+
     user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
+    
+    @property
+    def time_from_post(self):
+        return time_from(self.insert_date)
+
     insert_date = models.DateTimeField(null=False)
-    comments = models.IntegerField(default=0)
+
+    @property
+    def numComments(self):
+        return Comment.objects.filter(post=self).count()
+
 
     def __str__(self):
         return self.title
@@ -56,15 +68,29 @@ class Post(models.Model):
         if not self.insert_date:
             self.insert_date = timezone.now()
         super().save(*args, **kwargs)
-"""
-        class VoteTracking(models.Model):
-             insert_date = models.DateTimeField(null=False)
+
+class Comment(models.Model):
+    @property
+    def time_from_post(self):
+        return time_from(self.insert_date)
+
+    insert_date = models.DateTimeField(null=False)
+    content = models.TextField(null=False)
+    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE, null=False)
+    post = models.ForeignKey(to=Post, on_delete=models.CASCADE, null=False)
+    reply = models.ForeignKey(to='self', on_delete=models.CASCADE, null=True)
+    
+    @property
+    def votes(self):
+        return CommentVoteTracking.objects.filter(Comment=self).count()
+
+    def __str__(self):
+        return self.content
 
     def save(self, *args, **kwargs):
         if not self.insert_date:
             self.insert_date = timezone.now()
         super().save(*args, **kwargs)
-"""
 
 class VoteTracking(models.Model):
     insert_date = models.DateTimeField(null=False)
@@ -82,26 +108,6 @@ class PostVoteTracking(VoteTracking):
 
     class Meta:
         unique_together = (('user','post'),)
-
-class Comment(models.Model):
-    @property
-    def time_from_post(self):
-        return time_from(self.insert_date)
-
-    insert_date = models.DateTimeField(null=False)
-    content = models.TextField(null=False)
-    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
-    post = models.ForeignKey(to=Post, on_delete=models.CASCADE, null=True)
-    reply = models.ForeignKey(to='self', on_delete=models.CASCADE, null=True)
-    votes = models.IntegerField(default=1)
-
-    def __str__(self):
-        return self.content
-
-    def save(self, *args, **kwargs):
-        if not self.insert_date:
-            self.insert_date = timezone.now()
-        super().save(*args, **kwargs)
 
 class CommentVoteTracking(VoteTracking):
     user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
