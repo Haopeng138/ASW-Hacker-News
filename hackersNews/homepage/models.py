@@ -111,7 +111,7 @@ class PostVoteTracking(VoteTracking):
 
 class CommentVoteTracking(VoteTracking):
     user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
-    comment = models.ForeignKey(to=Comment, on_delete=models.CASCADE)
+    comment = models.ForeignKey(to=Comment, related_name="upvotes", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.username + '_' + self.comment.content
