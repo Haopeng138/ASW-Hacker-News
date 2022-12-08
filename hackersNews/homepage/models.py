@@ -16,6 +16,19 @@ def parse_site(url):
     else:
         return None
 
+# NO SE COMO VA ESTO??
+def check_submission(title, url):
+    if not title or title == '':
+        return False
+    elif not url:
+        return False
+    try:
+        if (parse_site(url) is None): return False
+        return True
+    except IndexError:
+        return False
+
+
 
 def time_from(dt):
     lapse = timezone.now() - dt
@@ -30,6 +43,31 @@ def time_from(dt):
         return f'{minutes:.0f} minutes ago'
     else:
         raise ValueError
+
+class PostManager(models.Manager):
+    def create(self, title, userID, url=None, text=None):
+        print("Creating Post")
+        if url is not None:
+            if Post.objects.filter(url = url).exists() and url != '':
+                # URL REPETIDA
+                print("Url repetida")
+                return None
+                
+            if not check_submission(title, url):
+                print("URL Incorrecta")
+                # URL INCORRECTA
+                return None
+
+        user = HNUser.objects.get(pk=userID)
+
+        newPost = Post(title=title, url=url, site=parse_site(url), user=user, insert_date=timezone.now())
+        
+        newPost.save()
+        
+        if (url is None or url == ''):
+            newPost.text=text
+        else:
+            Comment.objects.create(content=text, user=user, post=newPost)
 
 
 class Post(models.Model):
@@ -56,6 +94,7 @@ class Post(models.Model):
     def numComments(self):
         return Comment.objects.filter(post=self).count()
 
+    objects = PostManager()
 
     def __str__(self):
         return self.title
@@ -68,6 +107,10 @@ class Post(models.Model):
         if not self.insert_date:
             self.insert_date = timezone.now()
         super().save(*args, **kwargs)
+
+class CommentManager(models.Manager):
+
+    pass
 
 class Comment(models.Model):
     @property
