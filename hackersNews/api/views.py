@@ -12,6 +12,15 @@ import json
 from django.db.utils import IntegrityError
 # Create your views here.
 
+def get_fields_from_request(request):
+    try:
+        fields = request.GET.get('fields', None)
+        if fields == '': fields = None
+        fields = fields.split(',')
+    except:
+        fields=None
+    return fields
+
 # Indica que model usar para las API Keys
 class HasAPIKey(BaseHasAPIKey):
     model = UserAPIKey
@@ -36,13 +45,16 @@ class user_list(APIView):
 
     def get(self, request, format=None):
         users = HNUser.objects.all()
-        serializer = HNUserSerializer(users, many=True)
+        fields = get_fields_from_request(request)
+
+        serializer = HNUserSerializer(users, fields=fields, many=True)
         return JsonResponse(serializer.data, safe=False)
 
     def post(self, request, fomat=None):
         data = JSONParser().parse(request)
-        newUser = HNUserSerializer.create(HNUserSerializer, validated_data=data)
-        if newUser is not None:
+        serializer = HNUserSerializer(data=data)
+        if serializer.is_valid():
+            newUser = HNUserSerializer.create(validated_data=data)
             serializer = HNUserSerializer(newUser, many=False)
             return JsonResponse(serializer.data)
         return JsonResponse(data,status=400)
@@ -151,9 +163,9 @@ class submission_list(APIView):
     permission_classes = [HasAPIKey]
 
     def get(self, request, format=None):
-        
+        fields = get_fields_from_request(request)
         submissions = Post.objects.all() # .orderby(..)
-        serializer = PostSerializer(submissions, many=True)
+        serializer = PostSerializer(submissions, fields=fields, many=True)
         return JsonResponse(serializer.data, safe=False)
 
     def post(self, request, format=None):
