@@ -74,7 +74,8 @@ class PostSerializer(serializers.ModelSerializer):
     text = serializers.CharField(required=False)
     votes = serializers.IntegerField(read_only=True)
     insert_date = serializers.DateTimeField(read_only=True)
-    user = HNUserSerializer(read_only=True)
+    user = SimplifiedUserSerializer(read_only=True)
+    numComments = serializers.IntegerField(read_only=True)
     commentIDs = serializers.PrimaryKeyRelatedField(many=True, read_only=True, source ='comment_set')
     
     class Meta:
