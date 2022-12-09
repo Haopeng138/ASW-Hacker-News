@@ -6,6 +6,8 @@ from django.db import models
 from urllib.parse import urlparse
 from accounts.models import HNUser
 from django.urls import reverse
+from django.db.models import Count
+
 
 ### Miguel:
 
@@ -44,11 +46,15 @@ def time_from(dt):
     else:
         raise ValueError
 
+
 class PostManager(models.Manager):
     def create(self, title, userID, url=None, text=None):
         print("Creating Post")
-        if url is not None:
-            if Post.objects.filter(url = url).exists() and url != '':
+        
+        if url == '': url = None
+
+        if url is not None:            
+            if Post.objects.filter(url = url).exists():
                 # URL REPETIDA
                 print("Url repetida")
                 return None
@@ -61,34 +67,44 @@ class PostManager(models.Manager):
         user = HNUser.objects.get(pk=userID)
 
         newPost = Post(title=title, url=url, site=parse_site(url), user=user, insert_date=timezone.now())
-        
-        newPost.save()
-        
-        if (url is None or url == ''):
+
+        # CleanUp - Setear a None las urls '' -- Deberia ser innecesario
+        for post in Post.objects.filter(url=''): 
+            print("Setting post url to None: ", post)
+            post.url = None
+
+        if (url is None):   # Submissions ASK
             newPost.text=text
-        else:
-            Comment.objects.create(content=text, user=user, post=newPost)
+        else:               # Submissions URL
+            newPost.save()
+            Comment.objects.create(content=text, userID=user.id, postID=newPost.id)
+          
+        newPost.save()
+
+        return newPost
+
+    def get_queryset(self):
+        return super().get_queryset().annotate(num_votes=Count('upvotes')).annotate(num_comments=Count('comment'))
+
 
 
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
 
-    title = models.CharField(null=False,max_length=255)
+    title = models.CharField(null=False, blank=False, max_length=255)
     url = models.CharField(null=True,max_length=255)
     site = models.CharField(null=True,max_length=255)
     text = models.CharField(null=True, max_length=1024)
-    
+    insert_date = models.DateTimeField(null=False)
+    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
+
     @property
     def votes(self):
         return PostVoteTracking.objects.filter(post=self).count()
-
-    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
     
     @property
     def time_from_post(self):
         return time_from(self.insert_date)
-
-    insert_date = models.DateTimeField(null=False)
 
     @property
     def numComments(self):
@@ -109,14 +125,26 @@ class Post(models.Model):
         super().save(*args, **kwargs)
 
 class CommentManager(models.Manager):
+    def create(self, userID, postID, content, replyID=None):
+        author = HNUser.objects.get(pk=userID)
+        post = Post.objects.get(pk=postID)
+        
+        reply = None
+        if replyID:
+            reply = Comment.objects.get(pk=replyID)
 
-    pass
+        newComment = Comment(insert_date=timezone.now(), content=content, user=author, post=post, reply=reply)
+        
+        newComment.save()
+        
+        return newComment
+    
+    def get_queryset(self):
+        return super().get_queryset().annotate(num_votes=Count('upvotes'))
 
 class Comment(models.Model):
-    @property
-    def time_from_post(self):
-        return time_from(self.insert_date)
-
+    id = models.AutoField(primary_key=True)
+    
     insert_date = models.DateTimeField(null=False)
     content = models.TextField(null=False)
     user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE, null=False)
@@ -125,7 +153,13 @@ class Comment(models.Model):
     
     @property
     def votes(self):
-        return CommentVoteTracking.objects.filter(Comment=self).count()
+        return CommentVoteTracking.objects.filter(comment=self).count()
+
+    @property
+    def time_from_post(self):
+        return time_from(self.insert_date)
+
+    objects = CommentManager()
 
     def __str__(self):
         return self.content
@@ -143,7 +177,7 @@ class VoteTracking(models.Model):
         super().save(*args, **kwargs)
 
 class PostVoteTracking(VoteTracking):
-    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=HNUser,related_name='upvoted_posts', on_delete=models.CASCADE)
     post = models.ForeignKey(to=Post, related_name="upvotes", on_delete=models.CASCADE)
 
     def __str__(self):
@@ -153,7 +187,7 @@ class PostVoteTracking(VoteTracking):
         unique_together = (('user','post'),)
 
 class CommentVoteTracking(VoteTracking):
-    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=HNUser, related_name='upvoted_comments', on_delete=models.CASCADE)
     comment = models.ForeignKey(to=Comment, related_name="upvotes", on_delete=models.CASCADE)
 
     def __str__(self):
