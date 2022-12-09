@@ -83,7 +83,7 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ['id','title', 'url', 'site', 'text', 'votes', 'user', 'insert_date', 'numComments','commentIDs']
 
 
-
+# Deprecado/Inutil
 class PostVoteSerializer(serializers.ModelSerializer):
     user = HNUserSerializer()
     post = PostSerializer()
@@ -92,7 +92,7 @@ class PostVoteSerializer(serializers.ModelSerializer):
         model = PostVoteTracking
         fields = ['user', 'post']
 
-
+# Deprecado/Inutil
 class CommentVoteSerializer(serializers.ModelSerializer):
     user = HNUserSerializer()
     commet = CommentSerializer()
