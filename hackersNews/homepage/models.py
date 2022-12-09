@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.db.models import Count
 
 
-### Miguel:
+# ---- Helper Functions ----
 
 def parse_site(url):
     if url:
@@ -18,7 +18,7 @@ def parse_site(url):
     else:
         return None
 
-# NO SE COMO VA ESTO??
+# NO SE COMO VA ESTO?? -Marc
 def check_submission(title, url):
     if not title or title == '':
         return False
@@ -29,8 +29,6 @@ def check_submission(title, url):
         return True
     except IndexError:
         return False
-
-
 
 def time_from(dt):
     lapse = timezone.now() - dt
@@ -46,6 +44,8 @@ def time_from(dt):
     else:
         raise ValueError
 
+
+#  ---- MODELS / MANAGERS ----
 
 class PostManager(models.Manager):
     def create(self, title, userID, url=None, text=None):
@@ -85,8 +85,6 @@ class PostManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().annotate(num_votes=Count('upvotes')).annotate(num_comments=Count('comment'))
-
-
 
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
