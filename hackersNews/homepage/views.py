@@ -14,7 +14,6 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 from django.http import JsonResponse
-from django.db.models import Count
 import json
 import logging
 from django.db.utils import IntegrityError
@@ -114,6 +113,7 @@ def submit(request):
         current_post.save()
         """
         newPost = Post.objects.create(title=title, url=url, text=text, userID=request.user.id)
+        
         if newPost is not None:
             log.info(f'Post {newPost.title} submitted')
         
@@ -318,7 +318,7 @@ def post_delete(request, post_id, errors=False, deleted=False):
 def hackernews (request, page=None):
     if request.method == 'GET':
         page = get_page(page)
-        posts = Post.objects.annotate(num_votes=Count('upvotes')).order_by('-num_votes')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
+        posts = Post.objects.order_by('-num_votes')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
         tracking = get_tracking(request.user, posts)
         return render_index_template(request, posts, tracking, 'new', page)
 
