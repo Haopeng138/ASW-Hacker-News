@@ -21,6 +21,19 @@ paths:
       summary: Retrieves a list of all users
       description: Returns a list of all users
       operationId: users_list
+      parameters:
+        - in: query
+          name: fields
+          style: form
+          explode: false
+          required: false
+          description: Filter output fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [id, username, email, karma, date_joined, about]
+
       security:
         - ApiKeyAuth: []
       responses:
@@ -215,6 +228,18 @@ paths:
         - Submission
       summary: Retrieves all the submissions
       operationId: GET_Submission
+      parameters:
+        - in: query
+          name: fields
+          style: form
+          explode: false
+          required: false
+          description: Filter output fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum: ['id','title', 'url', 'site', 'text', 'votes', 'user', 'insert_date', 'numComments','commentIDs']
       responses:
         200:
           description: 'successful operation'
