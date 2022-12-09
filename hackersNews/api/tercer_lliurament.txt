@@ -1,0 +1,10 @@
+Canvis que hem hagut de fer a la API:
+ - Exposar ID als metodes GET de Comments i de Post:
+    Al fer la segona entrega, no ens vam adonar de que moltes de les crides GET no mostraven les IDs dels objectes retornats
+ - Arreglar POST de Submisison:
+    La primera versió de la API no permetia crear una submission de tipus ASK, no afegia el text
+ - Simplificar els objectes retornats:
+    Per a la majoria de objectes que inclouen al Usuari, inicialment retornavem tot el usuari, es a dir, el seu correu, karma i el about etc.
+    en la majoria de casos, l'unica informació que necessitavem era el id i com a molt el seu nom d'usuari
+ - Limitar les funcionalitats segons la Api-Key del Usuari
+    En la segona entrega, totes les funcionalitats requerien la ai key, pero no restringien certes funcionalitats al seu usuari, com per exemple fer update de la informació del usuari
