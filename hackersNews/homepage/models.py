@@ -76,6 +76,7 @@ class PostManager(models.Manager):
         if (url is None):   # Submissions ASK
             newPost.text=text
         else:               # Submissions URL
+            newPost.text=None
             newPost.save()
             Comment.objects.create(content=text, userID=user.id, postID=newPost.id)
           
