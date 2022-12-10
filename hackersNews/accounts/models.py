@@ -28,11 +28,10 @@ class HackerNewsUserManager(BaseUserManager):
 
     def create_user(self, username, email, password=None):
         # Crea y guarda un usuario
-        print("Creating User")
 
         if not email:
             raise ValueError('Email field cannot be empty')
-
+        
         user = self.create_empty_user()
 
         user.email = email
@@ -41,21 +40,12 @@ class HackerNewsUserManager(BaseUserManager):
         if password is not None:
             user.set_password(password)
         else:
+            #raise ValueError('Password field cannot be empty')
             print("ERROR: Password vacío")
             user.set_password("")
 
-        # TODO: Mover a create_empty_user() (Falta eliminar/cambiar la "pk" name)
-        #api_key, key = UserAPIKey.objects.create_key(name=user.username, user=user)
-        #print(api_key)  # Model API Key
-        #print(key)      # API key en si
-        #user.key = key
         user.save()
 
-        api_key = UserAPIKey.objects.get_from_key(user.key)
-        api_key.user = user
-        api_key.save()
-
-#        user.save(using=self._db)
         return user
 
     # Crea un usuario admin
