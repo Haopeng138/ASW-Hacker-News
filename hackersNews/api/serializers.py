@@ -22,7 +22,7 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
                 self.fields.pop(field_name)
 
 
-### --- USER SERIALIZER --- ###
+### ---     USER SERIALIZER     --- ###
 class HNUserSerializer(DynamicFieldsModelSerializer):
     id = serializers.IntegerField(read_only=True)
 
@@ -49,7 +49,7 @@ class HNUserSerializer(DynamicFieldsModelSerializer):
         return instance
 
 
-### --- COMMENTS SERIALIZER --- ###
+### ---   COMMENTS SERIALIZER   --- ###
 class CommentSerializer(DynamicFieldsModelSerializer):
     id = serializers.IntegerField(read_only=True)
 
@@ -69,7 +69,7 @@ class CommentSerializer(DynamicFieldsModelSerializer):
         return Comment.objects.create(**validated_data)
 
 
-### --- POST SERIALIZER --- ###
+### ---     POST SERIALIZER     --- ###
 class PostSerializer(DynamicFieldsModelSerializer):
     id = serializers.IntegerField(read_only=True)
     
