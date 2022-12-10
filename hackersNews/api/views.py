@@ -10,9 +10,15 @@ from homepage.models import *
 from .serializers import *
 import json
 from django.db.utils import IntegrityError
-# Create your views here.
 
+
+# Indica que model usar para las API Keys
+class HasAPIKey(BaseHasAPIKey):
+    model = UserAPIKey
+
+### --- HELPER FUNCTIONS --- ####
 def get_fields_from_request(request):
+    """ Returns list of fields from query parametes"""
     try:
         fields = request.GET.get('fields', None)
         if fields == '': fields = None
@@ -21,11 +27,7 @@ def get_fields_from_request(request):
         fields=None
     return fields
 
-# Indica que model usar para las API Keys
-class HasAPIKey(BaseHasAPIKey):
-    model = UserAPIKey
-
-# USER
+    #    USER     #
 
 def getUserFromID(id):
     try:
