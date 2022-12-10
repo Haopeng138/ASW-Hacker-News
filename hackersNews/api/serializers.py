@@ -10,6 +10,7 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
         fields = kwargs.pop('fields', None)
         # Instantiate the superclass normally
         super(DynamicFieldsModelSerializer, self).__init__(*args, **kwargs)
+        
         if fields:
             print("Apllying fields")
             # Drop any fields that are not specified in the `fields` argument.
@@ -20,6 +21,8 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
 
+
+### --- USER SERIALIZER --- ###
 class HNUserSerializer(DynamicFieldsModelSerializer):
     id = serializers.IntegerField(read_only=True)
 
@@ -45,51 +48,40 @@ class HNUserSerializer(DynamicFieldsModelSerializer):
         instance.save()
         return instance
 
+
+### --- COMMENTS SERIALIZER --- ###
 class CommentSerializer(DynamicFieldsModelSerializer):
     id = serializers.IntegerField(read_only=True)
+
     postID = serializers.PrimaryKeyRelatedField(read_only=True, source='post')
     user = HNUserSerializer(read_only=True, source='user', fields=('id','username'))
-    insert_date = serializers.DateTimeField(read_only=True)
-    replyTo = serializers.PrimaryKeyRelatedField(read_only=True, source='reply')
 
+    insert_date = serializers.DateTimeField(read_only=True)
+    content = serializers.CharField(allow_blank=False, required=True)
+
+    replyTo = serializers.PrimaryKeyRelatedField(read_only=True, source='reply')
 
     class Meta:
         model = Comment
         fields = ['id','postID','user','insert_date', 'content', 'replyTo']
-
     
     def create(self, validated_data):
         return Comment.objects.create(**validated_data)
 
 
-class SimplifiedPostSerializer(serializers.ModelSerializer):
-    author = HNUserSerializer(read_only=True, source='user')
-    commentID = CommentSerializer(read_only=True, source='comment_set')
-    class Meta:
-        model = Post
-        fields = ['id','author','commentID']
-
-class SimplifiedCommentSerializer(serializers.ModelSerializer):
-    author = HNUserSerializer(source ='user', read_only = True)
-    post = SimplifiedPostSerializer(source = 'post', read_only=True)
-    class Meta:
-        model = Comment
-        fields = ['id', 'post', 'author']
-
+### --- POST SERIALIZER --- ###
 class PostSerializer(DynamicFieldsModelSerializer):
     id = serializers.IntegerField(read_only=True)
     
     title = serializers.CharField(required=True)
     url = serializers.CharField(required=False)
-    site = serializers.CharField(required=False, read_only=True)
+    site = serializers.CharField(read_only=True)
     text = serializers.CharField(required=False)
     
-    # votes = serializers.IntegerField(read_only=True)
-    votes = serializers.IntegerField()
+    votes = serializers.IntegerField(read_only=True)
     insert_date = serializers.DateTimeField(read_only=True)
     
-    user = HNUserSerializer(read_only=True)
-    #userID = serializers.PrimaryKeyRelatedField(write_only=True, queryset='id')
+    user = HNUserSerializer(read_only=True, fields=('username','id','karma'))
 
     numComments = serializers.IntegerField(read_only=True)
     commentIDs = serializers.PrimaryKeyRelatedField(many=True, read_only=True, source ='comment_set')
