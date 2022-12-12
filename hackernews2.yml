@@ -15,27 +15,40 @@ servers:
 
 paths:
   /users/:
+  # user_list
     get:
       tags:
         - User
       summary: Retrieves a list of all users
       description: Returns a list of all users
       operationId: users_list
+
       parameters:
         - in: query
           name: fields
           style: form
           explode: false
           required: false
-          description: Filter output fields
+          description: Filter response fields
           schema:
             type: array
             items:
               type: string
               enum: [id, username, email, karma, date_joined, about]
+        - in: query
+          name: id
+          style: form
+          explode: false
+          required: false
+          description: Filter subset of id's to get
+          schema:
+            type: array
+            items:
+              type: integer
 
       security:
         - ApiKeyAuth: []
+      
       responses:
           200:
             description: successful operation
@@ -43,13 +56,16 @@ paths:
               application/json:
                 schema:
                   $ref: "#/components/schemas/User"
+
   /users/{id}/:
+  # user_detail
     get:
       tags:
         - User
       summary: Retrieves an user by its id
       description: Returns an user
       operationId: user
+
       parameters:
         - name: id
           in: path
@@ -57,6 +73,18 @@ paths:
           required: true
           schema:
             type: integer
+        - in: query
+          name: fields
+          style: form
+          explode: false
+          required: false
+          description: Filter response fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [id, username, email, karma, date_joined, about]
+        
       responses:
         200:
           description: successful operation
@@ -64,6 +92,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error404user"
+
     put:
       tags:
         - User
@@ -98,13 +133,30 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        403:
+          description: permisison denied
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error404user"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error400"
+            
   /users/{id}/submission:
+  # user_submissions
     get:
       tags:
         - User
       summary: User submissions
       description: Returns the user's submissions or upvoted submissions
       operationId: userSubmissions
+
       parameters:
         - name: id
           in: path
@@ -113,10 +165,11 @@ paths:
           schema:
             type: string
         - in: query
-          name: u
+          name: upvoted
           schema:
             type: boolean
           description: False for user submissions, True for user's upvoted submssions
+     
       responses:
         200:
           description: successful operation
@@ -124,13 +177,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        403:
+          description: Permission denied
+
   /users/{id}/comments:
+  # user_comments
     get:
       tags:
         - User
       summary: User's comments
       description: Returns the user's comments or comments he has upvoted
       operationId: userComments
+
       parameters:
         - name: id
           in: path
@@ -139,10 +197,11 @@ paths:
           schema:
             type: string
         - in: query
-          name: u
+          name: upvoted
           schema:
             type: boolean
           description: False for user's comments, True for user's upvoted comments
+      
       responses:
         200:
           description: successful operation
@@ -150,37 +209,61 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-  # /upvote-post/{submissionId}:
-  #   post:
-  #     tags:
-  #       - Submission
-  #     summary: Upvotes a Submission
-  #     operationId: upvote_post
-  #     parameters:
-  #       - name: submissionId
-  #         in: path
-  #         description: ID of the Submission
-  #         required: true
-  #         schema:
-  #           type: integer
-  #           format: int64
-  #     responses:
-  #       200:
-  #         description: successful operation
-          
-  #       404:
-  #         description: "Error: Not Found"
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/ErrorResult"
-  #             examples:
-  #               errorExample:
-  #                 $ref: "#/components/examples/error404submssionid"
-
-# Hasta aquí
+        403:
+          description: Permission denied
 
   /submissions/:
+  # submission_list
+    get:
+      tags:
+        - Submission
+      summary: Retrieves all the submissions
+      operationId: GET_Submission
+      parameters:
+        - in: query
+          name: fields
+          style: form
+          explode: false
+          required: false
+          description: Filter output fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum: ['id','title', 'url', 'site', 'text', 'votes', 'user', 'insert_date', 'numComments','commentIDs']
+        
+        - in: query
+          name: id
+          style: form
+          explode: false
+          required: false
+          description: Filter subset of id's to get
+          schema:
+            type: array
+            items:
+              type: integer
+
+        - in: query
+          name: order_by
+          style: form
+          explode: false
+          required: false
+          description: Select field to order submisisons by
+          schema:
+            type: string
+            enum: ['id', 'numComments', 'insert_date', 'votes']
+          
+        - in: query
+          name: ascending
+          description: If order_by is specified, indicates if the order is ascending or descending
+          required: false
+          schema:
+            type: boolean
+
+      responses:
+        200:
+          description: 'successful operation'
+  
     post:
       tags:
         - Submission
@@ -223,26 +306,7 @@ paths:
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400Submission"
-    get:
-      tags:
-        - Submission
-      summary: Retrieves all the submissions
-      operationId: GET_Submission
-      parameters:
-        - in: query
-          name: fields
-          style: form
-          explode: false
-          required: false
-          description: Filter output fields
-          schema:
-            type: array
-            items:
-              type: string
-              enum: ['id','title', 'url', 'site', 'text', 'votes', 'user', 'insert_date', 'numComments','commentIDs']
-      responses:
-        200:
-          description: 'successful operation'
+    
 
   /submissions/{submissionId}/:
     get:
@@ -275,34 +339,6 @@ paths:
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
-   
-  # /submission/{submissionId}/upvote:
-  #   post:
-  #     tags:
-  #       - Submission
-  #     summary: Upvotes a Submission
-  #     operationId: upvoteSubmission
-  #     parameters:
-  #       - name: submissionId
-  #         in: path
-  #         description: ID of the Submission
-  #         required: true
-  #         schema:
-  #           type: integer
-  #           format: int64
-  #     responses:
-  #       200:
-  #         description: successful operation
-         
-  #       404:
-  #         description: "Error: Not Found"
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/ErrorResult"
-  #             examples:
-  #               errorExample:
-  #                 $ref: "#/components/examples/error404submssionid"
   
   /submissions/{submissionId}/comments:
     get:
