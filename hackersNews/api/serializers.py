@@ -12,12 +12,12 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
         super(DynamicFieldsModelSerializer, self).__init__(*args, **kwargs)
         
         if fields:
-            print("Apllying fields")
+            #print("Apllying fields")
             # Drop any fields that are not specified in the `fields` argument.
             allowed = set(fields)
-            print(allowed)
+            #print(allowed)
             existing = set(self.fields.keys())
-            print(existing)
+            #print(existing)
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
 
@@ -27,19 +27,23 @@ class HNUserSerializer(DynamicFieldsModelSerializer):
     id = serializers.IntegerField(read_only=True)
 
     username = serializers.CharField(required=False, allow_blank=False, max_length=255)
-    email = serializers.EmailField(read_only=True)
+    email = serializers.EmailField(required=True)
     karma = serializers.IntegerField(read_only=True)
-
+    password = serializers.CharField(write_only=True)
     date_joined = serializers.DateField(read_only=True)
     about = serializers.CharField(allow_blank=True, required=False)
     #is_admin = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = HNUser
-        fields = ['id','username','email','karma', 'date_joined', 'about']
+        fields = ['id','username','email','karma', 'password', 'date_joined', 'about']
+    
+    def create(self, validated_data):
+        username = validated_data.get('username')
+        email = validated_data.get('email')
+        pw = validated_data.get('password')
 
-    def create(**validated_data):
-        return HNUser.objects.create_user(**validated_data)
+        return HNUser.objects.create_user(username=username,email=email,password=pw)
 
     def update(self, instance, validated_data):
         instance.username = validated_data.get('username', instance.username)

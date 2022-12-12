@@ -61,8 +61,7 @@ def getUserFromRequest(request) -> HNUser:
     return getUserFromKey(key)
 
 class user_list(APIView):
-    # permission_classes = [HasAPIKey]
-    http_method_names = ["GET"]
+    permission_classes = []
 
     def get(self, request, format=None):
         fields = get_fields_from_request(request)
@@ -71,20 +70,14 @@ class user_list(APIView):
         users = filter_by_id_from_request(request=request, query_set=users)
         
         serializer = HNUserSerializer(users, fields=fields, many=True)
-        return JsonResponse(serializer.data, safe=False, stauts=status.HTTP_200_OK)
+        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
 
-    # INUTILIZADO
     def post(self, request, fomat=None):
         data = JSONParser().parse(request)
         serializer = HNUserSerializer(data=data)
 
         if serializer.is_valid():
-            newUser = serializer.create(validated_data=data)
-            print(newUser)
-            oldUser = HNUserSerializer.create(validated_data=data)
-            print(oldUser)
-            
-            serializer = HNUserSerializer(newUser, many=False)
+            newUser = serializer.save()
             return JsonResponse(serializer.data)
         return JsonResponse(data,status=status.HTTP_400_BAD_REQUEST)
 
