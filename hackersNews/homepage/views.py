@@ -74,21 +74,7 @@ def index(request, page=None):
     tracking = get_tracking
     return render_index_template(request, posts, tracking, '', page)
 
-def check_submission(title, url, text):
-    if not title:
-        return False
-    elif title == '':
-        return False
-    elif not url and not text:
-        return False
-    elif url:
-        try:
-            parse_site(url)
-            return True
-        except IndexError:
-            return False
-    else: return True
-
+#Movido a homepage/models.py 
 def check_submission(title, url, text):
     if not title:
         return False
@@ -109,10 +95,11 @@ def check_submission(title, url, text):
 #Submit
 def submit(request):
     if request.method == 'POST':
-
+        print("POST DE SUBMIT")
         title = request.POST['title'].strip()
         url = request.POST['url']
         text = request.POST['text'].strip()
+        """
         if Post.objects.filter(url = url).exists() and url != '':
            return render(request,'post/submit.html',context={'url_exist':True}) 
 
@@ -124,13 +111,18 @@ def submit(request):
 
         current_post = Post(title=title, url=url, user=user)
         current_post.save()
+        """
+        newPost = Post.objects.create(title=title, url=url, text=text, userID=request.user.id)
+        
+        if newPost is not None:
+            log.info(f'Post {newPost.title} submitted')
+        
 
-        log.info(f'Post {title} submitted')
-
+        """
         if text:
          current_comment = Comment(content=text, user=user, post=current_post)
          current_comment.save()
-
+        """
         return redirect('new')
 
     else:
@@ -326,8 +318,7 @@ def post_delete(request, post_id, errors=False, deleted=False):
 def hackernews (request, page=None):
     if request.method == 'GET':
         page = get_page(page)
-        posts = Post.objects. \
-            order_by('-votes')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
+        posts = Post.objects.order_by('-num_votes')[(page - 1) * settings.PAGE_LIMIT:settings.PAGE_LIMIT * page]
         tracking = get_tracking(request.user, posts)
         return render_index_template(request, posts, tracking, 'new', page)
 

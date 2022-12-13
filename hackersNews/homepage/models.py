@@ -6,8 +6,10 @@ from django.db import models
 from urllib.parse import urlparse
 from accounts.models import HNUser
 from django.urls import reverse
+from django.db.models import Count
 
-### Miguel:
+
+# ---- Helper Functions ----
 
 def parse_site(url):
     if url:
@@ -16,6 +18,17 @@ def parse_site(url):
     else:
         return None
 
+# NO SE COMO VA ESTO?? -Marc
+def check_submission(title, url):
+    if not title or title == '':
+        return False
+    elif not url:
+        return False
+    try:
+        if (parse_site(url) is None): return False
+        return True
+    except IndexError:
+        return False
 
 def time_from(dt):
     lapse = timezone.now() - dt
@@ -31,19 +44,72 @@ def time_from(dt):
     else:
         raise ValueError
 
+
+#  ---- MODELS / MANAGERS ----
+
+class PostManager(models.Manager):
+    def create(self, title, userID, url=None, text=None):
+        print("Creating Post")
+        
+        if url == '': url = None
+
+        if url is not None:            
+            if Post.objects.filter(url = url).exists():
+                # URL REPETIDA
+                print("Url repetida")
+                return None
+                
+            if not check_submission(title, url):
+                print("URL Incorrecta")
+                # URL INCORRECTA
+                return None
+
+        user = HNUser.objects.get(pk=userID)
+
+        newPost = Post(title=title, url=url, site=parse_site(url), user=user, insert_date=timezone.now())
+
+        # CleanUp - Setear a None las urls '' -- Deberia ser innecesario
+        for post in Post.objects.filter(url=''): 
+            print("Setting post url to None: ", post)
+            post.url = None
+
+        if (url is None):   # Submissions ASK
+            newPost.text=text
+        else:               # Submissions URL
+            newPost.text=None
+            newPost.save()
+            Comment.objects.create(content=text, userID=user.id, postID=newPost.id)
+          
+        newPost.save()
+
+        return newPost
+
+    def get_queryset(self):
+        return super().get_queryset().annotate(num_votes=Count('upvotes')).annotate(num_comments=Count('comment'))
+
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
+
+    title = models.CharField(null=False, blank=False, max_length=255)
+    url = models.CharField(null=True,max_length=255)
+    site = models.CharField(null=True,max_length=255)
+    text = models.CharField(null=True, max_length=1024)
+    insert_date = models.DateTimeField(null=False)
+    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
+
+    @property
+    def votes(self):
+        return PostVoteTracking.objects.filter(post=self).count()
+    
     @property
     def time_from_post(self):
         return time_from(self.insert_date)
 
-    title = models.CharField(null=False,max_length=255)
-    url = models.CharField(null=True,max_length=255)
-    site = models.CharField(null=True,max_length=255)
-    votes = models.IntegerField(default=0)
-    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
-    insert_date = models.DateTimeField(null=False)
-    comments = models.IntegerField(default=0)
+    @property
+    def numComments(self):
+        return Comment.objects.filter(post=self).count()
+
+    objects = PostManager()
 
     def __str__(self):
         return self.title
@@ -56,44 +122,43 @@ class Post(models.Model):
         if not self.insert_date:
             self.insert_date = timezone.now()
         super().save(*args, **kwargs)
-"""
-        class VoteTracking(models.Model):
-             insert_date = models.DateTimeField(null=False)
 
-    def save(self, *args, **kwargs):
-        if not self.insert_date:
-            self.insert_date = timezone.now()
-        super().save(*args, **kwargs)
-"""
+class CommentManager(models.Manager):
+    def create(self, userID, postID, content, replyID=None):
+        author = HNUser.objects.get(pk=userID)
+        post = Post.objects.get(pk=postID)
+        
+        reply = None
+        if replyID:
+            reply = Comment.objects.get(pk=replyID)
 
-class VoteTracking(models.Model):
-    insert_date = models.DateTimeField(null=False)
-    def save(self, *args, **kwargs):
-        if not self.insert_date:
-            self.insert_date = timezone.now()
-        super().save(*args, **kwargs)
-
-class PostVoteTracking(VoteTracking):
-    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
-    post = models.ForeignKey(to=Post, related_name="upvotes", on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.user.username + '_' + self.post.title
-
-    class Meta:
-        unique_together = (('user','post'),)
+        newComment = Comment(insert_date=timezone.now(), content=content, user=author, post=post, reply=reply)
+        
+        newComment.save()
+        
+        return newComment
+    
+    def get_queryset(self):
+        return super().get_queryset().annotate(num_votes=Count('upvotes'))
 
 class Comment(models.Model):
+    id = models.AutoField(primary_key=True)
+    
+    insert_date = models.DateTimeField(null=False)
+    content = models.TextField(null=False)
+    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE, null=False)
+    post = models.ForeignKey(to=Post, on_delete=models.CASCADE, null=False)
+    reply = models.ForeignKey(to='self', on_delete=models.CASCADE, null=True)
+    
+    @property
+    def votes(self):
+        return CommentVoteTracking.objects.filter(comment=self).count()
+
     @property
     def time_from_post(self):
         return time_from(self.insert_date)
 
-    insert_date = models.DateTimeField(null=False)
-    content = models.TextField(null=False)
-    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
-    post = models.ForeignKey(to=Post, on_delete=models.CASCADE, null=True)
-    reply = models.ForeignKey(to='self', on_delete=models.CASCADE, null=True)
-    votes = models.IntegerField(default=1)
+    objects = CommentManager()
 
     def __str__(self):
         return self.content
@@ -103,9 +168,26 @@ class Comment(models.Model):
             self.insert_date = timezone.now()
         super().save(*args, **kwargs)
 
+class VoteTracking(models.Model):
+    insert_date = models.DateTimeField(null=False)
+    def save(self, *args, **kwargs):
+        if not self.insert_date:
+            self.insert_date = timezone.now()
+        super().save(*args, **kwargs)
+
+class PostVoteTracking(VoteTracking):
+    user = models.ForeignKey(to=HNUser,related_name='upvoted_posts', on_delete=models.CASCADE)
+    post = models.ForeignKey(to=Post, related_name="upvotes", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username + '_' + self.post.title
+
+    class Meta:
+        unique_together = (('user','post'),)
+
 class CommentVoteTracking(VoteTracking):
-    user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE)
-    comment = models.ForeignKey(to=Comment, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=HNUser, related_name='upvoted_comments', on_delete=models.CASCADE)
+    comment = models.ForeignKey(to=Comment, related_name="upvotes", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.username + '_' + self.comment.content

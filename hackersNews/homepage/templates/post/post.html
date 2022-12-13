@@ -26,16 +26,16 @@
           <span class="asterisk">*</span><br>
           <div style="width: 14px; height: 1px"></div>
         {% endif %}
-            {% if post.id in post_tracking %}
+        {% if post.id in post_tracking %}
             <a id="up_{{ post.id }}" onclick="upvotePost(this)">
               <div class='votearrow' title='upvote'
                   style='visibility: hidden'></div>
             </a>
-            {% else %}
+        {% else %}
             <a id="up_{{ post.id }}" onclick="upvotePost(this)" style="cursor: pointer">
               <div class='votearrow' title='upvote'></div>
             </a>
-            {% endif %}
+        {% endif %}
       
       </div>
     </td>
@@ -44,6 +44,15 @@
         class="storylink">{{ post.title }}</a><span
         class="sitebit comhead"> (<a href="from?site={{ post.site }}"><span
         class="sitestr">{{ post.site }}</span></a>)</span>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"></td>
+    <td class="text">
+      {% if post.text != None %}
+      {{ post.text}}
+      {% endif %}
+
     </td>
   </tr>
   <tr>
