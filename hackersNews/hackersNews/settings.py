@@ -71,12 +71,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
 ]
 
-CORS_ORIGIN_WHITELIST = (
-'http://localhost:8000',  # for localhost (REACT Default)
-'http://192.168.10.45:3000', # for network
-'http://haopeng138.pythonanywhere.com',
-)
-
+#CORS_ORIGIN_WHITELIST = (
+#'http://localhost:8000',  # for localhost (REACT Default)
+#'http://192.168.10.45:3000', # for network
+#'http://haopeng138.pythonanywhere.com',
+#)
 
 
 CSRF_TRUSTED_ORIGINS = ["https://sheltered-wave-07620.herokuapp.com"]
