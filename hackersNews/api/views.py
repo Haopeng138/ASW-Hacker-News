@@ -77,8 +77,11 @@ class user_list(APIView):
         serializer = HNUserSerializer(data=data)
 
         if serializer.is_valid():
-            newUser = serializer.save()
-            return JsonResponse(serializer.data)
+            try:
+                newUser = serializer.save()
+                return JsonResponse(serializer.data)
+            except IntegrityError:
+                return JsonResponse({'detail':'Email is already in use'}, status= status.HTTP_400_BAD_REQUEST)
         return JsonResponse(data,status=status.HTTP_400_BAD_REQUEST)
 
 class user_detail(APIView):
@@ -368,7 +371,7 @@ class submission_vote(APIView):
         if vote.count() > 1:
             return JsonResponse({'success' : False, 'message':'More than one vote selected'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        if vote is None:
+        if vote.count() == 0:
             newVote = PostVoteTracking.objects.create(user=user, post=submission)
             return JsonResponse({'upvote': True,'message':'Has votado la submission {id}'}, status=status.HTTP_202_ACCEPTED)
         
@@ -389,7 +392,7 @@ class comment_vote(APIView):
         if vote.count() > 1:
             return JsonResponse({'success' : False, 'message':'More than one vote selected'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        if vote is None:
+        if vote.count() == 0:
             newVote = CommentVoteTracking.objects.create(user=user, comment=comment)
             return JsonResponse({'upvote': True,'message':'Has votado el commentario {id}'}, status=status.HTTP_202_ACCEPTED)
         
