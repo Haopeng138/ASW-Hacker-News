@@ -6,9 +6,8 @@ info:
     "This is the Open API documentation for the REST API of our beloved
     application **Hackernews** deployed at
     <https://haopeng138.pythonanywhere.com/>. <br>
-    All operations are executable. Only one operation requires authentication: `deleteTweet`. In
-    this case, you must **Authorize** your request by providing the api_key
-    vaule you got when you created the tweet."
+    All operations are executable. <br> All operation requires authentication."
+    
 servers:
   - url: "http://127.0.0.1:8000/api"
   - url: "https://haopeng138.pythonanywhere.com/api"
@@ -622,6 +621,12 @@ paths:
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error401"
         404:
           description: "Error: Not Found"
           content:
@@ -700,6 +705,13 @@ paths:
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400Submission"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/examples/error401"
+
 
   /vote-post/{id}/:
     post:
@@ -898,7 +910,7 @@ components:
       value:
         status: 400
         error: "Bad Request"
-        message: "Content is too long (maximum is 280 characters)"
+        message: "Something in your request body is wrong"
     error400Submission:
       value:
         status: 400
@@ -912,10 +924,11 @@ components:
         status: 403
         error: "Forbidden"
         message: "Your api key (X-API-KEY Header) is not valid"
-    $ref error404user:
-      type: object
-      properties:
-        detail: "User with ID: 7 was not found"
+    error404user:
+      value:
+        status: 404
+        error: "Not Found"
+        message: "No User with that username"
     error404submssionid:
       value:
         status: 404

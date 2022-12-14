@@ -97,7 +97,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'hackersNews.wsgi.application'
+#WSGI_APPLICATION = 'hackersNews.wsgi.application'
 
 
 # Database
@@ -190,7 +190,7 @@ ACCOUNT_USERNAME_REQUIRED = False       # NOTE: Mirar si ha de ser true
 
 
 AUTHENTICATION_BACKENDS = [
-    #NOTE: Seguramente se tenga que cambiar a un modelo personalizado 
+    #NOTE: Seguramente se tenga que cambiar a un modelo personalizado
     #      que herede de 'django.contrib.auth.backends.BaseBackend'
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend'
@@ -243,7 +243,7 @@ SOCIALACCOUNT_AUTO_SIGNUP = True  # DEF: True
 ACCOUNT_ADAPTER = 'accounts.adapters.HN_AccountAdapter'
 
 
-## Post 
+## Post
 PAGE_LIMIT = 30
 HOTTEST_DAY_LIMIT = 60
 
