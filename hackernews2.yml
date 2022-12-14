@@ -14,13 +14,14 @@ servers:
   - url: "https://haopeng138.pythonanywhere.com/api"
 
 paths:
+
   /users/:
   # user_list
     get:
       tags:
         - User
       summary: Retrieves a list of all users
-      description: Returns a list of all users
+      description: Returns a list of all users, can specify a subset of ID's and the fields
       operationId: users_list
 
       parameters:
@@ -29,7 +30,7 @@ paths:
           style: form
           explode: false
           required: false
-          description: Filter response fields
+          description: Filter User fields in response
           schema:
             type: array
             items:
@@ -48,7 +49,7 @@ paths:
       
       responses:
           200:
-            description: successful operation
+            description: Successful operation
             content:
               application/json:
                 schema:
@@ -57,7 +58,7 @@ paths:
     post:
       tags:
         - User
-      summary: Creates a new user
+      summary: Create a new user
       description: Creates a new user and returns the created object
       operationId: new_user
       
@@ -82,12 +83,49 @@ paths:
 
       responses:
           201:
-            description: successful operation
+            description: Successful operation - User Created
             content:
               application/json:
                 schema:
-                  $ref: "#/components/schemas/User"
-   
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                      example: 1
+                    username:
+                      type: string
+                      example: 'Username'
+                    email:
+                      type: string
+                      example: 'myemail@domain.com'
+                    key:
+                      type: string
+                      example: 'j3jj0uLL.0PWhHAtOLkahO6Joq7ZZy9eMclUBkjzt'
+          400:
+            description: Missing required fields
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    email:
+                      type: array
+                      example: ["This field is required"]
+                    password:
+                      type: array
+                      example: ["This field is required"]
+          409:
+            description: Conflict during creation
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    email:
+                      type: array
+                      example: ["Email already in use."]
+
   /users/{id}/:
   # user_detail
     get:
@@ -126,16 +164,18 @@ paths:
         404:
           description: User not found
           content:
-            application/json:
-              schema:
-                $ref: "#/components/examples/error404user"
+            application/json: 
+              example: 
+                detail: "User with ID: 7 was not found"
 
     put:
       tags:
         - User
-      summary: Updates an user
+      summary: Update a User's info
       description: This can only be done by the logged user
       operationId: update_user
+      security:
+        - ApiKeyAuth: []
       parameters:
         - name: id
           in: "path"
@@ -143,6 +183,7 @@ paths:
           required: true
           schema:
             type: integer
+
       requestBody:
         description: User object
         content:
@@ -156,66 +197,83 @@ paths:
                   about:
                     type: string
                     example: "I'm a software pro!"
-                    #$ref: "#/components/schemas/User"
+      
       responses:
         200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        403:
-          description: permisison denied
-        404:
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/examples/error404user"
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/examples/error400"
-            
-  /users/{id}/submission:
-  # user_submissions
-    get:
-      tags:
-        - User
-      summary: User submissions
-      description: Returns the user's submissions or upvoted submissions
-      operationId: userSubmissions
-
-      parameters:
-        - name: id
-          in: path
-          description: ID of User to check
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: upvoted
-          schema:
-            type: boolean
-          description: False for user submissions, True for user's upvoted submssions
-     
-      responses:
-        200:
-          description: successful operation
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
         403:
           description: Permission denied
+          content:
+            application/json: 
+              example: 
+                detail: "Cannot update other user's info"
+        404:
+          description: User not found
+          content:
+            application/json: 
+              example: 
+                detail: "User with ID: 7 was not found"
+        401:
+          description: "Error: Unauthorized"
+          content:
+            application/json:
+              example:
+                detail: "Api-Key credentials were not provided."
+        400:
+          description: Bad request
+    
+    delete:
+      tags:
+        - User
+      summary: Delete user
+      description: This can only be done by the logged user
+      operationId: update_user
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: "User's ID to delete"
+          required: true
+          schema:
+            type: integer
+      
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              example:
+                detail: "User has been deleted"
+        401:
+          description: "Error: Unauthorized"
+          content:
+            application/json:
+              example:
+                detail: "Api-Key credentials were not provided."
+        403:
+          description: "Error: Permission Denied"
+          content:
+            application/json:
+              example:
+                detail: "Cannot delete other users"
+        404:
+          description: User not found
+          content:
+            application/json: 
+              example: 
+                detail: "User with ID: 7 was not found"
 
   /users/{id}/comments:
   # user_comments
     get:
       tags:
         - User
+        - Comment
       summary: User's comments
       description: Returns the user's comments or comments he has upvoted
       operationId: userComments
@@ -227,8 +285,8 @@ paths:
           required: true
           schema:
             type: string
-        - in: query
-          name: upvoted
+        - name: upvoted   
+          in: query
           schema:
             type: boolean
           description: False for user's comments, True for user's upvoted comments
@@ -239,9 +297,75 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/Comment"
+        401:
+          description: "Error: Unauthorized"
+          content:
+            application/json:
+              example:
+                detail: "Api-Key credentials were not provided."
         403:
-          description: Permission denied
+          description: "Error: Permission Denied"
+          content:
+            application/json:
+              example:
+                detail: "Cannot view other user's upvoted submissions"
+        404:
+          description: User not found
+          content:
+            application/json: 
+              example: 
+                detail: "User with ID: 7 was not found"
+ 
+  /users/{id}/submission:
+  # user_submissions
+    get:
+      tags:
+        - User
+        - Submission
+      summary: User submissions
+      description: Returns the user's submissions or upvoted submissions
+      operationId: userSubmissions
+
+      parameters:
+        - name: id
+          in: path
+          description: ID of User to check
+          required: true
+          schema:
+            type: string
+        - name: upvoted
+          in: query
+          schema:
+            type: boolean
+          description: False for user's submissions, True for user's upvoted submssions
+     
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        401:
+          description: "Error: Unauthorized"
+          content:
+            application/json:
+              example:
+                detail: "Api-Key credentials were not provided."
+        403:
+          description: "Error: Permission Denied"
+          content:
+            application/json:
+              example:
+                detail: "Cannot view other user's upvoted submissions"
+        404:
+          description: User not found
+          content:
+            application/json: 
+              example: 
+                detail: "User with ID: 7 was not found"
+
 
   /submissions/:
   # submission_list
@@ -251,8 +375,8 @@ paths:
       summary: Retrieves all the submissions
       operationId: GET_Submission
       parameters:
-        - in: query
-          name: fields
+        - name: fields
+          in: query
           style: form
           explode: false
           required: false
@@ -261,10 +385,9 @@ paths:
             type: array
             items:
               type: string
-              enum: ['id','title', 'url', 'site', 'text', 'votes', 'user', 'insert_date', 'numComments','commentIDs']
-        
-        - in: query
-          name: id
+              enum: ['id','title', 'url', 'site', 'text', 'votes', 'user', 'insert_date', 'numComments','commentIDs']       
+        - name: id
+          in: query
           style: form
           explode: false
           required: false
@@ -273,9 +396,8 @@ paths:
             type: array
             items:
               type: integer
-
-        - in: query
-          name: order_by
+        - name: order_by
+          in: query
           style: form
           explode: false
           required: false
@@ -283,9 +405,8 @@ paths:
           schema:
             type: string
             enum: ['id', 'numComments', 'insert_date', 'votes']
-          
-        - in: query
-          name: ascending
+        - name: ascending
+          in: query
           description: If order_by is specified, indicates if the order is ascending or descending
           required: false
           schema:
@@ -293,34 +414,38 @@ paths:
 
       responses:
         200:
-          description: 'successful operation'
-  
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+
     post:
       tags:
         - Submission
       summary: Post a submission to Hackernews
       description: Provide the title, url and text required to create the submission
       operationId: POST_Submission
+      security:
+        - ApiKeyAuth: []
       requestBody:
         content:
           application/json:
             schema:
               required:
                 - title
-                - url
-                - text
               type: object
               properties:
                 title:
                   type: string
-                  minLength: 4
-                  example: 'My name'
+                  example: 'Titol'
                 url:
                   type: string
                   example: 'https://editor.swagger.io/#'
-               # text:
-                #  type: string
-                 # example: 'Aquest es un enllaç que redirecciona al editor swagger'
+                text:
+                  type: string
+                  example: 'Aquest es un enllaç que redirecciona al editor swagger'
+
       responses:
         201:
           description: 'Created'
@@ -329,17 +454,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/Submission'
         400:
-          description: 'Error: Bad Request'
+          description: Missing required fields
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResult'
-              examples:
-                errorExample:
-                  $ref: "#/components/examples/error400Submission"
-    
+                type: object
+                properties:
+                  title:
+                    type: array
+                    example: ["This field is required"]
+        401:
+          description: "Error: Unauthorized"
+          content:
+            application/json:
+              example:
+                detail: "Api-Key credentials were not provided."
+        409:
+          description: Conflict during creation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: array
+                    example: ["Email already in use."]
 
-  /submissions/{submissionId}/:
+  /submissions/{id}/:
     get:
       tags:
         - Submission
@@ -347,13 +488,49 @@ paths:
       description: Returns a single Submission
       operationId: detailedSubmission
       parameters:
-        - name: submissionId
+        - name: id
           in: path
           description: ID of the Submission
           required: true
           schema:
             type: integer
             format: int64
+      
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        400:
+          description: "Error: Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error400content"
+    
+    delete:
+      tags:
+        - Submission
+      summary: Deletes a Submission by its ID
+      description: Deletes the specified submission only if the ApiKey belongs to te author
+      operationId: deleteSubmission
+      security:
+        - ApiKeyAuth: []
+      
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Submission
+          required: true
+          schema:
+            type: integer
+            format: int64
+      
       responses:
         200:
           description: successful operation
@@ -371,15 +548,16 @@ paths:
                 errorExample:
                   $ref: "#/components/examples/error400content"
   
-  /submissions/{submissionId}/comments:
+  /submissions/{id}/comments:
     get:
       tags:
         - Submission
+        - Comment
       summary: Retrieve comments of a certain submission
       description: Returns the comments of the specified submission
       operationId: commentsSubmission
       parameters:
-        - name: submissionId
+        - name: id
           in: path
           description: ID of the Submission
           required: true
@@ -388,8 +566,7 @@ paths:
             format: int64
       responses:
         200:
-          description: successful operation
-          
+          description: successful operation         
         404:
           description: "Error: Not Found"
           content:
@@ -402,18 +579,19 @@ paths:
    
     post:
       tags:
-        - Submission
+        - Comment
       summary: Adds a new comment for the submission
       description: Returns a single Submission
       operationId: addComment
       parameters:
-        - name: submissionId
+        - name: id
           in: path
           description: ID of the Submission
           required: true
           schema:
             type: integer
             format: int64
+      
       requestBody:
         description: Provide the content of the new comment
         content:
@@ -427,6 +605,7 @@ paths:
                   minLength: 1
                   example: "This is a new comment"
         required: true
+      
       responses:
         201:
           description: Comment added successfully
@@ -453,7 +632,29 @@ paths:
                 errorExample:
                   $ref: "#/components/examples/error404submssionid"
 
-  /comment/{commentId}/:
+  /comment/{id}/:
+    get:
+      tags:
+        - Comment
+      summary: Retrieves a commet by it's ID.
+      operationId: GET_commentsReply
+      parameters:
+       - name: id
+         in: path
+         description: ID of the Comment
+         required: true
+         schema:
+          type: integer
+          format: int64
+      
+      responses:
+        200:
+          description: Obtained comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          
     post:
       tags:
         - Comment
@@ -461,13 +662,14 @@ paths:
       description: Makes a reply comment to the specified comment.
       operationId: commentsReply
       parameters:
-       - name: commentId
+       - name: id
          in: path
          description: ID of the Comment
          required: true
          schema:
           type: integer
           format: int64
+      
       requestBody:
         description: Provide the content of the new comment
         content:
@@ -481,6 +683,7 @@ paths:
                   minLength: 1
                   example: "This is a new reply"
         required: true
+      
       responses:
         201:
           description: 'Created'
@@ -497,142 +700,51 @@ paths:
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400Submission"
-    
-    get:
-      tags:
-        - Comment
-      summary: Retrieves a commet by it's ID.
-      operationId: GET_commentsReply
-      parameters:
-       - name: commentId
-         in: path
-         description: ID of the Comment
-         required: true
-         schema:
-          type: integer
-          format: int64
-      responses:
-        201:
-          description: Obtained comment
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Comment'
 
-  /upvote-post/{id}/:
+  /vote-post/{id}/:
     post:
       tags:
         - Votes
-      summary: Make upvote to Post
+      summary: Vote the specified post
       parameters:
         - name: id
-          in: "path"
-          description: id of post to vote
+          in: path
+          description: ID of the post to vote
           required: true
           schema:
             type: integer
+      
       responses:
         200:
-          description: Success operation
+          description: "Error: Bad Request"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UpvotePost"
-        401:
-          description: 'Unauthorized'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
+                $ref: "#/components/schemas/ErrorResult"
               examples:
                 errorExample:
-                  $ref: "#/components/examples/error401"
-  /upvote-comment/{id}/:
+                  $ref: "#/components/examples/error400content"
+
+  /vote-comment/{id}/:
     post:
       tags:
         - Votes
-      summary: Make upvote to Comment
+      summary: Vote the specified comment
       parameters:
         - name: id
-          in: "path"
-          description: id of comment to vote
+          in: path
+          description: ID of the comment to vote
           required: true
           schema:
             type: integer
+
       responses:
-        200:
-          description: Success operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UpvoteComment" 
-        401:
-          description: 'Unauthorized'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-              examples:
-                errorExample:
-                  $ref: "#/components/examples/error401"
-  /unvote-post/{id}/:
-    post:
-      tags:
-        - Votes
-      summary: Make unvote to Post
-      parameters:
-        - name: id
-          in: "path"
-          description: id of post to unvote
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: Success operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UnvotePost"
-        401:
-          description: 'Unauthorized'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-              examples:
-                errorExample:
-                  $ref: "#/components/examples/error401"
-  /unvote-comment/{id}/:
-    post:
-      tags:
-        - Votes
-      summary: Make unvote to Comment
-      parameters:
-        - name: id
-          in: "path"
-          description: id of comment to unvote
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: Success operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UnvoteComment"
-        401:
-          description: 'Unauthorized'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-              examples:
-                errorExample:
-                  $ref: "#/components/examples/error401"
+        202:
+          description: Post voted/Unvoted successfully
 
 components:
+  #responses:
+  
   schemas:
 
     User:
@@ -777,7 +889,11 @@ components:
             ]
         message:
           type: string
+   
+
+
   examples:
+
     error400:
       value:
         status: 400
@@ -790,19 +906,16 @@ components:
         message: "A submission with the same url was already posted"
     error401:
       value:
-        status: 401
-        error: "Unauthorized"
-        message: "You provided no api key (X-API-KEY Header)"
+        detail: "Api-Key credentials were not provided"
     error403:
       value:
         status: 403
         error: "Forbidden"
         message: "Your api key (X-API-KEY Header) is not valid"
-    error404user:
-      value:
-        status: 404
-        error: "Not Found"
-        message: "No User with that username"
+    $ref error404user:
+      type: object
+      properties:
+        detail: "User with ID: 7 was not found"
     error404submssionid:
       value:
         status: 404
