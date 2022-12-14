@@ -52,13 +52,18 @@ class HNUserSerializer(DynamicFieldsModelSerializer):
         instance.save()
         return instance
 
+class UpdateUserSerializer(HNUserSerializer):
+    email = serializers.EmailField(required=False)
+    class Meta:
+        model = HNUser
+        fields = ['id','username','email','karma', 'date_joined', 'about']
 
 ### ---   COMMENTS SERIALIZER   --- ###
 class CommentSerializer(DynamicFieldsModelSerializer):
     id = serializers.IntegerField(read_only=True)
 
     postID = serializers.PrimaryKeyRelatedField(read_only=True, source='post')
-    user = HNUserSerializer(read_only=True, source='user', fields=('id','username'))
+    user = HNUserSerializer(read_only=True, fields=('id','username'))
 
     insert_date = serializers.DateTimeField(read_only=True)
     content = serializers.CharField(allow_blank=False, required=True)
@@ -72,15 +77,14 @@ class CommentSerializer(DynamicFieldsModelSerializer):
     def create(self, validated_data):
         return Comment.objects.create(**validated_data)
 
-
 ### ---     POST SERIALIZER     --- ###
 class PostSerializer(DynamicFieldsModelSerializer):
     id = serializers.IntegerField(read_only=True)
     
-    title = serializers.CharField(required=True)
-    url = serializers.CharField(required=False)
+    title = serializers.CharField(required=True, allow_blank=False)
+    url = serializers.CharField(required=False, allow_blank=True)
     site = serializers.CharField(read_only=True)
-    text = serializers.CharField(required=False)
+    text = serializers.CharField(required=False, allow_blank=True)
     
     votes = serializers.IntegerField(read_only=True)
     insert_date = serializers.DateTimeField(read_only=True)
@@ -93,22 +97,3 @@ class PostSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = Post
         fields = ['id','title', 'url', 'site', 'text', 'votes', 'user', 'insert_date', 'numComments','commentIDs']
-
-
-# Deprecado/Inutil
-class PostVoteSerializer(serializers.ModelSerializer):
-    user = HNUserSerializer()
-    post = PostSerializer()
-
-    class Meta:
-        model = PostVoteTracking
-        fields = ['user', 'post']
-
-# Deprecado/Inutil
-class CommentVoteSerializer(serializers.ModelSerializer):
-    user = HNUserSerializer()
-    commet = CommentSerializer()
-
-    class Meta:
-        model = CommentVoteTracking
-        fields = ['user', 'comment']
