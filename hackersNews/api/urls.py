@@ -12,10 +12,10 @@ urlpatterns = [
     path('submissions/<int:id>/', views.submission_detail.as_view()),
     path('submissions/<int:id>/comments', views.submission_comments.as_view()),
     # COMMENTS
-    path('comment/<int:id>/',views.comment_detail.as_view()),
+    path('comments/<int:id>/',views.comment_detail.as_view()),
     #path('comment/<int:id>/', views.reply_comment),
 
     # UPVOTE
-    path('vote-post/<int:id>/', views.submission_vote.as_view()),
-    path('vote-comment/<int:id>/', views.comment_vote.as_view()),
+    path('submissions/<int:id>/vote', views.submission_vote.as_view()),
+    path('comments/<int:id>/vote', views.comment_vote.as_view()),
 ]
