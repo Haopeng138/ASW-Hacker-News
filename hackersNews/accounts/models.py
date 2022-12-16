@@ -7,11 +7,15 @@ from api.models import UserAPIKey
 
 # User Manager
 class HackerNewsUserManager(BaseUserManager):
+    def get_queryset(self):
+        # Ignora los usuarios temporales
+        return super().get_queryset().exclude(email__exact="")
+    
     def create_empty_user(self):
         print("Creating Empty User (HN User Manager)")
 
         print("Deleting Empty Users")
-        querySet = HNUser.objects.filter(email__exact="")
+        querySet = super().get_queryset().filter(email__exact="")
         for tmpUser in querySet:
             print("Deleting user ", tmpUser.id)
             tmpUser.delete()
@@ -113,10 +117,3 @@ class HNUser(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
-
-    def delete(self, *args, **kwargs):
-        super().delete(*args, **kwargs)
-        if self.key is not None or self.key != "":
-            print("Eliminando user con key: " + self.key)
-            # TODO eliminar tupla de UserAPIKey
-            # Creo que ya esta cubierto por el CASCADE delete

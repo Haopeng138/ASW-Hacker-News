@@ -1,10 +1,21 @@
 Canvis que hem hagut de fer a la API:
  - Exposar ID als metodes GET de Comments i de Post:
     Al fer la segona entrega, no ens vam adonar de que moltes de les crides GET no mostraven les IDs dels objectes retornats
- - Arreglar POST de Submisison:
-    La primera versió de la API no permetia crear una submission de tipus ASK, no afegia el text
+ - Arreglar POST de Submisison (creació de submissions):
+    Hem arreglat un problema present desde la primera entrega, la distinció entre submissions de tipus ASK i tipus URL
+    Ara al crear una submission amb una url i text, el text s'afegeix com a comentari, en canvi, si la submission no te URL, el text passa a ser un atribut de la submission
  - Simplificar els objectes retornats:
     Per a la majoria de objectes que inclouen al Usuari, inicialment retornavem tot el usuari, es a dir, el seu correu, karma i el about etc.
     en la majoria de casos, l'unica informació que necessitavem era el id i com a molt el seu nom d'usuari
  - Limitar les funcionalitats segons la Api-Key del Usuari
-    En la segona entrega, totes les funcionalitats requerien la ai key, pero no restringien certes funcionalitats al seu usuari, com per exemple fer update de la informació del usuari
+    En la segona entrega, totes les funcionalitats requerien la api key, pero no restringien certes funcionalitats al seu usuari, com per exemple fer update de la informació del usuari
+    Per aquesta ultima entrega hem desacoplat la comprovacio de la api key, tots els metodes get es poden fer sense api key excepte la funcionalitat d'agafar els comentaris o submissions que ha votat un usuari
+ - Afegir l'opció de eliminar submissions i usuaris
+ - Hem afegit la opcio de crear usuaris.
+    En el moment de la seva creació, la resposta retorna la api key del nou usuari
+ - Per als get de tots els usuaris i submissions hem afegit dos querys per seleccionar un subconjunt d'IDs i dels camps que apareixeran a la resposta
+ - Hem afegit dues querys al get de totes les submissions per a poder ordenar el llistat segons un parametre, de forma ascendent o descendent
+ - Hem arreglat i simplificat el sistema de vots
+    Hi ha una crida per votar comentaris i una per votar submissions
+    Si l'usuari ja ha votat, l'API treu el vot, i si no ha votat, afegeix el vot
+    També comprova que l'usuari no pugui votar el seu propi submission/commentari

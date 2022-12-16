@@ -65,7 +65,7 @@ def _login(request, succes_url, user=None, email=None, password=None):
 
     if user is not None:
         print("Logging in user: " + user.get_username())
-        HN_AccountAdapter.login(self=HN_AccountAdapter, request=request, user=user)
+        HN_AccountAdapter().login(request=request, user=user)
         return redirect(succes_url)
     elif email is not None and password is not None:
         return _login(request=request, user=_authenticate(email=email, password=password), succes_url=succes_url)

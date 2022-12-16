@@ -1,22 +1,16 @@
-from django.http import JsonResponse, Http404
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view, permission_classes
+from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
-from rest_framework_api_key.permissions import BaseHasAPIKey
-from .models import UserAPIKey
+from rest_framework import exceptions , status
 from accounts.models import HNUser
 from homepage.models import *
 from .serializers import *
 from django.db.utils import IntegrityError
-from rest_framework import exceptions
-from rest_framework import status
+from .permissions import *
 
-# Indica que model usar para las API Keys
-class HasAPIKey(BaseHasAPIKey):
-    model = UserAPIKey
 
 ### --- HELPER FUNCTIONS --- ####
+
 def get_fields_from_request(request):
     """ Returns list of fields from query parametes"""
     try:
@@ -47,21 +41,22 @@ def getUserFromID(id) -> HNUser:
     try:
         return HNUser.objects.get(pk=id)
     except:
-        raise exceptions.NotFound("User with ID: {id} was not found")
-
-def getUserFromKey(key) -> HNUser:
-    try:
-        return HNUser.objects.get(key=key)
-    except:
-        if key is None: raise exceptions.NotAuthenticated(detail="Authorization key was not found")
-        raise exceptions.APIException(detail="Api-Key has no user associated", code=status.HTTP_410_GONE)
-           
+        raise exceptions.NotFound("User with ID: %i was not found" % id,)
+     
 def getUserFromRequest(request) -> HNUser:
-    key = request.META["HTTP_AUTHORIZATION"].split()[1]
-    return getUserFromKey(key)
+    print("Getting user from request")
+    try:
+        key = request.META["HTTP_AUTHORIZATION"].split()[1]
+        return HNUser.objects.get(key=key)
+    except KeyError: 
+        raise exceptions.NotAuthenticated(detail="Api-Key credentials were not provided.")
+    except HNUser.DoesNotExist:
+        raise exceptions.NotFound(detail="Api-Key has no user associated", code=status.HTTP_410_GONE)
 
 class user_list(APIView):
+    # No permission needed
     permission_classes = []
+    http_method_names = ['get', 'post']
 
     def get(self, request, format=None):
         fields = get_fields_from_request(request)
@@ -74,45 +69,58 @@ class user_list(APIView):
 
     def post(self, request, fomat=None):
         data = JSONParser().parse(request)
-        serializer = HNUserSerializer(data=data)
+        input = HNUserSerializer(data=data)
 
-        if serializer.is_valid():
+        if input.is_valid():
             try:
-                newUser = serializer.save()
-                return JsonResponse(serializer.data)
-            except IntegrityError:
-                return JsonResponse({'detail':'Email is already in use'}, status= status.HTTP_400_BAD_REQUEST)
-        return JsonResponse(data,status=status.HTTP_400_BAD_REQUEST)
+                newUser = input.save()
+                fields = ('id','username', 'email')
+                serializer = HNUserSerializer(newUser, fields=fields)
+                output:dict = serializer.data
+                output['key'] = newUser.key
+                return JsonResponse(output, status = status.HTTP_201_CREATED)
+            except IntegrityError as e:
+                print(e)
+                return JsonResponse({'email':[ "Email already in use." ]}, status= status.HTTP_409_CONFLICT)
+        return JsonResponse(input.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class user_detail(APIView):
-    # permission_classes = [HasAPIKey]
-    http_method_names = ["GET", "PUT"]
+    permission_classes = [ApiKeyUserOrReadOnly]
+    http_method_names = ['get', 'put', 'delete']
 
     def get(self, request, id, format=None):
         user = getUserFromID(id)
         fields = get_fields_from_request(request)
 
         serializer = HNUserSerializer(user, fields=fields)
-        return JsonResponse(serializer.data)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, id, format=None):
         user = getUserFromID(id)
         key_user = getUserFromRequest(request)
 
         if user != key_user: raise exceptions.PermissionDenied("Cannot update other user's info")
-        
+
         data = JSONParser().parse(request)
-        serializer = HNUserSerializer(user, data=data)
-        
+        serializer = UpdateUserSerializer(user, data=data)
         if (serializer.is_valid()):
             serializer.save()
             return JsonResponse(serializer.data, status=status.HTTP_200_OK)
         
         return JsonResponse(serializer.errors, status=400)
 
+    def delete(self, request, id, format=None):
+        user = getUserFromID(id)
+        requestUser = getUserFromRequest(request)
+        
+        if user != requestUser and not requestUser.is_admin:
+            raise exceptions.PermissionDenied("Cannot delete other users")
+        user.delete()
+        return JsonResponse({"detail":"User has been deleted"}, status= status.HTTP_202_ACCEPTED)
+
 class user_comments(APIView):
-    permission_classes = [HasAPIKey]
-    http_method_names = ["GET"]
+    permission_classes = []
+    http_method_names = ['get']
 
     def user_comments(self, user):
         user_comments = Comment.objects.filter(user=user)
@@ -120,7 +128,7 @@ class user_comments(APIView):
         return JsonResponse(serializer.data, safe=False)
 
     def upvoted_comments(self, user):
-        upvoted_comments = Comment.objects.filter(commentvotetracking__user=user) # Renamed to upvotes__user??
+        upvoted_comments = Comment.objects.filter(upvotes__user=user)
         serializer = CommentSerializer(upvoted_comments, many=True)
         return  JsonResponse(serializer.data, safe=False)
 
@@ -130,14 +138,15 @@ class user_comments(APIView):
         upvoted = string_to_bool(request.GET.get('upvoted', 'False'))
 
         if upvoted:
-            if user != getUserFromRequest(request): raise exceptions.PermissionDenied("Cannot view other user's upvoted comments")
+            if user != getUserFromRequest(request): 
+                raise exceptions.PermissionDenied("Cannot view other user's upvoted comments")
             return self.upvoted_comments(user)
         else:
             return self.user_comments(user)
 
 class user_submissions(APIView):
-    permission_classes = [HasAPIKey]
-    http_method_names = ["GET"]
+    permission_classes = []
+    http_method_names = ['get']
 
     def user_submissions(self, user):
         user_submissions = Post.objects.filter(user=user)
@@ -152,40 +161,46 @@ class user_submissions(APIView):
     def get(self, request, id, format=None):
         user = getUserFromID(id)
 
-        #upvoted = request.GET.get('upvoted', 'False')
         upvoted = string_to_bool(request.GET.get('upvoted', 'False'))
 
-
         if upvoted:
-            if user != getUserFromRequest(request): raise exceptions.PermissionDenied("Cannot view other user's upvoted submissions")
+            if user != getUserFromRequest(request):
+                raise exceptions.PermissionDenied("Cannot view other user's upvoted submissions")
             return self.upvoted_submission(user)
         else:
             return self.user_submissions(user)
 
+
     #  SUBMISSION  #
 
-def get_submisison_from_id(id) -> Post:
+def getSubmissionFromID(id) -> Post:
     try:
         return Post.objects.get(id=id)
     except:
-        raise exceptions.NotFound("Submission with ID: {id} was not found")
+        raise exceptions.NotFound("Submission with ID: %i was not found" % id)
+
+def order_query_set(query_set, field:str, ascending=False):
+    if field is None: return query_set
+    if field == 'numComments': field = 'num_comments'
+    if field == 'votes': field = 'num_votes' # 'upvotes'
+    if not ascending: field= '-'+ field
+    try:
+        return query_set.order_by(field)
+    except Exception as e:
+        print(type(e), e)
+        print("ERROR oredering by field:",field)
+    return query_set
 
 class submission_list(APIView):
-    # permission_classes = [HasAPIKey]
-
-    def order_query_set(self, posts, field:str, ascending=False):
-        if field is None: return posts.order_by('-insert_date')
-        if not ascending: field='-'+ field
-        posts = posts.order_by(field)
-        return posts
+    permission_classes = [ApiKeyUserOrReadOnly]
+    http_method_names = ['get','post']
 
     def get(self, request, format=None):
         fields = get_fields_from_request(request)
         order_by = request.GET.get('order_by',None)
         ascending = string_to_bool(request.GET.get('ascending', 'false'))
 
-        submissions = Post.objects.all()
-        submissions = self.order_query_set(submissions,order_by,ascending)
+        submissions = order_query_set(Post.objects.all(), order_by, ascending)
         submissions = filter_by_id_from_request(request, submissions)
         
         serializer = PostSerializer(submissions, fields=fields, many=True)
@@ -195,216 +210,128 @@ class submission_list(APIView):
         user = getUserFromRequest(request)
 
         data = JSONParser().parse(request)
-        
-        print(data)
 
         serializer = PostSerializer(data=data)
         if (serializer.is_valid()):
-            serializer.save(user=user)
-            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                serializer.save(userID=user.id)
+                return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+            except IntegrityError:
+                return JsonResponse({"url":["URL must be unique"]}, status=status.HTTP_409_CONFLICT)
         return JsonResponse(serializer.errors, status=400)
 
 class submission_detail(APIView):
-    http_method_names = ["GET"]
+    permission_classes = [ApiKeyUserOrReadOnly]
+    http_method_names = ['get', 'delete']
 
     def get(self, request, id, format=None):
         fields = get_fields_from_request(request)
-        submission = get_submisison_from_id(id)
+        submission = getSubmissionFromID(id)
         serializer = PostSerializer(submission, fields=fields)
-        return JsonResponse(serializer.data, stauts = status.HTTP_200_OK)
+        return JsonResponse(serializer.data, status = status.HTTP_200_OK)
+
+    def delete(self, request, id, format=None):
+        requestUser = getUserFromRequest(request)
+        submission = getSubmissionFromID(id)
+
+        if (submission.user != requestUser and not requestUser.is_admin):
+            raise exceptions.PermissionDenied("Cannot delete other user's post")
+        submission.delete()
+        return JsonResponse({'detail': 'Post has been deleted'}, status= status.HTTP_202_ACCEPTED)
 
 class submission_comments(APIView):
-    http_method_names = ["GET", "POST"]
+    permission_classes = [ApiKeyUserOrReadOnly]
+    http_method_names = ['get', 'post']
     
     def get(self, request, id, format=None):
-        submission = get_submisison_from_id(id)
+        submission = getSubmissionFromID(id)
         comment_list = submission.comment_set
         serializer = CommentSerializer(comment_list, many=True)
         return JsonResponse(serializer.data, safe=False)
 
     def post(self, request, id, format=None):
         user = getUserFromRequest(request)
-        submission = get_submisison_from_id(id)
+        submission = getSubmissionFromID(id)
 
         data = JSONParser().parse(request)
         serializer = CommentSerializer(data=data)
 
         if (serializer.is_valid()):
-            serializer.save(user=user)
-            serializer.save(post=submission)
+            serializer.save(userID=user.id,postID=submission.id)
+            #serializer.save()
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
-
+           
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-## DEPRECADO - submission_comments
-@permission_classes([HasAPIKey])
-@csrf_exempt
-def sub_comment_list(request, id):
-    print(request)
-    submission = Post.objects.get(pk=id)
-    if request.method == 'GET':
-        comment_list = submission.comment_set
-        serializer = CommentSerializer(comment_list, many=True)
-        return JsonResponse(serializer.data, safe=False)
-    elif request.method == 'POST':
-        """
-        content = request.POST['text'].strip()
-        comment = Comment(user=request.user,
-                          post=post,
-                          reply=None,
-                          content=content)
-        serializer = CommentSerializer(comment, many=False)
-        return JsonResponse(serializer.data, safe=False)
-        """
-        user = getUserFromRequest(request)
-        data = JSONParser().parse(request)
-        serializer = CommentSerializer(data=data)
-        if (serializer.is_valid()):
-            serializer.save(user=user)
-            serializer.save(post=submission)
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
 
-## DEPRECADO - submission_detail
-@permission_classes([HasAPIKey])
-def get_submission(request, id):
-    if request.method == 'GET':
-        submission = Post.objects.get(pk=id)
-        serializer = PostSerializer(submission, many=False)
-        return JsonResponse(serializer.data, safe=False)
-
-# UPVOTE
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([HasAPIKey])
-def upvote_post(request,id):
-    return upvote(request, 'post',id)
-
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([HasAPIKey])
-def upvote_comment(request,id):
-    return upvote(request, 'comment',id)
-
-"""@permission_classes([HasAPIKey])
-@csrf_exempt"""
-def upvote(request, item_str,id):
-    key = request.META["HTTP_AUTHORIZATION"].split()[1]
-    user = getUserFromKey(key)
-    print(user.id)
-    if request.method == 'POST':
-        if user.id:
-            if item_str == 'post':
-                item = Post.objects.filter(id=id)[0]
-                tracking = PostVoteTracking(user=user, post=item)
-            else:
-                item = Comment.objects.filter(id=id)[0]
-                tracking = CommentVoteTracking(user=user, comment=item)
-            try:
-                tracking.save()
-                #item.user.karma += 1
-                item.user.save()
-                #item.votes += 1
-                item.save()
-            except IntegrityError:
-                return JsonResponse({'success': False,'message':'Ya has votado'})
-
-            return JsonResponse({'success': True,'message':'Votado con existo'})
-        else: return JsonResponse({'success': False,'message':'No user'})
-
-
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([HasAPIKey])
-def unvote_post(request,id):
-    return unvote(request, 'post',id)
-
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([HasAPIKey])
-def unvote_comment(request,id):
-    return unvote(request, 'comment',id)
-
-
-def unvote(request, item_str,id):
-    key = request.META["HTTP_AUTHORIZATION"].split()[1]
-    user = getUserFromKey(key)
-    print(user.id)
-    if request.method == 'POST':
-        print(user.id)
-        if user.id:
-            hadVote = False
-            if item_str == 'post':
-                item = Post.objects.filter(id=id)[0]
-                hadVote=PostVoteTracking.objects.filter(user=user, post=item).exists()
-                print(hadVote)
-                PostVoteTracking.objects.filter(user=user, post=item).delete()
-            else:
-                print("some")
-                print(user.id)
-                item = Comment.objects.filter(id=id)[0]
-                hadVote=PostVoteTracking.objects.filter(user=user, comment=item).exists()
-                CommentVoteTracking.objects.filter(user=user, comment=item).delete()
-            print(hadVote)
-            if (hadVote):
-                #item.user.karma -= 1
-                item.user.save()
-                #item.votes -= 1
-                item.save()
-            else:
-                print("Succes false")
-                return JsonResponse({'success': False,'message':'No habias votado'})
-
-            return JsonResponse({'success': True,'message':'Has desvotado'})
-        else: return JsonResponse({'success': False,'messafe':'No user'})
+    #    VOTE     #
 
 class submission_vote(APIView):
     permission_classes = [HasAPIKey]
-    http_method_names = ["POST"]
+    http_method_names = ['post']
 
     def post(self, request, id, format=None):
-        submission = Post.objects.get(id=id)
+        submission = getSubmissionFromID(id)
         user = getUserFromRequest(request)
 
-        vote = PostVoteTracking.objects.filter(user=user).get(post=submission)
+        if (submission.user == user): return JsonResponse({'success' : False, 'message':'Cannot vote own submissions'}, status=status.HTTP_403_FORBIDDEN)
+
+        vote = PostVoteTracking.objects.filter(user=user).filter(post=submission)
         
         if vote.count() > 1:
             return JsonResponse({'success' : False, 'message':'More than one vote selected'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         if vote.count() == 0:
             newVote = PostVoteTracking.objects.create(user=user, post=submission)
-            return JsonResponse({'upvote': True,'message':'Has votado la submission {id}'}, status=status.HTTP_202_ACCEPTED)
+            return JsonResponse({'success' : True, 'upvote': True,'message':'Has votado la submission %i' % id}, status=status.HTTP_202_ACCEPTED)
         
         deleted_vote = vote.delete()
         print(deleted_vote)
-        return JsonResponse({'upvote': False,'message':'Has desvotado la submission {id}'}, status=status.HTTP_202_ACCEPTED)
+        return JsonResponse({'success' : True, 'upvote': False,'message':'Has desvotado la submission %i' % id}, status=status.HTTP_202_ACCEPTED)
 
 class comment_vote(APIView):
     permission_classes = [HasAPIKey]
-    http_method_names = ["POST"]
+    http_method_names = ['post']
 
     def post(self, request, id, format=None):
-        comment = Comment.objects.get(id=id)
+        comment = getCommentFromID(id=id)
         user = getUserFromRequest(request)
 
-        vote = CommentVoteTracking.objects.filter(user=user).filter(comment=comment)
+        if (comment.user == user): return JsonResponse({'success' : False, 'message':'Cannot vote own comment'}, status=status.HTTP_403_FORBIDDEN)
 
+
+        vote = CommentVoteTracking.objects.filter(user=user).filter(comment=comment)
         if vote.count() > 1:
             return JsonResponse({'success' : False, 'message':'More than one vote selected'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         if vote.count() == 0:
             newVote = CommentVoteTracking.objects.create(user=user, comment=comment)
-            return JsonResponse({'upvote': True,'message':'Has votado el commentario {id}'}, status=status.HTTP_202_ACCEPTED)
+            return JsonResponse({'succes' : True, 'upvote': True,'message':'Has votado el commentario %i' % id}, status=status.HTTP_202_ACCEPTED)
         
         deleted_vote = vote.delete()
         print(deleted_vote)
-        return JsonResponse({'upvote': False,'message':'Has desvotado el commentario {id}'}, status=status.HTTP_202_ACCEPTED)
+        return JsonResponse({'succes' : True, 'upvote': False,'message':'Has desvotado el commentario %i' % id}, status=status.HTTP_202_ACCEPTED)
+
+
+    #   COMMENT    #
+
+def getCommentFromID(id) -> Comment:
+    try:
+        return Comment.objects.get(id=id)
+    except Comment.DoesNotExist:
+        raise exceptions.NotFound("Comment with ID: %i was not found." % id)
+
+def getPostFromComment(reply:Comment) -> Post:
+    if reply.post is not None: return reply.post
+    if (reply.reply is None): raise exceptions.ValidationError(detail='Comment is not attached to post', code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return getPostFromComment(reply.reply)
 
 class comment_detail(APIView):
-    http_method_names = ["GET", "POST"]
+    permission_classes = [ApiKeyUserOrReadOnly]
+    http_method_names = ['get', 'post']
 
     def get(self, request, id, format=None):
-        comment = Comment.objects.get(id=id)
+        comment = getCommentFromID(id)
         fields = get_fields_from_request(request)
 
         serializer = CommentSerializer(comment, fields=fields)
@@ -413,49 +340,25 @@ class comment_detail(APIView):
 
     def post(self, request, id, format=None):
         user = getUserFromRequest(request)
-        
-        reply = Comment.objects.get(id=id)
+        reply = getCommentFromID(id)
+        post = getPostFromComment(reply)
+
         data = JSONParser().parse(request)
-
         serializer = CommentSerializer(data=data)
+
         if (serializer.is_valid()):
-            post = None
-            currentCom = reply
+            
+            serializer.save(userID=user.id, postID=post.id, replyID=reply.id)
 
-            while post is None:
-                post = currentCom.post
-                currentCom = currentCom.reply
-
-            serializer.save(user=user)
-            serializer.save(reply=reply)
-            serializer.save(post=post)
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, id, format=None):
+        requestUser = getUserFromRequest(request)
+        comment = getCommentFromID(id=id)
 
-## DEPRECADO - comment_detail
-@csrf_exempt
-@permission_classes([HasAPIKey])
-def reply_comment(request, id):
-    comment = Comment.objects.get(pk=id)
-    if request.method == 'POST':
-        key = request.META["HTTP_AUTHORIZATION"].split()[1]
-        user = getUserFromKey(key)
-        data = JSONParser().parse(request)
-        serializer = CommentSerializer(data=data)
-        if (serializer.is_valid()):
-            post = None
-            currentCom = comment
+        if comment.user != requestUser and not requestUser.is_admin:
+            raise exceptions.PermissionDenied("Cannot delete other user's comment")
 
-            while post is None:
-                post = currentCom.post
-                currentCom = currentCom.reply
-
-            serializer.save(user=user)
-            serializer.save(reply=comment)
-            serializer.save(post=post)
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
-    elif request.method == 'GET':
-        serializer = CommentSerializer(comment, many = False)
-        return JsonResponse(serializer.data, status=201)
+        comment.delete()
+        return JsonResponse({'detail': 'Comment has been deleted'}, status= status.HTTP_202_ACCEPTED)

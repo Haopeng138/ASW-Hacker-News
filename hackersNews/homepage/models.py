@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 from accounts.models import HNUser
 from django.urls import reverse
 from django.db.models import Count
-
+from rest_framework import exceptions
 
 # ---- Helper Functions ----
 
@@ -48,22 +48,19 @@ def time_from(dt):
 #  ---- MODELS / MANAGERS ----
 
 class PostManager(models.Manager):
-    def create(self, title, userID, url=None, text=None):
+    def get_queryset(self):
+        return super().get_queryset().annotate(num_votes=Count('upvotes')).annotate(num_comments=Count('comment'))
+
+    def create(self, title, userID:int, url=None, text=None):
         print("Creating Post")
         
         if url == '': url = None
+        if text == '': text = None
 
         if url is not None:            
-            if Post.objects.filter(url = url).exists():
-                # URL REPETIDA
-                print("Url repetida")
-                return None
-                
             if not check_submission(title, url):
-                print("URL Incorrecta")
-                # URL INCORRECTA
-                return None
-
+                raise exceptions.ValidationError(detail="Url not valid", code=400)
+        
         user = HNUser.objects.get(pk=userID)
 
         newPost = Post(title=title, url=url, site=parse_site(url), user=user, insert_date=timezone.now())
@@ -73,9 +70,9 @@ class PostManager(models.Manager):
             print("Setting post url to None: ", post)
             post.url = None
 
-        if (url is None):   # Submissions ASK
+        if (url is None):           # Submissions ASK
             newPost.text=text
-        else:               # Submissions URL
+        elif (text is not None):    # Submissions URL
             newPost.text=None
             newPost.save()
             Comment.objects.create(content=text, userID=user.id, postID=newPost.id)
@@ -84,14 +81,11 @@ class PostManager(models.Manager):
 
         return newPost
 
-    def get_queryset(self):
-        return super().get_queryset().annotate(num_votes=Count('upvotes')).annotate(num_comments=Count('comment'))
-
 class Post(models.Model):
     id = models.AutoField(primary_key=True)
 
     title = models.CharField(null=False, blank=False, max_length=255)
-    url = models.CharField(null=True,max_length=255)
+    url = models.CharField(null=True,max_length=255, unique=True)
     site = models.CharField(null=True,max_length=255)
     text = models.CharField(null=True, max_length=1024)
     insert_date = models.DateTimeField(null=False)
