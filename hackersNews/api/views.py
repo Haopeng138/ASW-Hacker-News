@@ -268,31 +268,142 @@ class submission_comments(APIView):
 
 class submission_vote(APIView):
     permission_classes = [HasAPIKey]
-    http_method_names = ['post']
+    http_method_names = ['get','put','post','delete']
 
+    def canVote(self, user:HNUser, submission:Post) -> tuple [bool, str, int]:
+        if (submission.user == user): return False, 'Cannot vote own submission',status.HTTP_403_FORBIDDEN
+        vote = PostVoteTracking.objects.filter(user=user).filter(post=submission)
+        if (vote.count() == 0): return True, ('User %s no ha votado la submission %i' % (user.username, submission.id)), status.HTTP_202_ACCEPTED
+        if (vote.count() == 1): return False, ('User %s ya ha votado la submission %i' % (user.username, submission.id)), status.HTTP_202_ACCEPTED
+        return False, 'More than one vote selected', status.HTTP_500_INTERNAL_SERVER_ERROR
+
+    def vote(self, user:HNUser, submission:Post):
+        canVote, message, code = self.canVote(user,submission)
+        if (not canVote): raise exceptions.APIException(detail=message, code=code)
+        return PostVoteTracking.objects.create(user=user, post=submission)
+        
+    def unvote(self, user:HNUser, submission:Post):
+        canVote, message, code = self.canVote(user,submission)
+        #if (not canVote): raise exceptions.APIException(detail=message, code=code)
+        deleted_vote = PostVoteTracking.objects.filter(user=user).filter(post=submission).delete()
+        print(deleted_vote)
+        return deleted_vote
+  
+
+    def get(self, request, id, format=None):
+        submission = getSubmissionFromID(id)
+        user = getUserFromRequest(request)
+        canVote, message, code = self.canVote(user,submission)
+        
+        return JsonResponse({'can_vote' : canVote, 'message' : message}, status=code)
+
+    def put(self, request, id, format=None):
+        submission = getSubmissionFromID(id)
+        user = getUserFromRequest(request)
+
+        canVote, message, code = self.canVote(user, submission)
+
+        if (code == status.HTTP_202_ACCEPTED):
+            if (canVote):
+                self.vote(user, submission)
+                return JsonResponse({'success' : True, 'upvote': True, 'message':'Has votado la submission %i' % id}, status=status.HTTP_202_ACCEPTED)
+            else:
+                self.unvote(user,submission)
+                return JsonResponse({'success' : True, 'upvote': False,'message':'Has desvotado la submission %i' % id}, status=status.HTTP_202_ACCEPTED)
+        return JsonResponse({'success' : False, 'message' : message}, status = code)
+            
     def post(self, request, id, format=None):
         submission = getSubmissionFromID(id)
         user = getUserFromRequest(request)
 
-        if (submission.user == user): return JsonResponse({'success' : False, 'message':'Cannot vote own submissions'}, status=status.HTTP_403_FORBIDDEN)
+        canVote, message, code = self.canVote(user, submission)
 
-        vote = PostVoteTracking.objects.filter(user=user).filter(post=submission)
-        
-        if vote.count() > 1:
-            return JsonResponse({'success' : False, 'message':'More than one vote selected'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        if vote.count() == 0:
-            newVote = PostVoteTracking.objects.create(user=user, post=submission)
-            return JsonResponse({'success' : True, 'upvote': True,'message':'Has votado la submission %i' % id}, status=status.HTTP_202_ACCEPTED)
-        
-        deleted_vote = vote.delete()
-        print(deleted_vote)
-        return JsonResponse({'success' : True, 'upvote': False,'message':'Has desvotado la submission %i' % id}, status=status.HTTP_202_ACCEPTED)
+        if (canVote):
+            self.vote(user,submission)
+            return JsonResponse({'success' : True, 'upvote': True, 'message':'Has votado la submission %i' % id}, status=status.HTTP_202_ACCEPTED)
+        return JsonResponse({'success' : canVote, 'upvote': False, 'message':message}, status = code)        
+
+    def delete(self, request, id, format=None):
+        submission = getSubmissionFromID(id)
+        user = getUserFromRequest(request)
+
+        canVote, message, code = self.canVote(user, submission)
+        try:
+            self.unvote(user, submission)
+            return JsonResponse({'success' : True, 'upvote': False,'message':'Has desvotado la submission %i' % id}, status=status.HTTP_202_ACCEPTED)
+        except:
+            return JsonResponse({'success' : canVote, 'upvote': False, 'message':message}, status = code)        
+
 
 class comment_vote(APIView):
     permission_classes = [HasAPIKey]
-    http_method_names = ['post']
+    http_method_names = ['get','put','post','delete']
+    
+    def canVote(self, user:HNUser, comment:Comment) -> tuple [bool, str, int]:
+        if (comment.user == user): return False, 'Cannot vote your own comments',status.HTTP_403_FORBIDDEN
+        vote = CommentVoteTracking.objects.filter(user=user).filter(comment=comment)
+        if (vote.count() == 0): return True, ('User %s no ha votado el comment %i' % (user.username, comment.id)), status.HTTP_202_ACCEPTED
+        if (vote.count() == 1): return False, ('User %s ya ha votado el comment %i' % (user.username, comment.id)), status.HTTP_202_ACCEPTED
+        return False, 'More than one vote selected', status.HTTP_500_INTERNAL_SERVER_ERROR
 
+    def vote(self, user:HNUser, comment:Comment):
+        canVote, message, code = self.canVote(user,comment)
+        if (not canVote): raise exceptions.APIException(detail=message, code=code)
+        return CommentVoteTracking.objects.create(user=user, comment=comment)
+        
+    def unvote(self, user:HNUser, comment:Comment):
+        canVote, message, code = self.canVote(user,comment)
+        #if (not canVote): raise exceptions.APIException(detail=message, code=code)
+        deleted_vote = CommentVoteTracking.objects.filter(user=user).filter(comment=comment).delete()
+        print(deleted_vote)
+        return deleted_vote
+  
+
+    def get(self, request, id, format=None):
+        comment = getCommentFromID(id=id)
+        user = getUserFromRequest(request)
+        canVote, message, code = self.canVote(user,comment)
+        
+        return JsonResponse({'can_vote' : canVote, 'message' : message}, status=code)
+
+    def put(self, request, id, format=None):
+        comment = getCommentFromID(id=id)
+        user = getUserFromRequest(request)
+
+        canVote, message, code = self.canVote(user, comment)
+
+        if (code == status.HTTP_202_ACCEPTED):
+            if (canVote):
+                self.vote(user, comment)
+                return JsonResponse({'success' : True, 'upvote': True, 'message':'Has votado el comentario %i' % id}, status=status.HTTP_202_ACCEPTED)
+            else:
+                self.unvote(user,comment)
+                return JsonResponse({'success' : True, 'upvote': False,'message':'Has desvotado el comentario %i' % id}, status=status.HTTP_202_ACCEPTED)
+        return JsonResponse({'success' : False, 'message' : message}, status = code)
+            
+    def post(self, request, id, format=None):
+        comment = getCommentFromID(id=id)
+        user = getUserFromRequest(request)
+
+        canVote, message, code = self.canVote(user, comment)
+
+        if (canVote):
+            self.vote(user,comment)
+            return JsonResponse({'success' : True, 'upvote': True, 'message':'Has votado el comentario %i' % id}, status=status.HTTP_202_ACCEPTED)
+        return JsonResponse({'success' : canVote, 'upvote': False, 'message':message}, status = code)        
+
+    def delete(self, request, id, format=None):
+        comment = getCommentFromID(id=id)
+        user = getUserFromRequest(request)
+
+        canVote, message, code = self.canVote(user, comment)
+        try:
+            self.unvote(user, comment)
+            return JsonResponse({'success' : True, 'upvote': False,'message':'Has desvotado el comentario %i' % id}, status=status.HTTP_202_ACCEPTED)
+        except:
+            return JsonResponse({'success' : canVote, 'upvote': False, 'message':message}, status = code)        
+
+"""
     def post(self, request, id, format=None):
         comment = getCommentFromID(id=id)
         user = getUserFromRequest(request)
@@ -311,7 +422,7 @@ class comment_vote(APIView):
         deleted_vote = vote.delete()
         print(deleted_vote)
         return JsonResponse({'succes' : True, 'upvote': False,'message':'Has desvotado el commentario %i' % id}, status=status.HTTP_202_ACCEPTED)
-
+"""
 
     #   COMMENT    #
 

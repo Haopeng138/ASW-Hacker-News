@@ -12,6 +12,7 @@ info:
 servers:
   - url: "http://127.0.0.1:8000/api"
   - url: "https://haopeng138.pythonanywhere.com/api"
+  - url: 'https://MarcDuch.pythonanywhere.com/api'
 
 paths:
 
@@ -632,7 +633,7 @@ paths:
                 errorExample:
                   $ref: "#/components/examples/error404submssionid"
 
-  /comment/{id}/:
+  /comments/{id}/:
     get:
       tags:
         - Comment
@@ -701,7 +702,58 @@ paths:
                 errorExample:
                   $ref: "#/components/examples/error400Submission"
 
-  /vote-post/{id}/:
+  /submissions/{id}/vote:
+    get:
+      tags:
+        - Votes
+      summary: Determines whether a user can vote
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of the post to vote
+          required: true
+          schema:
+            type: integer
+      
+      responses:
+        200:
+          description: "Error: Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error400content"
+
+    put:
+      tags:
+        - Votes
+      summary: Performs a voting action
+      description: Votes the specified submission, if the submission was previously voted, it removes the vote
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of the post to vote
+          required: true
+          schema:
+            type: integer
+      
+      responses:
+        200:
+          description: "Error: Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error400content"
+
     post:
       tags:
         - Votes
@@ -725,11 +777,84 @@ paths:
                 errorExample:
                   $ref: "#/components/examples/error400content"
 
-  /vote-comment/{id}/:
+    delete:
+      tags:
+        - Votes
+      summary: Unvotes a submission
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of the post to vote
+          required: true
+          schema:
+            type: integer
+      
+      responses:
+        200:
+          description: "Error: Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResult"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error400content"
+
+  /comments/{id}/vote:
+    get:
+      tags:
+        - Votes
+      summary: Determines whether a user can vote
+      parameters:
+        - name: id
+          in: path
+          description: ID of the comment to vote
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        202:
+          description: Post voted/Unvoted successfully   
+
+    put:
+      tags:
+        - Votes
+      summary: Vote the specified comment
+      parameters:
+        - name: id
+          in: path
+          description: ID of the comment to vote
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        202:
+          description: Post voted/Unvoted successfully
+    
     post:
       tags:
         - Votes
       summary: Vote the specified comment
+      parameters:
+        - name: id
+          in: path
+          description: ID of the comment to vote
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        202:
+          description: Post voted/Unvoted successfully
+
+    delete:
+      tags:
+        - Votes
+      summary: Unvote the specified comment
       parameters:
         - name: id
           in: path
