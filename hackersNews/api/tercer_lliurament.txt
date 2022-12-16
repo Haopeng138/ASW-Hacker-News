@@ -16,6 +16,10 @@ Canvis que hem hagut de fer a la API:
  - Per als get de tots els usuaris i submissions hem afegit dos querys per seleccionar un subconjunt d'IDs i dels camps que apareixeran a la resposta
  - Hem afegit dues querys al get de totes les submissions per a poder ordenar el llistat segons un parametre, de forma ascendent o descendent
  - Hem arreglat i simplificat el sistema de vots
-    Hi ha una crida per votar comentaris i una per votar submissions
-    Si l'usuari ja ha votat, l'API treu el vot, i si no ha votat, afegeix el vot
+    Put fa l'accio de votar/desvotar el commentari/submission. Si l'usuari ja ha votat, l'API treu el vot, i si no ha votat, afegeix el vot
+    Post intenta votar i si ja ha votat o no pot, no fa res
+    Delete intenta desvotar, si no ha votat o no pot, no fa res
     També comprova que l'usuari no pugui votar el seu propi submission/commentari
+    
+ - Hem canviat algunes de les URLs per millorar el disseny
+   En particular, les URLs per votar i els commentaris sent: /comments/id/
