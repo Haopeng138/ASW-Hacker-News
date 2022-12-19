@@ -5,14 +5,11 @@ info:
   description:
     "This is the Open API documentation for the REST API of our beloved
     application **Hackernews** deployed at
-    <https://haopeng138.pythonanywhere.com/>. <br>
-    All operations are executable. Only one operation requires authentication: `deleteTweet`. In
-    this case, you must **Authorize** your request by providing the api_key
-    vaule you got when you created the tweet."
+    <https://haopeng138.pythonanywhere.com/>."
 servers:
   - url: "http://127.0.0.1:8000/api"
   - url: "https://haopeng138.pythonanywhere.com/api"
-  - url: 'https://MarcDuch.pythonanywhere.com/api'
+  - url: 'https://marcduch.pythonanywhere.com/api'
 
 paths:
 
@@ -104,7 +101,7 @@ paths:
                       type: string
                       example: 'j3jj0uLL.0PWhHAtOLkahO6Joq7ZZy9eMclUBkjzt'
           400:
-            description: Missing required fields
+            description: 'Error: Bad Request'
             content:
               application/json:
                 schema:
@@ -232,7 +229,7 @@ paths:
         - User
       summary: Delete user
       description: This can only be done by the logged user
-      operationId: update_user
+      operationId: delete_user
       security:
         - ApiKeyAuth: []
       parameters:
@@ -251,6 +248,9 @@ paths:
               example:
                 detail: "User has been deleted"
         401:
+          $ref: '#/components/responses/Unauthorized'
+          link: "http://127.0.0.1:8000/api"
+        405:
           description: "Error: Unauthorized"
           content:
             application/json:
@@ -412,7 +412,14 @@ paths:
           required: false
           schema:
             type: boolean
-
+        - name: type
+          in: query
+          description: Type of submissions to get
+          required: false
+          schema:
+            type: string
+            enum: ['ask', 'url', 'all']
+      
       responses:
         200:
           description: successful operation
@@ -509,7 +516,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
+                $ref: "#/components/schemas/Error"
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
@@ -544,7 +551,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
+                $ref: "#/components/schemas/Error"
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
@@ -573,7 +580,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
+                $ref: "#/components/schemas/Error"
               examples:
                 errorExample:
                   $ref: "#/components/examples/error404submssionid"
@@ -619,7 +626,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
+                $ref: "#/components/schemas/Error"
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
@@ -628,7 +635,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
+                $ref: "#/components/schemas/Error"
               examples:
                 errorExample:
                   $ref: "#/components/examples/error404submssionid"
@@ -697,7 +704,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResult'
+                $ref: '#/components/schemas/Error'
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400Submission"
@@ -723,7 +730,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
+                $ref: "#/components/schemas/Error"
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
@@ -749,7 +756,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
+                $ref: "#/components/schemas/Error"
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
@@ -772,7 +779,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
+                $ref: "#/components/schemas/Error"
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
@@ -797,7 +804,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResult"
+                $ref: "#/components/schemas/Error"
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
@@ -868,10 +875,8 @@ paths:
           description: Post voted/Unvoted successfully
 
 components:
-  #responses:
-  
-  schemas:
 
+  schemas:
     User:
       type: object
       properties:
@@ -959,64 +964,27 @@ components:
           format: int64
           example: 1
 
-    UpvotePost:
+    Error:
       type: object
       properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: 'Votado con existo'
-    UpvoteComment:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: 'Votado con existo'
-    UnvotePost:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: 'Has desvotado'
-    UnvoteComment:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: 'Has desvotado'
-    
-    ErrorResult:
-      type: object
-      properties:
-        status:
+        code:
           type: integer
-          enum: [400, 401, 403, 404, 409]
-        error:
+        detail:
           type: string
-          enum:
-            [
-              "Bad Request",
-              "Unauthorized",
-              "Forbidden",
-              "Not Found",
-              "Conflict",
-            ]
-        message:
-          type: string
+      required:
+        - code
+        - message
    
-
-
+  responses:
+    Unauthorized:
+      description: 'Error: Unauthorized'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    examples:
+      $ref: '#/components/examples/error401'
+      Unauthorized: 
   examples:
 
     error400:
@@ -1056,6 +1024,3 @@ components:
       type: apiKey
       in: header       # can be "header", "query" or "cookie"
       name: Authorization # name of the header, query parameter or cookie
-# 2) Apply the API key globally to all operations
-security:
-  - ApiKeyAuth: [] 

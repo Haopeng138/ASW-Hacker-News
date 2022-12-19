@@ -199,10 +199,17 @@ class submission_list(APIView):
         fields = get_fields_from_request(request)
         order_by = request.GET.get('order_by',None)
         ascending = string_to_bool(request.GET.get('ascending', 'false'))
+        type = request.GET.get('type','all').lower()
 
         submissions = order_query_set(Post.objects.all(), order_by, ascending)
         submissions = filter_by_id_from_request(request, submissions)
         
+        if (type == 'ask'):
+            submissions = submissions.filter(url=None)
+        elif(type == 'url'):
+            submissions = submissions.filter(text=None)
+        
+
         serializer = PostSerializer(submissions, fields=fields, many=True)
         return JsonResponse(serializer.data, safe=False)
 
