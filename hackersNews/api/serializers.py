@@ -36,7 +36,7 @@ class HNUserSerializer(DynamicFieldsModelSerializer):
 
     class Meta:
         model = HNUser
-        fields = ['id','username','email','karma', 'password', 'date_joined', 'about']
+        fields = ['id','username','email','karma', 'password', 'date_joined', 'about', 'key']
     
     def create(self, validated_data):
         username = validated_data.get('username')
