@@ -142,7 +142,7 @@ class Comment(models.Model):
     content = models.TextField(null=False)
     user = models.ForeignKey(to=HNUser, on_delete=models.CASCADE, null=False)
     post = models.ForeignKey(to=Post, on_delete=models.CASCADE, null=False)
-    reply = models.ForeignKey(to='self', on_delete=models.CASCADE, null=True)
+    reply = models.ForeignKey(to='self', related_name='replies', on_delete=models.CASCADE, null=True)
     
     @property
     def votes(self):
