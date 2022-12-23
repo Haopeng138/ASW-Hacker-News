@@ -69,10 +69,11 @@ class CommentSerializer(DynamicFieldsModelSerializer):
     content = serializers.CharField(allow_blank=False, required=True)
 
     replyTo = serializers.PrimaryKeyRelatedField(read_only=True, source='reply')
+    replies = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
 
     class Meta:
         model = Comment
-        fields = ['id','postID','user','insert_date', 'content', 'replyTo']
+        fields = ['id','postID','user','insert_date','time_from_post', 'content', 'replyTo', 'replies']
     
     def create(self, validated_data):
         return Comment.objects.create(**validated_data)
@@ -96,4 +97,4 @@ class PostSerializer(DynamicFieldsModelSerializer):
     
     class Meta:
         model = Post
-        fields = ['id','title', 'url', 'site', 'text', 'votes', 'user', 'insert_date', 'numComments','commentIDs']
+        fields = ['id','title', 'url', 'site', 'text', 'votes', 'user', 'insert_date', 'time_from_post', 'numComments','commentIDs']
