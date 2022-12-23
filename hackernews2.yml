@@ -745,10 +745,20 @@ paths:
     get:
       tags:
         - Comment
-      summary: Get Api-Key's user's comments
-      description: Returns all comments of the Api-Key user
-      security:
-        - ApiKeyAuth: []
+      summary: Get all comments
+      description: Returns all comments 
+      parameters:
+        - name: id
+          in: query
+          style: form
+          explode: false
+          required: false
+          description: Filter subset of id's to get
+          schema:
+            type: array
+            items:
+              type: integer
+
       responses:
         200:
           description: User's comments

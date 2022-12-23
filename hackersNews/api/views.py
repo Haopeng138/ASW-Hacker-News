@@ -481,12 +481,13 @@ class comment_detail(APIView):
         return JsonResponse({'detail': 'Comment has been deleted'}, status= status.HTTP_202_ACCEPTED)
 
 class comment_list(APIView):
-    permission_classes = [HasAPIKey]
+    permission_classes = []
     http_method_names = ['get']
 
     def get(self, request, format=None):
-        user = getUserFromRequest(request)
-        comments = Comment.objects.filter(user=user)
+        # user = getUserFromRequest(request)
+        # comments = Comment.objects.filter(user=user)
+        comments = filter_by_id_from_request(request,query_set=Comment.objects.all())
         serializer = CommentSerializer(comments, many=True)
 
         return JsonResponse(serializer.data,safe=False)
