@@ -48,7 +48,7 @@ def getUserFromRequest(request) -> HNUser:
     try:
         key = request.META["HTTP_AUTHORIZATION"].split()[1]
         return HNUser.objects.get(key=key)
-    except KeyError: 
+    except (KeyError, IndexError): 
         raise exceptions.NotAuthenticated(detail="Api-Key credentials were not provided.")
     except HNUser.DoesNotExist:
         raise exceptions.NotFound(detail="Api-Key has no user associated", code=status.HTTP_410_GONE)
@@ -274,10 +274,11 @@ class submission_comments(APIView):
     #    VOTE     #
 
 class submission_vote(APIView):
-    permission_classes = [HasAPIKey]
+    permission_classes = []
     http_method_names = ['get','put','post','delete']
 
     def canVote(self, user:HNUser, submission:Post) -> tuple [bool, str, int]:
+        print('Determining if ' + user.username + ' can vote ' + submission.title)
         if (submission.user == user): return False, 'Cannot vote own submission',status.HTTP_403_FORBIDDEN
         vote = PostVoteTracking.objects.filter(user=user).filter(post=submission)
         if (vote.count() == 0): return True, ('User %s no ha votado la submission %i' % (user.username, submission.id)), status.HTTP_202_ACCEPTED
@@ -307,7 +308,6 @@ class submission_vote(APIView):
     def put(self, request, id, format=None):
         submission = getSubmissionFromID(id)
         user = getUserFromRequest(request)
-
         canVote, message, code = self.canVote(user, submission)
 
         if (code == status.HTTP_202_ACCEPTED):
@@ -340,7 +340,6 @@ class submission_vote(APIView):
             return JsonResponse({'success' : True, 'upvote': False,'message':'Has desvotado la submission %i' % id}, status=status.HTTP_202_ACCEPTED)
         except:
             return JsonResponse({'success' : canVote, 'upvote': False, 'message':message}, status = code)        
-
 
 class comment_vote(APIView):
     permission_classes = [HasAPIKey]
@@ -446,7 +445,7 @@ def getPostFromComment(reply:Comment) -> Post:
 
 class comment_detail(APIView):
     permission_classes = [ApiKeyUserOrReadOnly]
-    http_method_names = ['get', 'post']
+    http_method_names = ['get', 'post','delete']
 
     def get(self, request, id, format=None):
         comment = getCommentFromID(id)
@@ -480,3 +479,14 @@ class comment_detail(APIView):
 
         comment.delete()
         return JsonResponse({'detail': 'Comment has been deleted'}, status= status.HTTP_202_ACCEPTED)
+
+class comment_list(APIView):
+    permission_classes = [HasAPIKey]
+    http_method_names = ['get']
+
+    def get(self, request, format=None):
+        user = getUserFromRequest(request)
+        comments = Comment.objects.filter(user=user)
+        serializer = CommentSerializer(comments, many=True)
+
+        return JsonResponse(serializer.data,safe=False)
