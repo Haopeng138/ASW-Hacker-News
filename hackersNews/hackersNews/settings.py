@@ -73,7 +73,8 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_WHITELIST = (
 'http://localhost:8000',  # for localhost (REACT Default)
-'http://192.168.10.45:3000', # for network
+'http://192.168.10.45:3000', # for network,
+'http://localhost:3000'
 )
 
 
@@ -221,21 +222,6 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 LOGIN_REDIRECT_URL = '/homepage'
 LOGOUT_REDIRECT_URL = '/homepage'
 
-"""
-# 'signup' duplicado, lo comento por ahora
-ACCOUNT_FORMS = { # Especificar forms personalizados
-    'add_email': 'allauth.account.forms.AddEmailForm',
-    'change_password': 'allauth.account.forms.ChangePasswordForm',
-    'disconnect': 'allauth.socialaccount.forms.DisconnectForm',
-    'login': 'allauth.account.forms.LoginForm',
-    'reset_password': 'allauth.account.forms.ResetPasswordForm',
-    'reset_password_from_key': 'allauth.account.forms.ResetPasswordKeyForm',
-    'set_password': 'allauth.account.forms.SetPasswordForm',
-    'signup': 'allauth.account.forms.SignupForm',
-    'signup': 'allauth.socialaccount.forms.SignupForm',
-}
-"""
-
 ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
 
 SOCIALACCOUNT_AUTO_SIGNUP = True  # DEF: True
@@ -260,12 +246,25 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_METHODS = (
+CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',
     'POST',
     'PUT',
-)
+    'OPTIONS',
+]
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 CSRF_TRUSTED_ORIGINS = ['https://*.herokuapp.com',
 'https://haopeng138.pythonanywhere.com/']
