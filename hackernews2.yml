@@ -556,159 +556,6 @@ paths:
                 errorExample:
                   $ref: "#/components/examples/error400content"
   
-  /submissions/{id}/comments:
-    get:
-      tags:
-        - Submission
-        - Comment
-      summary: Retrieve comments of a certain submission
-      description: Returns the comments of the specified submission
-      operationId: commentsSubmission
-      parameters:
-        - name: id
-          in: path
-          description: ID of the Submission
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        200:
-          description: successful operation         
-        404:
-          description: "Error: Not Found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                errorExample:
-                  $ref: "#/components/examples/error404submssionid"
-   
-    post:
-      tags:
-        - Comment
-      summary: Adds a new comment for the submission
-      description: Returns a single Submission
-      operationId: addComment
-      parameters:
-        - name: id
-          in: path
-          description: ID of the Submission
-          required: true
-          schema:
-            type: integer
-            format: int64
-      
-      requestBody:
-        description: Provide the content of the new comment
-        content:
-          application/json:
-            schema:
-              required:
-                - content
-              type: object
-              properties:
-                content:
-                  minLength: 1
-                  example: "This is a new comment"
-        required: true
-      
-      responses:
-        201:
-          description: Comment added successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Comment"
-        400:
-          description: "Error: Bad Request"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                errorExample:
-                  $ref: "#/components/examples/error400content"
-        404:
-          description: "Error: Not Found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              examples:
-                errorExample:
-                  $ref: "#/components/examples/error404submssionid"
-
-  /comments/{id}/:
-    get:
-      tags:
-        - Comment
-      summary: Retrieves a commet by it's ID.
-      operationId: GET_commentsReply
-      parameters:
-       - name: id
-         in: path
-         description: ID of the Comment
-         required: true
-         schema:
-          type: integer
-          format: int64
-      
-      responses:
-        200:
-          description: Obtained comment
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Comment'
-          
-    post:
-      tags:
-        - Comment
-      summary: Makes a reply to a comment.
-      description: Makes a reply comment to the specified comment.
-      operationId: commentsReply
-      parameters:
-       - name: id
-         in: path
-         description: ID of the Comment
-         required: true
-         schema:
-          type: integer
-          format: int64
-      
-      requestBody:
-        description: Provide the content of the new comment
-        content:
-          application/json:
-            schema:
-              required:
-                - content
-              type: object
-              properties:
-                content:
-                  minLength: 1
-                  example: "This is a new reply"
-        required: true
-      
-      responses:
-        201:
-          description: 'Created'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Comment'
-        400:
-          description: 'Error: Bad Request'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                errorExample:
-                  $ref: "#/components/examples/error400Submission"
-
   /submissions/{id}/vote:
     get:
       tags:
@@ -808,6 +655,178 @@ paths:
               examples:
                 errorExample:
                   $ref: "#/components/examples/error400content"
+
+  /submissions/{id}/comments:
+    get:
+      tags:
+        - Submission
+        - Comment
+      summary: Retrieve comments of a certain submission
+      description: Returns the comments of the specified submission
+      operationId: commentsSubmission
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Submission
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation         
+        404:
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error404submssionid"
+   
+    post:
+      tags:
+        - Comment
+      summary: Adds a new comment for the submission
+      description: Returns a single Submission
+      operationId: addComment
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Submission
+          required: true
+          schema:
+            type: integer
+            format: int64
+      
+      requestBody:
+        description: Provide the content of the new comment
+        content:
+          application/json:
+            schema:
+              required:
+                - content
+              type: object
+              properties:
+                content:
+                  minLength: 1
+                  example: "This is a new comment"
+        required: true
+      
+      responses:
+        201:
+          description: Comment added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        400:
+          description: "Error: Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error400content"
+        404:
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error404submssionid"
+
+
+  /comments/:
+    get:
+      tags:
+        - Comment
+      summary: Get Api-Key's user's comments
+      description: Returns all comments of the Api-Key user
+      security:
+        - ApiKeyAuth: []
+      responses:
+        200:
+          description: User's comments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        403:
+          description: "Error: Forbidden"
+          
+  /comments/{id}/:
+    get:
+      tags:
+        - Comment
+      summary: Retrieves a commet by it's ID.
+      operationId: GET_commentsReply
+      parameters:
+       - name: id
+         in: path
+         description: ID of the Comment
+         required: true
+         schema:
+          type: integer
+          format: int64
+      
+      responses:
+        200:
+          description: Obtained comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          
+    post:
+      tags:
+        - Comment
+      summary: Makes a reply to a comment.
+      description: Makes a reply comment to the specified comment.
+      operationId: commentsReply
+      parameters:
+       - name: id
+         in: path
+         description: ID of the Comment
+         required: true
+         schema:
+          type: integer
+          format: int64
+      
+      requestBody:
+        description: Provide the content of the new comment
+        content:
+          application/json:
+            schema:
+              required:
+                - content
+              type: object
+              properties:
+                content:
+                  minLength: 1
+                  example: "This is a new reply"
+        required: true
+      
+      responses:
+        201:
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        400:
+          description: 'Error: Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                errorExample:
+                  $ref: "#/components/examples/error400Submission"
 
   /comments/{id}/vote:
     get:

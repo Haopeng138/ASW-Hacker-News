@@ -20,6 +20,8 @@ Canvis que hem hagut de fer a la API:
     Post intenta votar i si ja ha votat o no pot, no fa res
     Delete intenta desvotar, si no ha votat o no pot, no fa res
     També comprova que l'usuari no pugui votar el seu propi submission/commentari
-    
  - Hem canviat algunes de les URLs per millorar el disseny
-   En particular, les URLs per votar i els commentaris sent: /comments/id/
+   En particular, les URLs per votar (/submissions/id/vote/ /comments/id/vote)
+   I els commentaris sent: /comments/id/
+ - Hem afegit GET /comments/
+   Retorna els commentaris de l'usuari associat a l'api key
